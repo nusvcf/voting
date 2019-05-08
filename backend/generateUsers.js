@@ -23,6 +23,13 @@ function getUniqueString(usedStrings) {
     return randString;
 }
 
+//Returns a padded string of zeros from an input value
+//https://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
+function getPaddedString(val, width) {
+    val = val + "";
+    return val.length >= width ? val : new Array(width - val.length + 1).join('0') + val;
+}
+
 function main() {
     //Error checking
     let PROGRAM_USAGE = "Usage of program: node generateUsers.js [number of users to generate]";
@@ -39,11 +46,12 @@ function main() {
     //Generate users and passwords
     let result = {};
     let usedStrings = {};
+    let counter = 1;
     for(let i = 0;i < numPeople; i++) {
-        let randStringUser, randStringPass;
-        randStringUser = getUniqueString(usedStrings);
+        let stringUser, randStringPass;
+        stringUser = getPaddedString(counter++, 4); //4 here because we do not need > 9999 users.
         randStringPass = getUniqueString(usedStrings);
-        result[randStringUser] = randStringPass;
+        result[stringUser] = randStringPass;
     }
     
     //output as json file
@@ -57,4 +65,5 @@ main();
 
 exports.getUniqueString = getUniqueString;
 exports.generateStr = generateStr;
+exports.getPaddedString = getPaddedString;
 

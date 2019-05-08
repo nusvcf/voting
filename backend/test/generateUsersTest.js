@@ -23,4 +23,16 @@ describe("#generateUsers", function() {
         let str = test.getUniqueString(usedStrings);
         expect(usedStrings[str]).to.be.true;
     });
+    it("getPaddedString() should return 0000 with value 0 and width 4", function() {
+        let str = test.getPaddedString(0, 4);
+        expect(str).to.be.equals("0000");
+    });
+    it("getPaddedString() should return 150 with value 150 and width 1 ", function() {
+        let str = test.getPaddedString(150, 1);
+        expect(str).to.be.equals("150");
+    });
+    it("getPaddedString() should return 099 with value 99 and width 3", function() {
+        let str = test.getPaddedString(0, 4);
+        expect(str).to.be.equals("0000");
+    });
 });
