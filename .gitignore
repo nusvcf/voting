@@ -62,5 +62,10 @@ typings/
 # next.js build output
 .next
 
-#back end user.json
-./backend/users.json
+#back end stuff
+backend/users.json
+backend/run_server.bat
+
+#front end stuff
+frontend/start.bat
+frontend/run.bat

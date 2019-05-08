@@ -1,12 +1,12 @@
 "use strict";
 const fs = require("fs");
 
-//Generates a string of length 10 randomly
+//Generates a string of length 8-10 randomly
 function generateStr() {
     let output = "";
     let characters = "ABCDEFGHIJKMNPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz23456789_?/\!@#$";
     let charLength = characters.length;
-    let length = Math.floor(Math.random() * 3) + 8; //Get a value between 8 and 11 
+    let length = Math.floor(Math.random() * 3) + 8; //Get a value between 8 and 10 
     for(let i = 0;i < length; i++) {
         output += characters.charAt(Math.floor(Math.random() * charLength));
     }
@@ -54,4 +54,7 @@ function main() {
 }
 
 main();
+
+exports.getUniqueString = getUniqueString;
+exports.generateStr = generateStr;
 
