@@ -4,7 +4,7 @@ const fs = require("fs");
 //Generates a string of length 10 randomly
 function generateStr() {
     let output = "";
-    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_?/\!@#$";
+    let characters = "ABCDEFGHIJKMNPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz23456789_?/\!@#$";
     let charLength = characters.length;
     let length = Math.floor(Math.random() * 3) + 8; //Get a value between 8 and 11 
     for(let i = 0;i < length; i++) {
