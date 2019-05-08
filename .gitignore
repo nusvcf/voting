@@ -34,6 +34,8 @@ build/Release
 
 # Dependency directories
 node_modules/
+./frontend/node_modules/
+./backend/node_modules/
 jspm_packages/
 
 # TypeScript v1 declaration files
@@ -59,3 +61,11 @@ typings/
 
 # next.js build output
 .next
+
+#back end stuff
+backend/users.json
+backend/run_server.bat
+
+#front end stuff
+frontend/start.bat
+frontend/run.bat
