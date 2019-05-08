@@ -1,26 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import WebFont from "webfontloader";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import './styles/App.scss';
+
+import LoginForm from './components/LoginForm';
+import AdminDashboard from './components/AdminDashboard';
+import UserDashboard from './components/UserDashboard';
+
+class App extends Component {
+  constructor() {
+    super()
+
+    WebFont.load({
+      google: {
+        families: ["Karla:400,700"]
+      }
+    });
+
+    this.state = {
+      loggedIn: true,
+      userType: 'admin'
+    }
+  }
+
+  render() {
+    return (
+      <div className="App" >
+        {!this.state.loggedIn && <LoginForm />}
+        {this.state.loggedIn && this.state.userType === 'admin' && <AdminDashboard />}
+        {this.state.loggedIn && this.state.userType === 'user' && <UserDashboard />}
+      </div>
+    );
+  }
 }
 
 export default App;
