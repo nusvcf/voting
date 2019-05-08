@@ -8,9 +8,7 @@ describe("#generateUsers", function() {
     });
     it("getUniqueStr() should generate a string", function() {
         let usedStrings = {}
-        let beforeCount = Object.keys(usedStrings).length;
         let str = test.getUniqueString(usedStrings);
-        let afterCount = Object.keys(usedStrings).length;
         expect(typeof(str)).to.be.equals("string");
     });
     it("getUniqueStr() should add the string to usedStrings object", function() {
@@ -22,9 +20,7 @@ describe("#generateUsers", function() {
     });
     it("getUniqueStr() should pair the string with \"true\" in usedStrings object", function() {
         let usedStrings = {}
-        let beforeCount = Object.keys(usedStrings).length;
         let str = test.getUniqueString(usedStrings);
-        let afterCount = Object.keys(usedStrings).length;
         expect(usedStrings[str]).to.be.true;
     });
 });
