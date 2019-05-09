@@ -51,6 +51,12 @@ function isLoggedIn(req, res, next) {
     }
 }
 
+//Function to use application/json headers
+function sendJson(req, res, next) {
+    res.setHeader("Content-Type", "application/json");
+    next();
+}
+
 //Set up express
 const app = express();
 const port = 8080;
@@ -63,9 +69,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(bodyParser.json());
+app.use(sendJson);
 
 //Log in authentication
 app.post("/login", (req, res, next) => {
+    console.log(req.body);
     passport.authenticate("local_login", (err, user, info) => {
         if(info)
             return res.json({success: false, message: info.message});

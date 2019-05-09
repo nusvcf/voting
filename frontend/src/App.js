@@ -18,7 +18,7 @@ class App extends Component {
     });
 
     this.state = {
-      loggedIn: true,
+      loggedIn: false,
       userType: 'admin'
     }
   }
