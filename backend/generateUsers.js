@@ -30,29 +30,41 @@ function getPaddedString(val, width) {
     return val.length >= width ? val : new Array(width - val.length + 1).join('0') + val;
 }
 
-function main() {
-    //Error checking
-    let PROGRAM_USAGE = "Usage of program: node generateUsers.js [number of users to generate]";
-    if(process.argv.length != 3) {
-        console.log(PROGRAM_USAGE);
-        return;
+//Checks if argv is of length 3, and extracts numPeople
+function checkArgv(argv) {
+    if(argv.length != 3) {
+        return -1;
     }
-    let numPeople = parseInt(process.argv[2]);
-    if(isNaN(numPeople)) {
-        console.log(PROGRAM_USAGE);
-        return; 
+    let numPeople = parseInt(argv[2]);
+    if(isNaN(numPeople) || numPeople < 1) {
+        return -1; 
     }
+    return numPeople;
+}
 
-    //Generate users and passwords
+//Generate output object
+function generateOutput(numPeople) {
     let result = {};
     let usedStrings = {};
-    let counter = 1;
     for(let i = 0;i < numPeople; i++) {
         let stringUser, randStringPass;
-        stringUser = getPaddedString(counter++, 4); //4 here because we do not need > 9999 users.
+        stringUser = getPaddedString(i, 4); //4 here because we do not need > 9999 users.
         randStringPass = getUniqueString(usedStrings);
         result[stringUser] = randStringPass;
     }
+    return result;   
+}
+
+function main() {
+    //Check argv
+    const PROGRAM_USAGE = "Usage of program: node generateUsers.js [number of users to generate]";
+    const numPeople = checkArgv(process.argv);
+    if(numPeople == -1) {
+        console.log(PROGRAM_USAGE);
+        return;
+    }
+    //Generate users and passwords
+    const result = generateOutput(numPeople);
     
     //output as json file
     fs.writeFileSync("users.json", JSON.stringify(result), (err) => {
@@ -63,7 +75,8 @@ function main() {
 
 main();
 
+exports.checkArgv = checkArgv;
+exports.generateOutput = generateOutput;
 exports.getUniqueString = getUniqueString;
 exports.generateStr = generateStr;
 exports.getPaddedString = getPaddedString;
-
