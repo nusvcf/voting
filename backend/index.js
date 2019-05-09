@@ -28,11 +28,30 @@ passport.use("local_login", new LocalStrategy(
         }
     }
 ));
+
+//How serialisation and deserialisation works
+//https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize?answertab=votes#tab-top
 passport.serializeUser((user, done) => {
     done(null, user.username);
-})
+});
+passport.deserializeUser(function(username, done) {
+    let user = {
+        username: username,
+        password: users[username]
+    };
+    done(null, user);
+});
 
-//set up express
+//Function to check if logged in
+function isLoggedIn(req, res, next) {
+    if(req.user) {
+        next();
+    } else {
+        res.status(401).json({error: "Not authorised"});
+    }
+}
+
+//Set up express
 const app = express();
 const port = 8080;
 app.use(session({
@@ -46,8 +65,22 @@ app.use(passport.session());
 app.use(bodyParser.json());
 
 //Log in authentication
-app.post("/login", passport.authenticate("local_login"), (req, res) => {
-    res.send("authenticated :)\n"); //sends if authenticated
+app.post("/login", (req, res, next) => {
+    passport.authenticate("local_login", (err, user, info) => {
+        if(info)
+            return res.json({success: false, message: info.message});
+        if(err) 
+            return next(err)
+        if(!user) 
+            return res.json({success: false});
+
+        //Log user in if no errors
+        req.login(user, (err) => {
+            if(err) 
+                return next(err);
+            return res.json({success: true});
+        });
+    })(req, res, next);
 });
 
 app.listen(port, () => {
