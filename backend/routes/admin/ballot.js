@@ -32,7 +32,7 @@ router.route("/ballots/:id")
             res.json({success: false});
             return;
         }
-        req.app.locals.ballot[idx].isValid = false;
+        req.app.locals.ballots[idx].isValid = false;
         res.json({success: true});
     })
     .post(checkIsAdmin, (req, res) => { //Closes ballot
@@ -42,7 +42,7 @@ router.route("/ballots/:id")
             res.json({success: false});
             return;
         }
-        req.app.locals.ballot[idx].isClosed = true;
+        req.app.locals.ballots[idx].isOpen = false;
         res.json({success: true});
     });
 

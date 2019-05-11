@@ -49,16 +49,6 @@ print("GET from /admin/ballots/" + ballotId)
 r = session.get(url = url + "/admin/ballots/" + ballotId)
 print(r.content, end="\n\n")
 
-#GET from /admin/ballots/id
-data = {
-    "position": "Treasurer",
-    "names": ["Xiao Ming", "Xiao Bai", "Andy Tan"],
-    "maxVotes": 1 }
-r = session.post(url = url + "/admin/ballots", json = data)
-print("GET from /admin/ballots/")
-r = session.get(url = url + "/admin/ballots")
-print(json.loads(r.content), end="\n\n")
-
 #GET from /user/ballot
 print("GET from /user/ballot")
 r = session.get(url = url + "/user/ballot")
@@ -72,7 +62,7 @@ r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
 print(r.content, end="\n\n")
 
 #POST wrong names to /user/ballot/id
-print("POST to /user/ballot/" + ballotId)
+print("POST wrong names to /user/ballot/" + ballotId)
 data = {"names": ["Definitely not inside"]}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
 print(r.content, end="\n\n")
@@ -91,6 +81,58 @@ print(r.content, end="\n\n")
 
 #POST within allowed limits to /user/ballot/id a 2nd time
 print("POST within allowed limits to /user/ballot/{} a 2nd time".format(ballotId))
+data = {"names": ["Xiao Ming"]}
+r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+#POST to /admin/ballots/id to close ballot
+print("POST to /admin/ballots/{} to close ballot".format(ballotId))
+data = {"id": ballotId}
+r = session.post(url = url + "/admin/ballots/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+#GET from /user/ballot, should return with nothing as ballot has been closed
+print("GET from /user/ballot, should return with nothing as ballot has been closed")
+r = session.get(url = url + "/user/ballot")
+print(r.content, end="\n\n")
+
+#POST within allowed limits to /user/ballot/id, should fail because closed has been closed
+print("POST within allowed limits to /user/ballot/{}, should fail because ballot has been closed".format(ballotId))
+data = {"names": ["Xiao Ming"]}
+r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+print("Starting a new ballot...")
+data = {
+    "position": "Chairman",
+    "names": ["Xiao Ming", "Xiao Bai", "Andy Tan"],
+    "maxVotes": 1 }
+r = session.post(url = url + "/admin/ballots", json = data)
+ballotId = json.loads(r.content)["id"]
+
+#GET from /admin/ballots, should have 2 in total
+print("GET from /admin/ballots, should have 2 in total now")
+r = session.get(url = url + "/admin/ballots")
+print(r.content, end="\n\n")
+
+#POST within allowed limits to /user/ballot/id
+print("POST within allowed limits to /user/ballot/" + ballotId)
+data = {"names": ["Xiao Ming"]}
+r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+#DELETE from /admin/ballots/id to invalidate vote
+print("DELETE from /admin/ballots/{} to invalidate vote".format(ballotId))
+r = session.delete(url = url + "/admin/ballots/" + ballotId)
+print(r.content, end="\n\n")
+
+#GET from /user/ballot, should return with nothing as ballot has been invalidated
+print("GET from /user/ballot, should return with nothing as ballot has been invalidated")
+r = session.get(url = url + "/user/ballot")
+print(r.content, end="\n\n")
+
+#POST within allowed limits to /user/ballot/id, should fail because closed has been invalidated
+print("POST within allowed limits to /user/ballot/{}, should fail because ballot has been invalidated".format(ballotId))
 data = {"names": ["Xiao Ming"]}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
 print(r.content, end="\n\n")

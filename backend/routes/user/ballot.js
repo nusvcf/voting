@@ -31,6 +31,10 @@ router.route("/ballot/:id")
                 valid = false;
             }
         }
+        //Check if ballot is invalidated or closed
+        if(!ballot.isOpen || !ballot.isValid) {
+            valid = false;
+        }
         //Check if user is submitting more names than allowed
         if(names.length > ballot.maxVotes) {
             valid = false;
