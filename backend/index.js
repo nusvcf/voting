@@ -6,9 +6,10 @@ const express = require("express");
 const session = require("express-session");
 const uuid = require("uuid/v4");
 const bodyParser = require("body-parser");
+const Vote = require("./classes/Vote");
 
 //Variables
-
+let ballots = {};
 
 //Load users.json
 const users = JSON.parse(fs.readFileSync("users.json"));
@@ -57,10 +58,25 @@ app.route("/login")
 
 app.route("/admin/ballots")
     .post(checkIsAdmin, (req, res) => {
+        let valid = true;
         const position = req.body.position;
         const names = req.body.names;
-        const maxVotes = req.body.maxVotes;
-        
+        const maxVotes = parseInt(req.body.maxVotes);
+        //Error checking
+        if(typeof(position) !== "string" || Array.isArray(names) !== true || isNaN(maxVotes) === true) {
+            valid = false;
+        }
+        if(!valid) {
+            res.json({success: false});
+            return;
+        }
+        const vote = Vote(position, names, maxVotes);
+        let id;
+        do { //make sure no collisions
+            id = uuid();
+        } while(ballots.hasOwnProperty(id));
+        ballots[id] = vote;
+        res.json({success: true});
     })
     .get(checkIsAdmin, (req, res) => {
 
