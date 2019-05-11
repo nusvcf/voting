@@ -47,12 +47,14 @@ function generateOutput(numPeople) {
     let result = {};
     let usedStrings = {};
     for(let i = 0;i < numPeople; i++) {
-        let stringUser, randStringPass;
+        let stringUser, randStringPass, randUserId;
         stringUser = getPaddedString(i, 4); //4 here because we do not need > 9999 users.
+        randUserId = getUniqueString(usedStrings);
         randStringPass = getUniqueString(usedStrings);
-        result[stringUser] = randStringPass;
+        result[stringUser] = {id: randUserId, password: randStringPass};
     }
-    return result;   
+    result["admin"] = {id: getUniqueString(usedStrings), password: getUniqueString(usedStrings)}
+    return result;
 }
 
 function main() {
@@ -65,7 +67,7 @@ function main() {
     }
     //Generate users and passwords
     const result = generateOutput(numPeople);
-    
+
     //output as json file
     fs.writeFileSync("users.json", JSON.stringify(result), (err) => {
         if(err) console.log(err);
