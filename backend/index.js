@@ -9,7 +9,9 @@ const bodyParser = require("body-parser");
 const Vote = require("./classes/Vote");
 
 //Variables
-let ballots = {};
+let ballots = [];
+let idToBallotIndex = {};
+let numBallots = 0;
 
 //Load users.json
 const users = JSON.parse(fs.readFileSync("users.json"));
@@ -63,19 +65,20 @@ app.route("/admin/ballots")
         const names = req.body.names;
         const maxVotes = parseInt(req.body.maxVotes);
         //Error checking
-        if(typeof(position) !== "string" || Array.isArray(names) !== true || isNaN(maxVotes) === true) {
+        if(typeof(position) !== "string" || !Array.isArray(names) || isNaN(maxVotes)) {
             valid = false;
         }
         if(!valid) {
             res.json({success: false});
             return;
         }
-        const vote = Vote(position, names, maxVotes);
         let id;
         do { //make sure no collisions
             id = uuid();
         } while(ballots.hasOwnProperty(id));
-        ballots[id] = vote;
+        const vote = Vote(id, position, names, maxVotes);
+        idToBallotIndex[id] = numBallots++;
+        ballots.push(vote);
         res.json({success: true});
     })
     .get(checkIsAdmin, (req, res) => {
