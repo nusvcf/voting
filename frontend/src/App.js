@@ -23,10 +23,17 @@ class App extends Component {
     }
   }
 
+  login = (userType) => {
+    this.setState({
+      loggedIn: true, 
+      userType: userType, 
+    })
+  }
+
   render() {
     return (
       <div className="App" >
-        {!this.state.loggedIn && <LoginForm />}
+        {!this.state.loggedIn && <LoginForm login={this.login} />}
         {this.state.loggedIn && this.state.userType === 'admin' && <AdminDashboard />}
         {this.state.loggedIn && this.state.userType === 'user' && <UserDashboard />}
       </div>

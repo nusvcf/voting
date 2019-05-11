@@ -24,6 +24,7 @@ class LoginForm extends Component {
 
     //incomplete
     handleSubmit(event) {
+        event.preventDefault();
         console.log("Sending");
         fetch("/login", {
             method: "POST",
@@ -37,23 +38,29 @@ class LoginForm extends Component {
             credentials: "same-origin"
         })
         .then(data => {return data.json()})
-        .then(dataJson => console.log(dataJson));
+        .then(dataJson => {
+            if (dataJson.success) {
+                this.props.login('admin')
+            } else {
+                // Show error message
+            }
+        });
     }
 
     render() {
         return (
-            <div id='login-form'>
+            <form id='login-form' onSubmit={this.handleSubmit}>
                 <img src={logo} className='logo' alt='logo' />
                 <div className='input-group'>
-                    <label for=''>Username</label>
+                    <label htmlFor=''>Username</label>
                     <input type='text' value = {this.state.username} onChange = {this.handleUsernameChange}/>
                 </div>
                 <div className='input-group'>
-                    <label for=''>Password</label>
+                    <label htmlFor=''>Password</label>
                     <input type='password' value = {this.state.password} onChange = {this.handlePasswordChange}/>
                 </div>
-                <input type='submit' value='Login' onClick = {this.handleSubmit} />
-            </div>
+                <input type='submit' value='Login' />
+            </form>
         )
     }
 }
