@@ -58,3 +58,39 @@ r = session.post(url = url + "/admin/ballots", json = data)
 print("GET from /admin/ballots/")
 r = session.get(url = url + "/admin/ballots")
 print(json.loads(r.content), end="\n\n")
+
+#GET from /user/ballot
+print("GET from /user/ballot")
+r = session.get(url = url + "/user/ballot")
+print(r.content, end="\n\n")
+
+#POST a string to /user/ballot/id
+ballotId = json.loads(r.content)["id"]
+print("POST a string to /user/ballot/" + ballotId)
+data = {"names": "I am a string!"}
+r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+#POST wrong names to /user/ballot/id
+print("POST to /user/ballot/" + ballotId)
+data = {"names": ["Definitely not inside"]}
+r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+#POST more names than allowed to /user/ballot/id
+print("POST more names than allowed to /user/ballot/" + ballotId)
+data = {"names": ["Xiao Ming", "Xiao Bai"]}
+r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+#POST within allowed limits to /user/ballot/id
+print("POST within allowed limits to /user/ballot/" + ballotId)
+data = {"names": ["Xiao Ming"]}
+r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+#POST within allowed limits to /user/ballot/id a 2nd time
+print("POST within allowed limits to /user/ballot/{} a 2nd time".format(ballotId))
+data = {"names": ["Xiao Ming"]}
+r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")

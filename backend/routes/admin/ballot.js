@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Ballot = require("../../classes/Ballot");
 const uuid = require("uuid/v4");
+const checkId = require("../checkId");
 
 //Function to check if admin
 function checkIsAdmin(req, res, next) {
@@ -10,14 +11,6 @@ function checkIsAdmin(req, res, next) {
     } else {
         next();
     }
-}
-
-//Function to check if id is valid & return index, if valid. if not return -1
-function checkId(idToBallotIndex, id) {
-    if(!idToBallotIndex.hasOwnProperty(id)) { //not a valid id
-        return -1;
-    }
-    return idToBallotIndex[id];
 }
 
 router.route("/ballots/:id")
@@ -72,7 +65,7 @@ router.route("/ballots")
         let id;
         do { //make sure no collisions
             id = uuid();
-        } while(req.app.locals.ballots.hasOwnProperty(id));
+        } while(req.app.locals.idToBallotIndex.hasOwnProperty(id));
         const ballot = new Ballot(id, position, names, maxVotes);
         req.app.locals.idToBallotIndex[id] = req.app.locals.numBallots++;
         req.app.locals.ballots.push(ballot);

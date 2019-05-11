@@ -6,15 +6,15 @@ class Ballot {
         this.namesInBallot = this.generateNamesInBallot(names);
         this.maxVotes = maxVotes;
         this.isValid = true;
-        this.isClosed = false;
+        this.isOpen = true;
+        this.submittedUsers = {};
     }
 
     //Generates an object that stores the count, and the ids of who voted
     generateNamesInBallot(names) {
         let output = {};
-        const voter = {count: 0, voters: []};
         for(let i = 0;i < names.length;i++) {
-            output[names[i]] = voter;
+            output[names[i]] = {count: 0, voters: []};
         }
         return output;
     }
@@ -24,6 +24,10 @@ class Ballot {
         return this.namesInBallot.hasOwnProperty(name);
     }
 
+    //Checks if a user has submitted once already
+    userHasSubmitted(id) {
+        return this.submittedUsers.hasOwnProperty(id);
+    }
 }
 
 module.exports = Ballot;
