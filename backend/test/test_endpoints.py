@@ -55,7 +55,6 @@ r = session.get(url = url + "/user/ballot")
 print(r.content, end="\n\n")
 
 #POST a string to /user/ballot/id
-ballotId = json.loads(r.content)["id"]
 print("POST a string to /user/ballot/" + ballotId)
 data = {"names": "I am a string!"}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)

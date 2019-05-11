@@ -27,7 +27,7 @@ router.route("/ballot/:id")
         let valid = true;
         //Check if names submitted belongs in vote
         for(let i = 0;i < names.length;i++) {
-            if(!ballot.isNameInVote(names[i])) {
+            if(!ballot.isNameInBallot(names[i])) {
                 valid = false;
             }
         }

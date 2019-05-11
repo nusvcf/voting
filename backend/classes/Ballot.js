@@ -20,7 +20,7 @@ class Ballot {
     }
 
     //Checks if the name specified is indeed in this vote
-    isNameInVote(name) {
+    isNameInBallot(name) {
         return this.namesInBallot.hasOwnProperty(name);
     }
 
