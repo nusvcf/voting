@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Vote = require("../../classes/Vote");
+const Ballot = require("../../classes/Ballot");
 const uuid = require("uuid/v4");
 
 //Function to check if admin
@@ -28,6 +28,8 @@ router.route("/ballots/:id")
             res.json({success: false});
             return;
         }
+        const ballot = req.app.locals.ballots[idx];
+        res.json(ballot.namesInBallot);
 
     })
     .delete(checkIsAdmin, (req, res) => { //invalidate a ballot
@@ -58,24 +60,26 @@ router.route("/ballots")
         const names = req.body.names;
         const maxVotes = parseInt(req.body.maxVotes);
         //Error checking
-        if(typeof(position) !== "string" || !Array.isArray(names) || isNaN(maxVotes)) {
+        if(typeof(position) !== "string" || !Array.isArray(names) || isNaN(maxVotes) || maxVotes < 0) {
             valid = false;
         }
         if(!valid) {
             res.json({success: false});
             return;
         }
+
+        //Create vote
         let id;
         do { //make sure no collisions
             id = uuid();
         } while(req.app.locals.ballots.hasOwnProperty(id));
-        const vote = new Vote(id, position, names, maxVotes);
+        const ballot = new Ballot(id, position, names, maxVotes);
         req.app.locals.idToBallotIndex[id] = req.app.locals.numBallots++;
-        req.app.locals.ballots.push(vote);
-        res.json({success: true});
+        req.app.locals.ballots.push(ballot);
+        res.json({success: true, id: id});
     })
     .get(checkIsAdmin, (req, res) => { //Get ballot details
-        res.send("HELLO");
+        res.json(req.app.locals.ballots);
     });
 
 module.exports = router;
