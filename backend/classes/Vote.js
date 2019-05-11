@@ -6,5 +6,6 @@ module.exports = class Vote {
         this.maxVotes = maxVotes;
         this.voters = [];
         this.isValid = true;
+        this.isClosed = false;
     }
 };
