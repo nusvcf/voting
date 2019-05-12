@@ -7,6 +7,7 @@ const session = require("express-session");
 const MemoryStore = require("memorystore")(session)
 const uuid = require("uuid/v4");
 const bodyParser = require("body-parser");
+const helmet = require("helmet");
 
 //Load users.json
 const users = JSON.parse(fs.readFileSync("users.json"));
@@ -34,6 +35,7 @@ app.use(session({ //session cookie settings
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true}));
+app.use(helmet());
 
 //Log in route
 app.use("/login", require("./routes/login")(users));
