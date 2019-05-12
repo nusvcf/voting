@@ -4,6 +4,7 @@ require("dotenv").config();
 const fs = require("fs");
 const express = require("express");
 const session = require("express-session");
+const MemoryStore = require("memorystore")(session)
 const uuid = require("uuid/v4");
 const bodyParser = require("body-parser");
 
@@ -24,8 +25,11 @@ app.use(session({ //session cookie settings
     genid: () => {return uuid()},
     resave: false,
     saveUninitialized: true,
+    store: new MemoryStore({
+        checkPeriod: 600000
+    }),
     cookie: {
-        expires: 600000
+        expires: 1800000 //30 minutes
     }
 }));
 app.use(bodyParser.json());
