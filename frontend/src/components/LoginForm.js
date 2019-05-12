@@ -25,7 +25,6 @@ class LoginForm extends Component {
     //incomplete
     handleSubmit(event) {
         event.preventDefault();
-        console.log("Sending");
         fetch("/login", {
             method: "POST",
             headers: {
@@ -43,6 +42,7 @@ class LoginForm extends Component {
                 this.props.login('admin')
             } else {
                 // Show error message
+                this.props.setError("Could not log you in. Please try again.")
             }
         });
     }

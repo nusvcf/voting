@@ -10,7 +10,8 @@ html {
 body,
 html,
 input,
-button {
+button, 
+select {
     font-family: "Karla";
 }
 
@@ -30,11 +31,18 @@ button {
     }
 
     input[type="text"],
-    input[type="password"] {
-        padding: 8px;
+    input[type="password"], 
+    select {
+        font-size: 14px;
+        padding: 10px;
         border: 0;
         border-bottom: 3px solid $grey-2;
+        flex: 1;
     }
+}
+
+.input-group-row {
+    flex-direction: row;
 }
 
 button,
