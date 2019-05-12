@@ -25,6 +25,7 @@
     "helmet": "^3.18.0",
     "memorystore": "^1.6.1",
     "npm": "^6.9.0",
+    "prompt": "^1.0.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

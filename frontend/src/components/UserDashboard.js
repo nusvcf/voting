@@ -110,7 +110,7 @@ class UserDashboard extends Component {
 			for (let i = 0; i < this.state.names.length; i++) {
 				selected[this.state.names[i]] = !e.target.checked;
 			}
-		} else if (e.target.checked && name == abstain_text) {
+		} else if (e.target.checked && name === abstain_text) {
             selected['No Confidence'] = false;
 			selected['Abstain'] = true;
 			for (let i = 0; i < this.state.names.length; i++) {

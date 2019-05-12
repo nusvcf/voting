@@ -51,7 +51,7 @@ class Ballot {
      */
     submitVote(id, names) {
         let length = names.length;
-        if(length === 0) {
+        if(length === 0 || (length === 1 && names[0] === "Abstained")) {
             this.submittedUsers[id] = {votedFor: [], status: "Abstained"};
         } else if(length === 1 && names[0] === "No Confidence") {
             this.submittedUsers[id] = {votedFor: [], status: "No Confidence"};

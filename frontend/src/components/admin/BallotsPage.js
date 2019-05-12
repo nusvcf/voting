@@ -2,27 +2,38 @@ import React, { Component } from 'react';
 import BallotModal from '../modals/BallotModal';
 
 class BallotRow extends Component {
+
+	closeBallot = () => {
+		console.log(this.props.ballot.id)
+		fetch('/admin/ballots/' + this.props.ballot.id, {
+			method: 'POST'
+		}).then(()=> {
+			this.props.fetchData();
+		})
+	}
+
 	render() {
 		let ballot = this.props.ballot;
 		let btns = [];
+		let status = '';
 
-		switch (ballot.status) {
-			case 'Completed':
-				btns = [
-					<button key={'res'}>Results</button>,
-					<button key={'inv'} className="btn-secondary">
-						Invalidate
-					</button>
-				];
-				break;
-			case 'Ongoing':
-				btns = [ <button key={'close'}>Close Ballot</button> ];
-				break;
+		if (ballot.isOpen) {
+			status = 'Ongoing'
+			btns = [ <button key={'close'} onClick={this.closeBallot}>Close Ballot</button> ];
+		} else {
+			status = 'Completed';
+			// Closed
+			btns = [
+				<button key={'res'}>Results</button>,
+				<button key={'inv'} className="btn-secondary">
+					Invalidate
+				</button>
+			];
 		}
 
 		let names = ballot.names.map((item, i) => (
 			<li key={i}>
-				{item[0]} <span className="percent-voted">({item[1].toFixed(2)}%)</span>
+				{item.name} <span className="percent-voted">({item.percentageVotes.toFixed(2)}%)</span>
 			</li>
 		));
 
@@ -33,11 +44,11 @@ class BallotRow extends Component {
 				<td>
 					<ul>{names}</ul>
 				</td>
-				<td>{ballot.max_votes}</td>
+				<td>{ballot.maxVotes}</td>
 				<td>
-					<span className={'status-' + ballot.status.replace(' ', '-').toLowerCase()}>{ballot.status}</span>
+					<span className={'status-' + status.toLowerCase()}>{status}</span>
 					<br />
-					<span className="percent-voted">{ballot.percent_vote.toFixed(2)}% voted</span>
+					<span className="percent-voted">{ballot.percentageVotes.toFixed(2)}% voted</span>
 				</td>
 				<td className="tbl-btns">{btns}</td>
 			</tr>
@@ -50,34 +61,18 @@ class BallotsPage extends Component {
 		super();
 		this.state = {
 			showModal: false,
-			ballots: [
-				{
-					id: '001',
-					position: 'President',
-					names: [ [ 'Joshua Xie', 89.737 ] ],
-					max_votes: 1,
-					status: 'Completed',
-					percent_vote: 76.47
-				},
-				{
-					id: '002',
-					position: 'Outreach Coordinator',
-					names: [ [ 'Winfred Tan', 64.489 ], [ 'Bertram Tan', 64.859 ] ],
-					max_votes: 2,
-					status: 'Completed',
-					percent_vote: 92.7328
-				},
-				{
-					id: '003',
-					position: 'Secretary',
-					names: [ [ 'Ang Seng Peng', 84.847 ] ],
-					max_votes: 1,
-					status: 'Ongoing',
-					percent_vote: 6.473
-				}
-			]
+			ballots: []
 		};
+
+		this.fetchData();
 	}
+
+	fetchData = () => {
+		fetch('/admin/ballots').then((data) => data.json()).then((json) => {
+			console.log(json);
+			this.setState({ ballots: json });
+		});
+	};
 
 	showModal = () => {
 		this.setState({ showModal: true });
@@ -88,7 +83,7 @@ class BallotsPage extends Component {
 	};
 
 	render() {
-		let rows = this.state.ballots.map((ballot, i) => <BallotRow key={i} ballot={ballot} />);
+		let rows = this.state.ballots.map((ballot, i) => <BallotRow key={i} ballot={ballot} fetchData={this.fetchData} />);
 
 		return (
 			<div id="ballots-page">
@@ -106,7 +101,7 @@ class BallotsPage extends Component {
 					</thead>
 					<tbody>{rows}</tbody>
 				</table>
-				<BallotModal show={this.state.showModal} hideModal={this.hideModal} />
+				<BallotModal show={this.state.showModal} hideModal={this.hideModal} onSubmit={this.fetchData} />
 			</div>
 		);
 	}
