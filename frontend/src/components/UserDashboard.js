@@ -84,7 +84,7 @@ class VotingPage extends Component {
 					You can select up to <b>2</b> names.
 				</div>
 				<div id="options">{options}</div>
-				<button>Send Vote</button>
+				<button onClick={this.props.sendVote}>Send Vote</button>
 			</div>
 		);
 	}
@@ -124,7 +124,17 @@ class UserDashboard extends Component {
 			}
 		}
 		this.setState({ selected: selected });
-	};
+    };
+    
+    sendVote = () => {
+        // Perform fetch
+        this.setState({
+            status: 'waiting', 
+            names: [], 
+            selected: {}, 
+            position: ''
+        })
+    }
 
 	render() {
 		return (
@@ -137,7 +147,8 @@ class UserDashboard extends Component {
 						position={this.state.position}
 						names={this.state.names}
 						selected={this.state.selected}
-						updateVote={this.updateVote}
+                        updateVote={this.updateVote}
+                        sendVote={this.sendVote}
 					/>
 				)}
 			</div>
