@@ -20,7 +20,7 @@ class App extends Component {
 
 		this.state = {
 			loggedIn: true,
-			userType: 'admin',
+			userType: 'user',
 			error: '',
 			errorVisible: false,
 			errorTimeout: null
@@ -29,7 +29,7 @@ class App extends Component {
 
 	login = (userType) => {
 		this.setState({
-			loggedIn: true,
+			loggedIn: false,
 			userType: userType
 		});
 	};
