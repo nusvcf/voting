@@ -4,7 +4,7 @@ const checkId = require("../checkId");
 
 //Function to check if logged in
 function checkIsLoggedIn(req, res, next) {
-    if(!req.session.username || !req.session.id) {
+    if(!req.session.username || !req.session.userid) {
         res.status(401).send("Error: Not authorised").end();
     } else {
         next();
@@ -14,17 +14,23 @@ function checkIsLoggedIn(req, res, next) {
 router.route("/ballot/:id")
     .post(checkIsLoggedIn, (req, res) => {
         const names = req.body.names;
-        const userId = req.session.id;
+        const userId = req.session.userid;
+        const userIdx = checkId(req.app.locals.idToVoterIndex, userId);
         const ballotId = req.params.id;
-        const idx = checkId(req.app.locals.idToBallotIndex, ballotId);
-        if(idx === -1 || !Array.isArray(names)) {
+        const ballotIdx = checkId(req.app.locals.idToBallotIndex, ballotId);
+        if(userIdx === -1 || ballotIdx === -1 || !Array.isArray(names)) {
             res.json({success: false});
             return;
         }
         
         //Error checking
-        let ballot = req.app.locals.ballots[idx];
+        let ballot = req.app.locals.ballots[ballotIdx];
+        let voter = req.app.locals.voters[userIdx];
         let valid = true;
+        //Check if the voter in question is valid
+        if(!voter.isValid) {
+            valid = false;
+        }
         //Check if names submitted belongs in vote
         for(let i = 0;i < names.length;i++) {
             if(!ballot.isNameInBallot(names[i])) {
@@ -49,24 +55,15 @@ router.route("/ballot/:id")
         }
 
         //Submit the vote
-        if(names.length === 0) {
-            ballot.submittedUsers[userId] = {votedFor: [], abstained: true}
-        } else {
-            ballot.submittedUsers[userId] = {votedFor: names, abstained: false};
-            for(let i = 0;i < names.length; i++) {
-                const name = names[i];
-                ballot.namesInBallot[name].count++;
-                ballot.namesInBallot[name].voters.push(userId);
-            }
-        }
-        req.app.locals.ballots[idx] = ballot;
-        //console.log(req.app.locals.ballots[idx]);
+        ballot.submitVote(userId, names);
+        req.app.locals.ballots[ballotIdx] = ballot;
+        console.log(req.app.locals.ballots[ballotIdx]);
         res.json({success: true});
     });
 
 router.route("/ballot")
     .get(checkIsLoggedIn, (req, res) => {
-        const idx = req.app.locals.numBallots - 1;
+        const ballotIdx = req.app.locals.numBallots - 1;
         const ballots = req.app.locals.ballots;
         let output = {
             id: "",
@@ -75,18 +72,18 @@ router.route("/ballot")
             maxVotes: -1
         }
         //check if any active ballots happening
-        if(idx === -1) { //0 - 1 = -1, since we minused 1 to current numBallot count to get the last index of the ballots array.
+        if(ballotIdx === -1) { //0 - 1 = -1, since we minused 1 to current numBallot count to get the last index of the ballots array.
             res.json(output);
             return;
         }
-        if(!ballots[idx].isValid || !ballots[idx].isOpen) {
+        if(!ballots[ballotIdx].isValid || !ballots[ballotIdx].isOpen) {
             res.json(output);
             return;
         }
-        output.id = ballots[idx].id;
-        output.position = ballots[idx].position;
-        output.names = ballots[idx].names;
-        output.maxVotes = ballots[idx].maxVotes;
+        output.id = ballots[ballotIdx].id;
+        output.position = ballots[ballotIdx].position;
+        output.names = ballots[ballotIdx].names;
+        output.maxVotes = ballots[ballotIdx].maxVotes;
         res.json(output);
     });
 

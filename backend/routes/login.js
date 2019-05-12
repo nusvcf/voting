@@ -32,7 +32,7 @@ router.post("/", (req, res) => {
     //Successful, set session states
     const id = voters[idx].id;
     req.session.username = username;
-    req.session.id = id;
+    req.session.userid = id;
     if(username === ADMIN) {
         req.session.userType = ADMIN;
         response.userType = ADMIN;

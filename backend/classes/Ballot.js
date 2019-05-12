@@ -44,6 +44,24 @@ class Ballot {
     userHasSubmitted(id) {
         return this.submittedUsers.hasOwnProperty(id);
     }
+
+    /** Submits a vote
+     * @param  {string} id
+     * @param  {[string]} names
+     */
+    submitVote(id, names) {
+        let length = names.length;
+        if(length === 0) {
+            this.submittedUsers[id] = {votedFor: [], abstained: true};
+        } else {
+            this.submittedUsers[id] = {votedFor: names, abstained: true};
+            for(let i = 0;i < length;i++) {
+                const name = names[i];
+                this.namesInBallot[name].count++;
+                this.namesInBallot[name].voters.push(id);
+            }
+        }
+    }
 }
 
 module.exports = Ballot;
