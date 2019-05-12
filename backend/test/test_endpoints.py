@@ -91,8 +91,12 @@ print(r.content, end="\n\n")
 
 #POST to /admin/ballots/id to close ballot
 print("POST to /admin/ballots/{} to close ballot".format(ballotId))
-data = {"id": ballotId}
-r = session.post(url = url + "/admin/ballots/" + ballotId, json = data)
+r = session.post(url = url + "/admin/ballots/" + ballotId)
+print(r.content, end="\n\n")
+
+#GET from /admin/ballots, should have 2 in total
+#print("GET from /admin/ballots, should have 2 in total now")
+r = session.get(url = url + "/admin/ballots")
 print(r.content, end="\n\n")
 
 #GET from /user/ballot, should return with nothing as ballot has been closed
@@ -105,6 +109,7 @@ print("POST within allowed limits to /user/ballot/{}, should fail because ballot
 data = {"names": ["Xiao Ming"]}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
 print(r.content, end="\n\n")
+
 
 print("Starting a new ballot...")
 data = {

@@ -63,9 +63,21 @@ router.route("/ballots")
             const numVoters = req.app.locals.numVoters;
             const numVotesInBallot = Object.keys(ballot.submittedUsers).length;
             let ballotPercentVotes = 0;
-            if(numVoters !== 0)
-                ballotPercentVotes = (numVotesInBallot/numVoters) * 100;
-            
+            if(ballot.isOpen) { //calculate percentage of people who have voted out of all the voters
+                if(numVoters !== 0)
+                    ballotPercentVotes = (numVotesInBallot/numVoters) * 100;
+            } else { //calculate % valid votes
+                let numValidVotes = 0;
+                Object.keys(ballot.submittedUsers).forEach((key) => {
+                    if(ballot.submittedUsers[key].status === "Normal" || ballot.submittedUsers[key].status === "No Confidence") {
+                        numValidVotes++;
+                    }
+                });
+                if(numVoters !== 0) {
+                    ballotPercentVotes = (numValidVotes/numVoters) * 100;
+                }
+            }
+
             //Generate name array with percentage vote for each candidate
             let outputNameArray = [];
             const length = ballot.names.length;
