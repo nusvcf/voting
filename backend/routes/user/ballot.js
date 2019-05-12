@@ -4,7 +4,7 @@ const checkId = require("../checkId");
 
 //Function to check if logged in
 function checkIsLoggedIn(req, res, next) {
-    if(!req.session.username || !req.session.userID) {
+    if(!req.session.username || !req.session.id) {
         res.status(401).send("Error: Not authorised").end();
     } else {
         next();
@@ -14,9 +14,9 @@ function checkIsLoggedIn(req, res, next) {
 router.route("/ballot/:id")
     .post(checkIsLoggedIn, (req, res) => {
         const names = req.body.names;
-        const userID = req.session.userID;
-        const id = req.params.id;
-        const idx = checkId(req.app.locals.idToBallotIndex, id);
+        const userId = req.session.id;
+        const ballotId = req.params.id;
+        const idx = checkId(req.app.locals.idToBallotIndex, ballotId);
         if(idx === -1 || !Array.isArray(names)) {
             res.json({success: false});
             return;
@@ -40,7 +40,7 @@ router.route("/ballot/:id")
             valid = false;
         }
         //Check if user has submitted before
-        if(ballot.userHasSubmitted(userID)) {
+        if(ballot.userHasSubmitted(userId)) {
             valid = false;
         }
         if(!valid) {
@@ -50,13 +50,13 @@ router.route("/ballot/:id")
 
         //Submit the vote
         if(names.length === 0) {
-            ballot.submittedUsers[userID] = {votedFor: [], abstained: true}
+            ballot.submittedUsers[userId] = {votedFor: [], abstained: true}
         } else {
-            ballot.submittedUsers[userID] = {votedFor: names, abstained: false};
+            ballot.submittedUsers[userId] = {votedFor: names, abstained: false};
             for(let i = 0;i < names.length; i++) {
                 const name = names[i];
                 ballot.namesInBallot[name].count++;
-                ballot.namesInBallot[name].voters.push(userID);
+                ballot.namesInBallot[name].voters.push(userId);
             }
         }
         req.app.locals.ballots[idx] = ballot;
@@ -75,7 +75,7 @@ router.route("/ballot")
             maxVotes: -1
         }
         //check if any active ballots happening
-        if(idx === 0) {
+        if(idx === -1) { //0 - 1 = -1, since we minused 1 to current numBallot count to get the last index of the ballots array.
             res.json(output);
             return;
         }

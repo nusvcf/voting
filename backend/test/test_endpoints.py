@@ -16,8 +16,8 @@ data = {"username": "admin", "password": "password"}
 r = session.post(url= url + "/login", json = data)
 print(r.content, end="\n\n")
 
-#POST maxVotes = -1 to /admin/ballots
-print("POST maxVotes = -1 to /admin/ballots")
+#POST (incorrectly) maxVotes = -1 to /admin/ballots
+print("POST (incorrectly) maxVotes = -1 to /admin/ballots")
 data = {
     "position": "Chairman",
     "names": ["Xiao Ming", "Xiao Bai", "Andy Tan"],
@@ -25,8 +25,8 @@ data = {
 r = session.post(url = url + "/admin/ballots", json = data)
 print(r.content, end="\n\n")
 
-#POST names = string to /admin/ballots
-print("POST names = string to /admin/ballots")
+#POST (incorrectly) names = string to /admin/ballots
+print("POST (incorrectly) names = string to /admin/ballots")
 data = {
     "position": "Chairman",
     "names": "Xiao Ming",
@@ -60,8 +60,8 @@ data = {"names": "I am a string!"}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
 print(r.content, end="\n\n")
 
-#POST wrong names to /user/ballot/id
-print("POST wrong names to /user/ballot/" + ballotId)
+#POST wrong name to /user/ballot/id
+print("POST wrong name to /user/ballot/" + ballotId)
 data = {"names": ["Definitely not inside"]}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
 print(r.content, end="\n\n")

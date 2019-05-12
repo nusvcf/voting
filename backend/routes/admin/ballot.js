@@ -6,7 +6,8 @@ const checkId = require("../checkId");
 
 //Function to check if admin
 function checkIsAdmin(req, res, next) {
-    if(!req.session.username || req.session.userType !== "admin") {
+    const ADMIN = "admin";
+    if(!req.session.username || !req.session.id || req.session.userType !== ADMIN) {
         res.status(401).send("Error: Not authorised").end();
     } else {
         next();

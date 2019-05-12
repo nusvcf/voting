@@ -8,16 +8,32 @@ const MemoryStore = require("memorystore")(session)
 const uuid = require("uuid/v4");
 const bodyParser = require("body-parser");
 const helmet = require("helmet");
-
-//Load users.json
-const users = JSON.parse(fs.readFileSync("users.json"));
-console.log(`Loaded ${Object.keys(users).length} users.`);
+const Voter = require("./classes/Voter");
 
 //Variables
 const app = express();
 app.locals.ballots = [];
 app.locals.idToBallotIndex = {};
 app.locals.numBallots = 0;
+app.locals.voters = []
+app.locals.idToVoterIndex = {};
+app.locals.usernameToVoterIndex = {};
+
+//Load users.json
+const users = JSON.parse(fs.readFileSync("users.json"));
+console.log(`Loaded ${Object.keys(users).length} users.`);
+
+//Load voter details
+const usernames = Object.keys(users);
+for(let i = 0;i < usernames.length;i++) {
+    const username = usernames[i];
+    const id = users[username].id;
+    const password = users[username].password
+    const voter = new Voter(username, id, password)
+    app.locals.voters.push(voter);
+    app.locals.idToVoterIndex[id] = i;
+    app.locals.usernameToVoterIndex[username] = i;
+}
 
 //Set up express
 const port = 8080;
@@ -38,7 +54,7 @@ app.use(bodyParser.urlencoded({ extended: true}));
 app.use(helmet());
 
 //Log in route
-app.use("/login", require("./routes/login")(users));
+app.use("/login", require("./routes/login"));
 //Admin ballot route
 app.use("/admin", require("./routes/admin/ballot"));
 //User ballot route
