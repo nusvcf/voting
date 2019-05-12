@@ -146,13 +146,19 @@ print("#GET from /admin/voters, should return 1 user")
 r = session.get(url = url + "/admin/voters")
 print(r.content, end="\n\n")
 
-#POST to /admin/voters to create 3 voters, 0000, 0001, 0002
-print("POST to /admin/voters to create 3 voters, 0000, 0001, 0002")
-data = {"numVoters": 3}
+#POST to /admin/voters to create 0-3 voters, 0000, 0001, 0002 and 0003
+print("POST to /admin/voters to create 0-3 voters, 0000, 0001, 0002 and 0003")
+data = {"start": 0, "end": 3}
 r = session.post(url = url + "/admin/voters", json = data)
 print(r.content, end="\n\n")
 
 #GET from /admin/voters, should return 4 users
 print("#GET from /admin/voters, should return 4 users")
 r = session.get(url = url + "/admin/voters")
+print(r.content, end="\n\n")
+
+#POST to /admin/voters to create 3-6 voters, should return errorCreating 0003 b/c created before
+print("POST to /admin/voters to create 3-6 voters, should return errorCreating 0003 b/c created before")
+data = {"start": 3, "end": 6}
+r = session.post(url = url + "/admin/voters", json = data)
 print(r.content, end="\n\n")

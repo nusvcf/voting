@@ -4,6 +4,13 @@ const checkId = require("../checkId");
 const checkIsAdmin = require("./checkIsAdmin");
 const Voter = require("../../classes/Voter");
 
+//Returns a padded string of zeros from an input value
+//https://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
+function getPaddedString(val, width) {
+    val = val + "";
+    return val.length >= width ? val : new Array(width - val.length + 1).join('0') + val;
+}
+
 function fn(users) {
     router.route("/voters/:id")
         .delete(checkIsAdmin, (req, res) => { //Invalidate user with given id
@@ -26,27 +33,43 @@ function fn(users) {
         .get(checkIsAdmin, (req, res) => { //Get list of voters
             res.json(req.app.locals.voters);
         })
-        .post(checkIsAdmin, (req, res) => { //Generate voters from 0000 to numVoters
-            const numVoters = parseInt(req.body.numVoters);
+        .post(checkIsAdmin, (req, res) => { 
+            const startIdx = parseInt(req.body.start);
+            const endIdx = parseInt(req.body.end);
+            const numberOfUsers = Object.keys(users).length;
             let response = {success: false};
-            if(isNaN(numVoters) || numVoters < 0) {
+
+            //Error checking
+            if(isNaN(startIdx) || isNaN(endIdx)) {
+                res.json(response);
+                return;
+            }
+            if(startIdx < 0 || endIdx < 0 || startIdx > numberOfUsers || endIdx > numberOfUsers) {
                 res.json(response);
                 return;
             }
 
             //Generate voters
-            const usernames = Object.keys(users);
-            for(let i = 0;i < numVoters;i++) {
-                const username = usernames[i];
+            let errorCreating = [];
+            for(let i = startIdx;i <= endIdx;i++) {
+                const username = getPaddedString(i, 4);
+
+                //check for duplicate user
+                if(req.app.locals.usernameToVoterIndex.hasOwnProperty(username)) {
+                    errorCreating.push(username);
+                    continue;
+                }
                 const id = users[username].id;
-                const password = users[username].password
-                const voter = new Voter(username, id, password)
+                const password = users[username].password;
+                const voter = new Voter(username, id, password);
                 req.app.locals.voters.push(voter);
-                req.app.locals.idToVoterIndex[id] = i+1;
-                req.app.locals.usernameToVoterIndex[username] = i+1;
+                req.app.locals.idToVoterIndex[id] = req.app.locals.numVoters;
+                req.app.locals.usernameToVoterIndex[username] = req.app.locals.numVoters;
+                req.app.locals.numVoters++;
             }
 
             response.success = true;
+            response.errorCreating = errorCreating;
             res.json(response);
 
         })
