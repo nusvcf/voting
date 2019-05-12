@@ -135,3 +135,19 @@ print("POST within allowed limits to /user/ballot/{}, should fail because ballot
 data = {"names": ["Xiao Ming"]}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
 print(r.content, end="\n\n")
+
+#GET from /admin/voters, should return 1 user
+print("#GET from /admin/voters, should return 1 user")
+r = session.get(url = url + "/admin/voters")
+print(r.content, end="\n\n")
+
+#POST to /admin/voters to create 3 voters, 0000, 0001, 0002
+print("POST to /admin/voters to create 3 voters, 0000, 0001, 0002")
+data = {"numVoters": 3}
+r = session.post(url = url + "/admin/voters", json = data)
+print(r.content, end="\n\n")
+
+#GET from /admin/voters, should return 4 users
+print("#GET from /admin/voters, should return 4 users")
+r = session.get(url = url + "/admin/voters")
+print(r.content, end="\n\n")

@@ -3,16 +3,7 @@ const router = express.Router();
 const Ballot = require("../../classes/Ballot");
 const uuid = require("uuid/v4");
 const checkId = require("../checkId");
-
-//Function to check if admin
-function checkIsAdmin(req, res, next) {
-    const ADMIN = "admin";
-    if(!req.session.username || !req.session.id || req.session.userType !== ADMIN) {
-        res.status(401).send("Error: Not authorised").end();
-    } else {
-        next();
-    }
-}
+const checkIsAdmin = require("./checkIsAdmin");
 
 router.route("/ballots/:id")
     .get(checkIsAdmin, (req, res) => { //View result

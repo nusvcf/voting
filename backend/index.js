@@ -15,7 +15,7 @@ const app = express();
 app.locals.ballots = [];
 app.locals.idToBallotIndex = {};
 app.locals.numBallots = 0;
-app.locals.voters = []
+app.locals.voters = [];
 app.locals.idToVoterIndex = {};
 app.locals.usernameToVoterIndex = {};
 
@@ -23,17 +23,10 @@ app.locals.usernameToVoterIndex = {};
 const users = JSON.parse(fs.readFileSync("users.json"));
 console.log(`Loaded ${Object.keys(users).length} users.`);
 
-//Load voter details
-const usernames = Object.keys(users);
-for(let i = 0;i < usernames.length;i++) {
-    const username = usernames[i];
-    const id = users[username].id;
-    const password = users[username].password
-    const voter = new Voter(username, id, password)
-    app.locals.voters.push(voter);
-    app.locals.idToVoterIndex[id] = i;
-    app.locals.usernameToVoterIndex[username] = i;
-}
+//adding admin
+app.locals.voters.push(new Voter("admin", users["admin"].id, users["admin"].password));
+app.locals.idToVoterIndex[users["admin"].id] = 0;
+app.locals.usernameToVoterIndex["admin"] = 0;
 
 //Set up express
 const port = 8080;
@@ -57,6 +50,8 @@ app.use(helmet());
 app.use("/login", require("./routes/login"));
 //Admin ballot route
 app.use("/admin", require("./routes/admin/ballot"));
+//Admin voter route
+app.use("/admin", require("./routes/admin/voters")(users));
 //User ballot route
 app.use("/user", require("./routes/user/ballot"));
 
