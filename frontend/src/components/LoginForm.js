@@ -42,7 +42,8 @@ class LoginForm extends Component {
             if(dataJson.success) {
                 this.props.login(dataJson.userType);
             } else {
-                this.setState({errorMessage: "Invalid Username/Password!"});
+                // Show error message
+                this.props.setError("Could not log you in. Please try again.")
             }
         });
     }

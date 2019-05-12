@@ -1,0 +1,27 @@
+@import './colours';
+
+$alert-padding: 24px;
+
+.alert {
+    box-sizing: border-box;
+    padding: 12px 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    position: absolute;
+    width: calc(100vw - #{$alert-padding * 2});
+    left: $alert-padding;
+    top: $alert-padding;
+    transition: 0.4s all;
+}
+
+.alert-hide {
+    opacity: 0;
+}
+
+.alert-show {
+    opacity: 1;
+}
+
+.alert-warning {
+    background-color: $red-1;
+    border-left: 4px solid $red-3;
+}
