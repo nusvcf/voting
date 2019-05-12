@@ -41,12 +41,7 @@ data = {
     "names": ["Xiao Ming", "Xiao Bai", "Andy Tan"],
     "maxVotes": 1 }
 r = session.post(url = url + "/admin/ballots", json = data)
-print(r.content, end="\n\n")
-
-#GET from /admin/ballots/id
 ballotId = json.loads(r.content)["id"]
-print("GET from /admin/ballots/" + ballotId)
-r = session.get(url = url + "/admin/ballots/" + ballotId)
 print(r.content, end="\n\n")
 
 #GET from /user/ballot
@@ -72,10 +67,20 @@ data = {"names": ["Xiao Ming", "Xiao Bai"]}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
 print(r.content, end="\n\n")
 
+#GET from /admin/ballots/
+print("GET from /admin/ballots")
+r = session.get(url = url + "/admin/ballots")
+print(r.content, end="\n\n")
+
 #POST within allowed limits to /user/ballot/id
 print("POST within allowed limits to /user/ballot/" + ballotId)
 data = {"names": ["Xiao Ming"]}
 r = session.post(url = url + "/user/ballot/" + ballotId, json = data)
+print(r.content, end="\n\n")
+
+#GET from /admin/ballots/
+print("GET from /admin/ballots")
+r = session.get(url = url + "/admin/ballots")
 print(r.content, end="\n\n")
 
 #POST within allowed limits to /user/ballot/id a 2nd time
