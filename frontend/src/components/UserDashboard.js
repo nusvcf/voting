@@ -80,9 +80,16 @@ class VotingPage extends Component {
 				<div id="currently-voting-for">
 					Currently voting for: <div id="position">{this.props.position}</div>
 				</div>
-				<div>
-					You can select up to <b>2</b> names.
-				</div>
+				{this.props.maxVotes > 1 && (
+					<div>
+						You can select up to <b>2</b> names.
+					</div>
+				)}
+				{this.props.maxVotes == 1 && (
+					<div>
+						You can only select <b>1</b> name.
+					</div>
+				)}
 				<div id="options">{options}</div>
 				<button onClick={this.props.sendVote}>Send Vote</button>
 			</div>
@@ -94,13 +101,47 @@ class UserDashboard extends Component {
 	constructor() {
 		super();
 		this.state = {
-			status: 'voting',
-			position: 'Outreach Coordinator',
-			names: [ 'Winfred Tan', 'Bertram Tan' ],
-			selected: { 'Winfred Tan': false, 'Bertram Tan': false, 'No Confidence': false },
-			max_allowed: 1
+			status: 'welcome',
+			id: '',
+			position: '',
+			names: [],
+			selected: {},
+			maxVotes: 1
 		};
+
+		this.fetchData();
+		setInterval(this.fetchData, 2000);
 	}
+
+	fetchData = () => {
+		fetch('/user/ballot').then((data) => data.json()).then((json) => {
+			if (json.id !== '') {
+				let selected = {
+					'Abstain': false, 
+					'No Confidence': false
+				}
+				for (let i = 0; i < json.names.length; i++) {
+					selected[json.names[i]] = false;
+				}
+				this.setState({
+					status: 'voting',
+					id: json.id,
+					position: json.position,
+					names: json.names,
+					maxVotes: json.maxVotes
+				});
+			} else {
+				if (this.state.status != 'welcome') {
+					this.setState({
+						status: 'waiting', 
+						id: '', 
+						position: '',
+						names: []
+					})
+				}
+			}
+		});
+	};
 
 	updateVote = (name, e) => {
 		let selected = this.state.selected;
@@ -111,7 +152,7 @@ class UserDashboard extends Component {
 				selected[this.state.names[i]] = !e.target.checked;
 			}
 		} else if (e.target.checked && name === abstain_text) {
-            selected['No Confidence'] = false;
+			selected['No Confidence'] = false;
 			selected['Abstain'] = true;
 			for (let i = 0; i < this.state.names.length; i++) {
 				selected[this.state.names[i]] = !e.target.checked;
@@ -124,17 +165,33 @@ class UserDashboard extends Component {
 			}
 		}
 		this.setState({ selected: selected });
-    };
-    
-    sendVote = () => {
-        // Perform fetch
-        this.setState({
-            status: 'waiting', 
-            names: [], 
-            selected: {}, 
-            position: ''
-        })
-    }
+	};
+
+	sendVote = () => {
+		// Perform fetch
+		let names = [];
+		for (let key in this.state.selected) {
+			if (this.state.selected[key]) {
+				names.push(key);
+			}
+		}
+		console.log(names);
+		fetch('/user/ballot/' + this.state.id, {
+			method: 'POST', 
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				names: names
+			})
+		})
+		this.setState({
+			status: 'waiting',
+			names: [],
+			selected: {},
+			position: ''
+		});
+	};
 
 	render() {
 		return (
@@ -146,9 +203,10 @@ class UserDashboard extends Component {
 					<VotingPage
 						position={this.state.position}
 						names={this.state.names}
+						maxVotes={this.state.maxVotes}
 						selected={this.state.selected}
-                        updateVote={this.updateVote}
-                        sendVote={this.sendVote}
+						updateVote={this.updateVote}
+						sendVote={this.sendVote}
 					/>
 				)}
 			</div>

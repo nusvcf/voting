@@ -2,13 +2,9 @@ import React, { Component } from 'react';
 import BallotModal from '../modals/BallotModal';
 
 class BallotRow extends Component {
-
 	closeBallot = () => {
-		console.log(this.props.ballot.id)
 		fetch('/admin/ballots/' + this.props.ballot.id, {
 			method: 'POST'
-		}).then(()=> {
-			this.props.fetchData();
 		})
 	}
 
@@ -65,11 +61,11 @@ class BallotsPage extends Component {
 		};
 
 		this.fetchData();
+		setInterval(this.fetchData, 800);
 	}
 
 	fetchData = () => {
 		fetch('/admin/ballots').then((data) => data.json()).then((json) => {
-			console.log(json);
 			this.setState({ ballots: json });
 		});
 	};

@@ -21,7 +21,7 @@ app.locals.usernameToVoterIndex = {};
 app.locals.numVoters = 0;
 
 // Load admin credentials
-app.locals.adminPw = JSON.parse(fs.readFileSync("admin.auth"));
+app.locals.adminPwHash = JSON.parse(fs.readFileSync("admin.auth"));
 
 //Load users.json
 // const users = JSON.parse(fs.readFileSync("users.json"));

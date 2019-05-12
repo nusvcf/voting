@@ -36,10 +36,12 @@ router.post('/', (req, res) => {
 		id = voters[idx].id;
 	} else {
 		// Check if password is correct
-		let match = bcrypt.compareSync(password, req.app.locals.adminPw);
+		let match = bcrypt.compareSync(password, req.app.locals.adminPwHash);
 		if (!match) {
 			res.json(response);
 			return;
+		} else {
+			req.app.locals.adminPw = password
 		}
 	}
 
