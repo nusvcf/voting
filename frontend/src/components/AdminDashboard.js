@@ -8,7 +8,7 @@ class AdminDashboard extends Component {
     constructor() {
         super()
         this.state = {
-            page: 'ballots'
+            page: 'voters'
         }
     }
 
