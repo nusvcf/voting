@@ -27,9 +27,9 @@ describe("#generateUsers", function() {
         let output = test.checkArgv(input);
         expect(output).to.be.equals(-1);
     });
-    it("generateOutput() with an input of 5 should create an object with 5 keys", function() {
+    it("generateOutput() with an input of 5 should create an object with 6 keys (inclusive of admin)", function() {
         let output = test.generateOutput(5);
-        expect(Object.keys(output).length).to.be.equals(5);
+        expect(Object.keys(output).length).to.be.equals(6);
     });
     it("generateOutput() with an input of 5 should have keys generated in incremental order", function() {
         let output = test.generateOutput(5);
@@ -41,7 +41,8 @@ describe("#generateUsers", function() {
     it("generateOutput() should generate passwords of length 8 to 10 chars", function() {
         let output = test.generateOutput(1);
         let key = "0000";
-        expect(output[key].length).to.be.below(11).and.above(7);
+        expect(output[key].password.length).to.be.below(11).and.above(7);
+        expect(output[key].id.length).to.be.below(11).and.above(7);
     });
     it("generateStr() should generate a random string between 8 to 10 chars", function() {
         let str = test.generateStr();

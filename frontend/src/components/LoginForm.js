@@ -7,7 +7,8 @@ class LoginForm extends Component {
 
         this.state = {
             username: "",
-            password: ""
+            password: "",
+            errorMessage: ""
         }
         this.handlePasswordChange = this.handlePasswordChange.bind(this);
         this.handleUsernameChange = this.handleUsernameChange.bind(this);
@@ -22,7 +23,6 @@ class LoginForm extends Component {
         this.setState({username: event.target.value});
     }
 
-    //incomplete
     handleSubmit(event) {
         event.preventDefault();
         fetch("/login", {
@@ -34,12 +34,13 @@ class LoginForm extends Component {
                 username: this.state.username,
                 password: this.state.password
             }),
-            credentials: "same-origin"
         })
-        .then(data => {return data.json()})
+        .then(data => {
+            return data.json();
+        })
         .then(dataJson => {
-            if (dataJson.success) {
-                this.props.login('admin')
+            if(dataJson.success) {
+                this.props.login(dataJson.userType);
             } else {
                 // Show error message
                 this.props.setError("Could not log you in. Please try again.")
@@ -60,6 +61,7 @@ class LoginForm extends Component {
                     <input type='password' value = {this.state.password} onChange = {this.handlePasswordChange}/>
                 </div>
                 <input type='submit' value='Login' />
+                <p>{this.state.errorMessage}</p>
             </form>
         )
     }
