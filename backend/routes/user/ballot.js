@@ -56,8 +56,6 @@ router.route("/ballot/:id")
 
         //Submit the vote
         ballot.submitVote(userId, names);
-        req.app.locals.ballots[ballotIdx] = ballot;
-        console.log(req.app.locals.ballots[ballotIdx]);
         res.json({success: true});
     });
 

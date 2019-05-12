@@ -20,7 +20,7 @@ class Ballot {
         this.isValid = true; 
         /** Boolean if ballot is open */
         this.isOpen = true;
-        /**Stores users that have voted in this ballot, and who they have voted for. {id: {votedFor: [], abstained: bool}}  */
+        /**Stores users that have voted in this ballot, and who they have voted for. {id: {votedFor: [], status: string}}  */
         this.submittedUsers = {};
         /** Stores vote information for each person running. {name: {count: integer, voters: [string]}} */
         this.namesInBallot = this.generateNamesInBallot(names);
@@ -52,9 +52,11 @@ class Ballot {
     submitVote(id, names) {
         let length = names.length;
         if(length === 0) {
-            this.submittedUsers[id] = {votedFor: [], abstained: true};
+            this.submittedUsers[id] = {votedFor: [], status: "Abstained"};
+        } else if(length === 1 && names[0] === "No Confidence") {
+            this.submittedUsers[id] = {votedFor: [], status: "No Confidence"};
         } else {
-            this.submittedUsers[id] = {votedFor: names, abstained: true};
+            this.submittedUsers[id] = {votedFor: names, status: "Normal"};
             for(let i = 0;i < length;i++) {
                 const name = names[i];
                 this.namesInBallot[name].count++;
