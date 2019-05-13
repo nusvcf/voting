@@ -50,15 +50,41 @@ class VotersPage extends Component {
 		this.setState({ addStart: this.state.addEnd + 1, addEnd: this.state.addEnd + 1 });
 	};
 
+	invalidateVoter = (id) => {
+		if (window.confirm("Are you sure you want to invalidate this user?\n\nThey will no longer be able to cast any more votes.")) {
+			fetch('/admin/voters/' + id, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}).then(() => {
+				this.fetchData();
+			});
+		}
+	}
+
+	deleteVoter = (id) => {
+		if (window.confirm("Are you sure you want to DELETE this user?\n\nThis will remove the user, and remove all past votes cast by them.")) {
+			fetch('/admin/voters/' + id, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}).then(() => {
+				this.fetchData();
+			});
+		}
+	}
+
 	render() {
 		let rows = this.state.voters.map((voter, i) => (
 			<tr key={i}>
-				<td>{voter.id}</td>
-				<td>{voter.username}</td>
-				<td>{voter.password}</td>
+				<td className={'id ' + (voter.isValid ? '' : 'invalid')}>{voter.id}</td>
+				<td className={(voter.isValid ? '' : 'invalid')}>{voter.username}</td>
+				<td className={(voter.isValid ? '' : 'invalid')}>{voter.password}</td>
 				<td className="tbl-btns">
-					<button className="btn-secondary">Invalidate</button>
-					<button className="btn-warn">Delete</button>
+					{voter.isValid && <button className="btn-secondary" onClick={() => this.invalidateVoter(voter.id)}>Invalidate</button>}
+					<button className="btn-warn" onClick={() => this.deleteVoter(voter.id)}>Delete</button>
 				</td>
 			</tr>
 		));

@@ -23,8 +23,8 @@ router.post("/", (req, res) => {
 
   let id = "admin";
 
-  //Check if username is valid
   if (username !== ADMIN) {
+    // User 
     const idx = checkId(usernameToVoterIndex, username);
     if (idx === -1) {
       res.json(response);
@@ -36,8 +36,15 @@ router.post("/", (req, res) => {
       res.json(response);
       return;
     }
+
+    // Check if voter is invalidated
+    if (!voters[idx].isValid) {
+      res.json(response);
+      return;
+    }
     id = voters[idx].id;
   } else {
+    // Admin
     // Check if password is correct
     let match = bcrypt.compareSync(password, req.app.locals.adminPwHash);
     if (!match) {

@@ -21,7 +21,7 @@ function generateStr() {
     let characters = "ABCDEFGHIJKMNPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz23456789_?/\!@#$";
     let charLength = characters.length;
     let length = Math.floor(Math.random() * 3) + 8; //Get a value between 8 and 10 
-    for(let i = 0;i < length; i++) {
+    for (let i = 0; i < length; i++) {
         output += characters.charAt(Math.floor(Math.random() * charLength));
     }
     return output;
@@ -40,18 +40,34 @@ function getUniqueString(usedStrings) {
 
 function fn() {
     router.route("/voters/:id")
-        .delete(checkIsAdmin, (req, res) => { //Invalidate user with given id
+        .put(checkIsAdmin, (req, res) => { //Invalidate user with given id
             const userId = req.params.id;
-            const idx = checkId(req.locals.app.idToVoterIndex[userId]);
-            let response = {success: false};
+            const idx = checkId(req.app.locals.idToVoterIndex, userId);
+            let response = { success: false };
 
             //Fail to find id
-            if(idx === -1) {
+            if (idx === -1) {
                 res.json(response);
                 return;
             }
 
-            req.locals.app.voters[idx].isValid = false;
+            req.app.locals.voters[idx].isValid = false;
+            response.success = true;
+            local.save(req.app.locals);
+            res.json(response);
+        })
+        .delete(checkIsAdmin, (req, res) => { //Deletes user with given id
+            const userId = req.params.id;
+            const idx = checkId(req.app.locals.idToVoterIndex, userId);
+            let response = { success: false };
+
+            //Fail to find id
+            if (idx === -1) {
+                res.json(response);
+                return;
+            }
+
+            req.app.locals.voters[idx].isValid = false;
             response.success = true;
             local.save(req.app.locals);
             res.json(response);
@@ -61,28 +77,28 @@ function fn() {
         .get(checkIsAdmin, (req, res) => { //Get list of voters
             res.json(req.app.locals.voters);
         })
-        .post(checkIsAdmin, (req, res) => { 
+        .post(checkIsAdmin, (req, res) => {
             const startIdx = parseInt(req.body.start);
             const endIdx = parseInt(req.body.end);
-            let response = {success: false};
+            let response = { success: false };
 
             //Error checking
-            if(isNaN(startIdx) || isNaN(endIdx)) {
+            if (isNaN(startIdx) || isNaN(endIdx)) {
                 res.json(response);
                 return;
             }
-            if(startIdx < 0 || endIdx < 0 || startIdx > endIdx) {
+            if (startIdx < 0 || endIdx < 0 || startIdx > endIdx) {
                 res.json(response);
                 return;
             }
 
             //Generate voters
             let errorCreating = [];
-            for(let i = startIdx;i <= endIdx;i++) {
+            for (let i = startIdx; i <= endIdx; i++) {
                 const username = getPaddedString(i, 4);
 
                 //check for duplicate user
-                if(req.app.locals.usernameToVoterIndex.hasOwnProperty(username)) {
+                if (req.app.locals.usernameToVoterIndex.hasOwnProperty(username)) {
                     errorCreating.push(username);
                     continue;
                 }
@@ -91,7 +107,7 @@ function fn() {
                 let id;
                 do { //make sure no collisions
                     id = uuid();
-                } while(usedStrings.hasOwnProperty(id));
+                } while (usedStrings.hasOwnProperty(id));
                 usedStrings[id] = true;
                 // const password = users[username].password;
                 const password = getUniqueString({});

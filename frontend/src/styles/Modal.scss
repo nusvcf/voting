@@ -7,6 +7,7 @@
     height: 100vh;
     left: 0;
     top: 0;
+    z-index: 100;
 }
 
 .modal-body {
@@ -17,6 +18,8 @@
     max-width: 800px;
 
     padding: 24px;
+    height: calc(100vh - 112px);
+    overflow-y: scroll;
 
     .close-btn {
         float: right;
