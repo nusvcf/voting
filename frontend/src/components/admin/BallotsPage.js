@@ -43,6 +43,9 @@ class BallotRow extends Component {
         if (ballot.isOpen) {
             status = "Ongoing";
             btns = [
+                <button key={"res"} onClick={this.showResults} className='btn-secondary'>
+                    Results
+                </button>,
                 <button key={"close"} onClick={this.closeBallot}>
                     Close Ballot
                 </button>
