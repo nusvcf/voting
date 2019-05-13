@@ -63,6 +63,7 @@ class LoginForm extends Component {
                     <label htmlFor=''>Password</label>
                     <input type='password' value={this.state.password} onChange={this.handlePasswordChange} />
                 </div>
+                {this.state.loggingIn && <div className='alert alert-info'>Logging you in...</div>}
                 {!this.state.loggingIn && <input type='submit' value='Login' />}
                 <p>{this.state.errorMessage}</p>
             </form>

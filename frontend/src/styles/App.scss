@@ -26,6 +26,16 @@ select {
     text-decoration: line-through;
 }
 
+.loading {
+    width: 100%;
+    text-align: center;
+    padding-top: 32px;
+    svg {
+        font-size: 24px;
+        opacity: 0.3;
+    }
+}
+
 .input-group {
     width: 100%;
     display: flex;

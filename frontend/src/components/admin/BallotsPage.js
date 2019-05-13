@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import BallotModal from "../modals/BallotModal";
 import ResultsModal from "../modals/ResultsModal";
+import LoadingDiv from "./LoadingDiv";
 
 class BallotRow extends Component {
     constructor() {
-		super();
+        super();
         this.state = {
             showModal: false
         };
@@ -108,12 +109,20 @@ class BallotRow extends Component {
                     </span>
                     <br />
                     <div className="percent-voted">
-						{ballot.percentageVotes.toFixed(2)}% voted<br />
-						{ballot.numValidVoters} valid voters, {ballot.numVotesInBallot} votes cast, of which {ballot.numNonAbstainVoters} non-abstain voters
+                        {ballot.percentageVotes.toFixed(2)}% voted
+                        <br />
+                        {ballot.numValidVoters} valid voters,{" "}
+                        {ballot.numVotesInBallot} votes cast, of which{" "}
+                        {ballot.numNonAbstainVoters} non-abstain voters
                     </div>
                 </td>
                 <td className="tbl-btns">{btns}</td>
-                {this.state.showModal && <ResultsModal hideModal={this.hideResults} ballot={ballot} />}
+                {this.state.showModal && (
+                    <ResultsModal
+                        hideModal={this.hideResults}
+                        ballot={ballot}
+                    />
+                )}
             </tr>
         );
     }
@@ -124,6 +133,7 @@ class BallotsPage extends Component {
     constructor() {
         super();
         this.state = {
+            fetchingData: true,
             showModal: false,
             ballots: []
         };
@@ -140,7 +150,7 @@ class BallotsPage extends Component {
         fetch("/admin/ballots")
             .then(data => data.json())
             .then(json => {
-                this.setState({ ballots: json });
+                this.setState({ ballots: json, fetchingData: false });
             })
             .catch(error => {
                 this.props.clearState();
@@ -157,7 +167,11 @@ class BallotsPage extends Component {
 
     render() {
         let rows = this.state.ballots.map((ballot, i) => (
-            <BallotRow key={ballot.id} ballot={ballot} fetchData={this.fetchData} />
+            <BallotRow
+                key={ballot.id}
+                ballot={ballot}
+                fetchData={this.fetchData}
+            />
         ));
 
         return (
@@ -183,6 +197,7 @@ class BallotsPage extends Component {
                     hideModal={this.hideModal}
                     onSubmit={this.fetchData}
                 />
+				<LoadingDiv show={this.state.fetchingData} />
             </div>
         );
     }
