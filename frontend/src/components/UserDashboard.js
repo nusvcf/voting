@@ -98,6 +98,7 @@ class VotingPage extends Component {
 }
 
 class UserDashboard extends Component {
+	interval = null; 
 	constructor() {
 		super();
 		this.state = {
@@ -110,7 +111,11 @@ class UserDashboard extends Component {
 		};
 
 		this.fetchData();
-		setInterval(this.fetchData, 2000);
+		this.interval = setInterval(this.fetchData, 2000);
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.interval);
 	}
 
 	fetchData = () => {

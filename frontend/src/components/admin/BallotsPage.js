@@ -53,6 +53,7 @@ class BallotRow extends Component {
 }
 
 class BallotsPage extends Component {
+	interval = null;
 	constructor() {
 		super();
 		this.state = {
@@ -61,13 +62,19 @@ class BallotsPage extends Component {
 		};
 
 		this.fetchData();
-		setInterval(this.fetchData, 800);
+		this.interval = setInterval(this.fetchData, 800);
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.interval);
 	}
 
 	fetchData = () => {
 		fetch('/admin/ballots').then((data) => data.json()).then((json) => {
 			this.setState({ ballots: json });
-		});
+		}).catch(error => {
+			this.props.clearState();
+		})
 	};
 
 	showModal = () => {

@@ -4,6 +4,7 @@ const checkId = require("../checkId");
 const checkIsAdmin = require("./checkIsAdmin");
 const Voter = require("../../classes/Voter");
 const uuid = require("uuid/v4");
+var local = require('../../localPersistance');
 
 let usedStrings = {};
 
@@ -52,6 +53,7 @@ function fn() {
 
             req.locals.app.voters[idx].isValid = false;
             response.success = true;
+            local.save(req.app.locals);
             res.json(response);
         })
 
@@ -99,6 +101,8 @@ function fn() {
                 req.app.locals.usernameToVoterIndex[username] = req.app.locals.numVoters;
                 req.app.locals.numVoters++;
             }
+
+            local.save(req.app.locals);
 
             response.success = true;
             response.errorCreating = errorCreating;

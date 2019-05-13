@@ -33,7 +33,7 @@ router.route("/ballot/:id")
         }
         //Check if names submitted belongs in vote
         for(let i = 0;i < names.length;i++) {
-            if(!ballot.isNameInBallot(names[i])) {
+            if(!ballot.isNameInBallot(names[i]) && names[i] != "Abstain" && names[i] != "No Confidence") {
                 valid = false;
             }
         }
