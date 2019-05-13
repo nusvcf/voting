@@ -8,6 +8,7 @@ const MemoryStore = require('memorystore')(session);
 const uuid = require('uuid/v4');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const path = require('path');
 
 //Variables
 const app = express();
@@ -54,8 +55,15 @@ app.use('/admin', require('./routes/admin/voters')());
 //User ballot route
 app.use('/user', require('./routes/user/ballot'));
 
+// For react app
+let pathname = path.join(__dirname,'../', 'frontend', 'build')
+app.use(express.static(pathname));
+app.get('*', (req, res) => {
+	res.sendFile(path.join(__dirname = path.join(pathname, 'index.html')));
+})
+
 //route for unavailable routes
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
 	res.status(404).send('404, content unavailable');
 });
 
