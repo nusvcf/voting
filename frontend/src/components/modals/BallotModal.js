@@ -57,8 +57,16 @@ class BallotModal extends Component {
             names: this.state.names
         }
         // Do a submit here
+        fetch('/admin/ballots', {
+            method: 'POST', 
+            headers: {
+				'Content-Type': 'application/json'
+            }, 
+            body: JSON.stringify(payload)
+        })
         this.setState({position: '', maxVotes: 1, names: [], currentName: ''})
         this.props.hideModal();
+        this.props.onSubmit();
     }
 
 	render() {

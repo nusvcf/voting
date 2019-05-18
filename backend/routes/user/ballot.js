@@ -33,7 +33,7 @@ router.route("/ballot/:id")
         }
         //Check if names submitted belongs in vote
         for(let i = 0;i < names.length;i++) {
-            if(!ballot.isNameInBallot(names[i])) {
+            if(!ballot.isNameInBallot(names[i]) && names[i] != "Abstain" && names[i] != "No Confidence") {
                 valid = false;
             }
         }
@@ -61,6 +61,7 @@ router.route("/ballot/:id")
 
 router.route("/ballot")
     .get(checkIsLoggedIn, (req, res) => {
+        const userId = req.session.userid;
         const ballotIdx = req.app.locals.numBallots - 1;
         const ballots = req.app.locals.ballots;
         let output = {
@@ -75,6 +76,11 @@ router.route("/ballot")
             return;
         }
         if(!ballots[ballotIdx].isValid || !ballots[ballotIdx].isOpen) {
+            res.json(output);
+            return;
+        }
+        // If user has submitted, they will not be able to view the ballot already
+        if(ballots[ballotIdx].userHasSubmitted(userId)) {
             res.json(output);
             return;
         }

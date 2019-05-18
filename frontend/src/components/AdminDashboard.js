@@ -19,8 +19,8 @@ class AdminDashboard extends Component {
     render() {
         return <div id='admin'>
             <Navbar page={this.state.page} changePage={this.changePage} />
-            {this.state.page === 'voters' && <VotersPage />}
-            {this.state.page === 'ballots' && <BallotsPage />}
+            {this.state.page === 'voters' && <VotersPage clearState={this.props.clearState} />}
+            {this.state.page === 'ballots' && <BallotsPage clearState={this.props.clearState} />}
         </div>
     }
 }

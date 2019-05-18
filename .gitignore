@@ -70,3 +70,6 @@ backend/index_mytest.js
 #front end stuff
 frontend/start.bat
 frontend/run.bat
+
+local.storage
+Votes.xlsx

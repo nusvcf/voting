@@ -15,6 +15,27 @@ select {
     font-family: "Karla";
 }
 
+.id {
+    color: $grey-4;
+    font-style: italic;
+    font-size: 12px;
+}
+
+.invalid {
+    color: $grey-4;
+    text-decoration: line-through;
+}
+
+.loading {
+    width: 100%;
+    text-align: center;
+    padding-top: 32px;
+    svg {
+        font-size: 24px;
+        opacity: 0.3;
+    }
+}
+
 .input-group {
     width: 100%;
     display: flex;
@@ -251,7 +272,7 @@ table {
     }
 
     #voters-page {
-        max-width: 600px;
+        max-width: 900px;
         .tbl-btns {
             width: 230px;
             
@@ -263,7 +284,7 @@ table {
             padding-left: 0;
         }
 
-        .status-ongoing, .status-completed {
+        .status-ongoing, .status-completed, .status-invalidated, .vote-status-normal, .vote-status-abstain, .vote-status-no-confidence {
             font-size: 14px;
             padding: 6px 12px;
             border-radius: 24px;
@@ -271,15 +292,27 @@ table {
             margin: 0 6px 4px 0;
         }
 
-        .status-ongoing {
+        .vote-status-normal, .vote-status-abstain, .vote-status-no-confidence {
+            margin: 4px 0;
+        }
+
+        .status-ongoing, .vote-status-normal {
             background-color: $primary-2;
             color: $primary-9;
+        }
+
+        .status-ongoing {
             border-bottom: 2px solid $primary-3;
         }
 
-        .status-completed {
+        .status-completed, .vote-status-abstain {
             background-color: $grey-2;
             color: $grey-9;
+        }
+
+        .status-invalidated, .vote-status-no-confidence {
+            background-color: $red-2;
+            color: $red-8;
         }
 
         .percent-voted {
