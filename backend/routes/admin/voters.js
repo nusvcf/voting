@@ -129,3 +129,6 @@ function fn() {
 }
 
 module.exports = fn;
+module.exports.generateStr = generateStr;
+module.exports.getUniqueString = getUniqueString;
+module.exports.getPaddedString = getPaddedString;

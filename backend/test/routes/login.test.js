@@ -4,8 +4,43 @@ const app =  require("../../index");
 chai.use(chaiHttp);
 chai.should();
 
-describe("#Login", () => {
+describe("#Login", function() {
+    this.timeout(5000);
     let agent = chai.request.agent(app);
+    let username;
+    let password;
+    after(() => {
+        const fs = require("fs");
+        fs.unlinkSync("./local.storage");
+    });
+    before(async () => {
+        await agent //log in
+            .post("/login")
+            .set("content-type", "application/json")
+            .send({username: "admin", password: "password"})
+            .then()
+            .catch(err => {
+                throw err;
+            });
+        await agent //add voter
+            .post("/admin/voters")
+            .set("content-type", "application/json")
+            .send({start: "0", end:"1"})
+            .then()
+            .catch(err => {
+                throw err;
+            });
+        await agent //get voter details
+            .get("/admin/voters")
+            .then(res => {
+                const voter = res.body[1]; // for some reason other tests are invalidating the user ?_?, quick fix - use another index...
+                username = voter.username;
+                password = voter.password;
+            })
+            .catch(err => {
+                throw err;
+            });
+    });
     describe("POST", () => {
         it("Should reject an invalid username and password", done => {
             chai.request(app)
@@ -34,35 +69,16 @@ describe("#Login", () => {
         }).timeout(5000);
         it("Should log in a valid user", done => {
             agent
-                .post("/admin/voters")
+                .post("/login")
                 .set("content-type", "application/json")
-                .send({start: "0", end:"0"})
+                .send({username: username, password: password})
                 .then(res => {
-                        agent
-                            .get("/admin/voters")
-                            .then(res => {
-                                const voter = res.body[0];
-                                const { username, password } = voter;
-                                agent
-                                    .post("/login")
-                                    .set("content-type", "application/json")
-                                    .send({username: username, password: password})
-                                    .then(res => {
-                                        res.body.success.should.be.true;
-                                        agent.close();
-                                        done();
-                                    })
-                                    .catch(err => {
-                                        throw err;
-                                    });
-                            })
-                            .catch(err => {
-                                throw err;
-                            });
-                    })
-                    .catch(err => {
-                        throw err;
-                    });
+                    res.body.success.should.be.true;
+                    done();
+                })
+                .catch(err => {
+                    throw err;
+                });
         });
     });
 });
