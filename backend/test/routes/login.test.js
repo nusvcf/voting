@@ -41,7 +41,7 @@ describe("#Login", function() {
                 throw err;
             });
     });
-    describe("POST", () => {
+    describe("POST (Logging in)", () => {
         it("Should reject an invalid username and password", done => {
             chai.request(app)
                 .post("/login")

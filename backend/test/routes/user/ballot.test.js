@@ -12,7 +12,6 @@ describe("#User Voters (assumes admin pw is \"password\")", function() {
     after(async () => {
         const fs = require("fs");
         fs.unlinkSync("./local.storage");
-        //fs.unlinkSync("./Votes.xlsx");
     });
     before(async () => {
         await agent
@@ -53,7 +52,7 @@ describe("#User Voters (assumes admin pw is \"password\")", function() {
                 throw err;
             });
         });
-        describe("GET", () => {
+        describe("GET (Gets the latest ballot)", () => {
             let ballotId;
             it("Should return proper details if there is a ballot ongoing", async () => {
                 // add a ballot
@@ -95,7 +94,7 @@ describe("#User Voters (assumes admin pw is \"password\")", function() {
                     });
             }); 
         });
-        describe("POST/:id", () => {
+        describe("POST/:id (Posts vote options)", () => {
             let ballotId;
             before(async () => {
                 // add a ballot
@@ -266,5 +265,40 @@ describe("#User Voters (assumes admin pw is \"password\")", function() {
                         throw err;
                     });
             });
-        })
+        });
+        describe("Make sure non logged users cannot access", () => {
+            let ballotId;
+            before(async () => {
+                // add a ballot
+                const toSend = {
+                    position: "Vice Treasurer",
+                    names: ["Tan Ah Ming", "Ang Xiao Ming", "Terry Sim"],
+                    maxVotes: 1
+                };
+                await agent
+                    .post("/admin/ballots")
+                    .send(toSend)
+                    .then(res => {ballotId = res.body.id})
+                    .catch(err => {
+                        throw err;
+                    });                
+            });
+            it("GET", done => {
+                chai.request(app)
+                    .get("/user/ballot/")
+                    .then(res => {
+                        res.status.should.equals(401);
+                        done();
+                    });
+            });
+            it("POST/:id", done => {
+                chai.request(app)
+                    .post(`/user/ballot/${ballotId}`)
+                    .send({names: ["Tan Ah Ming"]})
+                    .then(res => {
+                        res.status.should.equals(401);
+                        done();
+                    });
+            });
+        });
     });
