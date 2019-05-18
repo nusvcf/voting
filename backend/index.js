@@ -12,9 +12,7 @@ const path = require('path');
 
 //Variables
 const app = express();
-
 app.locals.adminPwHash = JSON.parse(fs.readFileSync('admin.auth'));
-
 app.locals.ballots = [];
 app.locals.idToBallotIndex = {};
 app.locals.numBallots = 0;
@@ -70,3 +68,5 @@ app.use(function (req, res, next) {
 app.listen(port, () => {
 	console.log(`Backend listening on port ${port}`);
 });
+
+module.exports = app;
