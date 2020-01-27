@@ -66,6 +66,7 @@ typings/
 backend/users.json
 backend/run_server.bat
 backend/index_mytest.js
+backend/admin.auth
 
 #front end stuff
 frontend/start.bat
