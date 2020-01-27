@@ -8,6 +8,7 @@ To get up and running:
 
     ```
     cd backend
+    npm install # When first running, or if there are new packages
     node index.js
     ```
 
@@ -15,6 +16,7 @@ To get up and running:
 
     ```
     cd frontend
+    npm install # When first running, or if there are new packages
     npm start
     ```
 
