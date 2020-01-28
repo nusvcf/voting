@@ -3,12 +3,18 @@
 ## Running in Development
 
 To get up and running:
-
+0. Prepare the backend:
+    ```
+    cd backend
+    ```
+    create a file titled ".env" which has the contents 'secret = "%%%"', where %%% is the password you plan to use for the admin account.
+    
 1. Start the backend:
 
     ```
     cd backend
     npm install # When first running, or if there are new packages
+    node generatePassword.js # creating the admin password.  use this password to log in later.  The username is "admin"
     node index.js
     ```
 
