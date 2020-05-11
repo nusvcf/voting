@@ -8,6 +8,28 @@ const XlsxPopulate = require("xlsx-populate");
 
 const local = require("../../localPersistance");
 
+function write_excel_sheet(workbook, ballot, ballotsLength) {
+    workbook.addSheet(ballot.position + ballotsLength);
+    workbook
+        .sheet(ballot.position + ballotsLength)
+        .range("A1:C1")
+        .value([["Voter Id", "Voted For", "Status"]]);
+    var i = 2;
+    Object.keys(ballot.submittedUsers).forEach(id => {
+        workbook
+            .sheet(ballot.position + ballotsLength)
+            .range("A" + i + ":C" + i)
+            .value([
+                [
+                    id,
+                    ballot.submittedUsers[id].votedFor.join(", "),
+                    ballot.submittedUsers[id].status
+                ]
+            ]);
+        i++;
+    });
+}
+
 router
     .route("/ballots/:id")
     .put(checkIsAdmin, (req, res) => {
@@ -35,37 +57,29 @@ router
 
         let ballotsLength = req.app.locals.ballots.length;
         let ballot = req.app.locals.ballots[idx];
-
-        // Save into the Excel file
-        XlsxPopulate.fromFileAsync("./Votes.xlsx", {
+        
+        /*XlsxPopulate.fromFileAsync("./Votes.xlsx", {
             password: req.app.locals.adminPw
         }).then(workbook => {
-            // Modify the workbook.
-            workbook.addSheet(ballot.position + ballotsLength);
-            workbook
-                .sheet(ballot.position + ballotsLength)
-                .range("A1:C1")
-                .value([["Voter Id", "Voted For", "Status"]]);
-            var i = 2;
-            Object.keys(ballot.submittedUsers).forEach(id => {
-                workbook
-                    .sheet(ballot.position + ballotsLength)
-                    .range("A" + i + ":C" + i)
-                    .value([
-                        [
-                            id,
-                            ballot.submittedUsers[id].votedFor.join(", "),
-                            ballot.submittedUsers[id].status
-                        ]
-                    ]);
-                i++;
+            write_excel_sheet(workbook, ballot, ballotsLength);
+            // Write to file.
+            return workbook.toFileAsync("./Votes.xlsx", {
+                password: req.app.locals.adminPw
             });
+        });*/
+        
+        // Rewrite the entire excel file
+        XlsxPopulate.fromBlankAsync().then(workbook => {
+            for (let i = 0; i < ballots.length; i++) {
+                write_excel_sheet(workbook, ballots[i], i)
+            }
+            
             // Write to file.
             return workbook.toFileAsync("./Votes.xlsx", {
                 password: req.app.locals.adminPw
             });
         });
-
+        
         res.json({ success: true });
     });
 
@@ -187,6 +201,7 @@ router
             };
             output.push(outputBallotObj);
         }
+        
         res.json(output);
     });
 
