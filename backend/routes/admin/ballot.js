@@ -70,8 +70,8 @@ router
         
         // Rewrite the entire excel file
         XlsxPopulate.fromBlankAsync().then(workbook => {
-            for (let i = 0; i < ballots.length; i++) {
-                write_excel_sheet(workbook, ballots[i], i)
+            for (let i = 0; i < req.app.locals.ballots.length; i++) {
+                write_excel_sheet(workbook, req.app.locals.ballots[i], i)
             }
             
             // Write to file.
