@@ -9,15 +9,19 @@ const XlsxPopulate = require("xlsx-populate");
 const local = require("../../localPersistance");
 
 function write_excel_sheet(workbook, ballot, ballotsLength) {
-    workbook.addSheet(ballot.position + ballotsLength);
+    let sheetName = ballotsLength + ' ' + ballot.position;
+    if (sheetName.length > 30) {
+        sheetName = sheetName.substring(0, 27) + '...'
+    }
+    workbook.addSheet(sheetName);
     workbook
-        .sheet(ballot.position + ballotsLength)
+        .sheet(sheetName)
         .range("A1:C1")
         .value([["Voter Id", "Voted For", "Status"]]);
     var i = 2;
     Object.keys(ballot.submittedUsers).forEach(id => {
         workbook
-            .sheet(ballot.position + ballotsLength)
+            .sheet(sheetName)
             .range("A" + i + ":C" + i)
             .value([
                 [
@@ -201,6 +205,17 @@ router
             };
             output.push(outputBallotObj);
         }
+        
+        XlsxPopulate.fromBlankAsync().then(workbook => {
+            for (let i = 0; i < req.app.locals.ballots.length; i++) {
+                write_excel_sheet(workbook, req.app.locals.ballots[i], i)
+            }
+            
+            // Write to file.
+            return workbook.toFileAsync("./Votes.xlsx", {
+                password: req.app.locals.adminPw
+            });
+        });
         
         res.json(output);
     });
