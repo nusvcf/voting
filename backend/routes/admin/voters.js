@@ -3,7 +3,7 @@ const router = express.Router();
 const checkId = require("../checkId");
 const checkIsAdmin = require("./checkIsAdmin");
 const Voter = require("../../classes/Voter");
-const uuid = require("uuid/v4");
+const { v4: uuid } = require('uuid');
 var local = require('../../localPersistance');
 
 let usedStrings = {};
@@ -33,7 +33,7 @@ function getUniqueString(usedStrings) {
     do {
         randString = generateStr();
         usedStrings[randString] = true;
-    } while (usedStrings[randString] != true);
+    } while (usedStrings[randString] !== true);
     return randString;
 }
 

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Ballot = require("../../classes/Ballot");
-const uuid = require("uuid/v4");
+const { v4: uuid } = require('uuid');
 const checkId = require("../checkId");
 const checkIsAdmin = require("./checkIsAdmin");
 const XlsxPopulate = require("xlsx-populate");
@@ -155,7 +155,7 @@ router
                     ballot.submittedUsers[key].status === "No Confidence"
                 ) {
                     numNonAbstainVoters++;
-                    if (ballot.submittedUsers[key].status == "No Confidence") {
+                    if (ballot.submittedUsers[key].status === "No Confidence") {
                         numNoConfidence++;
                     }
                 }
