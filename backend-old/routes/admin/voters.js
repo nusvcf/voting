@@ -4,9 +4,8 @@ const checkId = require("../checkId");
 const checkIsAdmin = require("./checkIsAdmin");
 const Voter = require("../../classes/Voter");
 const { v4: uuid } = require('uuid');
-var local = require('../../localPersistance');
+// const local = require('../../localPersistance');
 
-let usedStrings = {};
 
 //Returns a padded string of zeros from an input value
 //https://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
@@ -25,16 +24,6 @@ function generateStr() {
         output += characters.charAt(Math.floor(Math.random() * charLength));
     }
     return output;
-}
-
-//Makes sure the string generated has not been generated before
-function getUniqueString(usedStrings) {
-    let randString = "";
-    do {
-        randString = generateStr();
-        usedStrings[randString] = true;
-    } while (usedStrings[randString] !== true);
-    return randString;
 }
 
 
@@ -109,8 +98,7 @@ function fn() {
                     id = uuid();
                 } while (usedStrings.hasOwnProperty(id));
                 usedStrings[id] = true;
-                // const password = users[username].password;
-                const password = getUniqueString({});
+                const password = generateStr();
                 const voter = new Voter(username, id, password);
                 req.app.locals.voters.push(voter);
                 req.app.locals.idToVoterIndex[id] = req.app.locals.numVoters;
