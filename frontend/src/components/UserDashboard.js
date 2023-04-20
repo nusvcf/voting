@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import logo from "../imgs/logo-small.png";
 
 const WelcomeText = () => (
@@ -19,89 +19,85 @@ const WaitingText = () => (
 const no_conf_text = "I have no confidence in any of these candidates.";
 const abstain_text = "I wish to abstain from this round of voting.";
 
-class VotingOption extends Component {
-    render() {
-        let key = this.props.text;
-        let inputType = "checkbox";
-        if (this.props.text === no_conf_text) {
-            key = "No Confidence";
-            inputType = "radio";
-        } else if (this.props.text === abstain_text) {
-            key = "Abstain";
-            inputType = "radio";
-        } else if (this.props.maxVotes == 1) {
-            inputType = "radio";
-        }
-        let selected = this.props.selected[key];
-        return (
-            <div className="option">
-                <input
-                    type={inputType}
-                    id={this.props.id}
-                    onChange={e => this.props.updateVote(this.props.text, e)}
-                    checked={selected}
-                />
-                <label id={this.props.id + "-label"} htmlFor={this.props.id}>
-                    {this.props.text}
-                </label>
-            </div>
-        );
+function VotingOption(props) {
+    let key = props.text;
+    let inputType = "checkbox";
+    if (props.text === no_conf_text) {
+        key = "No Confidence";
+        inputType = "radio";
+    } else if (props.text === abstain_text) {
+        key = "Abstain";
+        inputType = "radio";
+    } else if (props.maxVotes === 1) {
+        inputType = "radio";
     }
+    let selected = props.selected[key];
+    return (
+        <div className="option">
+            <input
+                type={inputType}
+                id={props.id}
+                onChange={e => props.updateVote(props.text, e)}
+                checked={selected}
+            />
+            <label id={props.id + "-label"} htmlFor={props.id}>
+                {props.text}
+            </label>
+        </div>
+    );
 }
 
-class VotingPage extends Component {
-    render() {
-        let options = this.props.names.map(name => (
-            <VotingOption
-                key={name}
-                id={name.replace(" ", "-")}
-                text={name}
-                updateVote={this.props.updateVote}
-                selected={this.props.selected}
-                maxVotes={this.props.maxVotes}
-            />
-        ));
-        options.push(
-            <VotingOption
-                key="no-conf"
-                id="no-conf"
-                text={no_conf_text}
-                updateVote={this.props.updateVote}
-                selected={this.props.selected}
-                maxVotes={this.props.maxVotes}
-            />
-        );
-        options.push(
-            <VotingOption
-                key="abstain"
-                id="abstain"
-                text={abstain_text}
-                updateVote={this.props.updateVote}
-                selected={this.props.selected}
-                maxVotes={this.props.maxVotes}
-            />
-        );
-        return (
-            <div id="voting-page">
-                <div id="currently-voting-for">
-                    Currently voting for:{" "}
-                    <div id="position">{this.props.position}</div>
-                </div>
-                {this.props.maxVotes > 1 && (
-                    <div>
-                        You can select up to <b>2</b> names.
-                    </div>
-                )}
-                {this.props.maxVotes == 1 && (
-                    <div>
-                        You can only select <b>1</b> name.
-                    </div>
-                )}
-                <div id="options">{options}</div>
-                <button onClick={this.props.sendVote}>Send Vote</button>
+function VotingPage(props) {
+    let options = props.names.map(name => (
+        <VotingOption
+            key={name}
+            id={name.replace(" ", "-")}
+            text={name}
+            updateVote={props.updateVote}
+            selected={props.selected}
+            maxVotes={props.maxVotes}
+        />
+    ));
+    options.push(
+        <VotingOption
+            key="no-conf"
+            id="no-conf"
+            text={no_conf_text}
+            updateVote={props.updateVote}
+            selected={props.selected}
+            maxVotes={props.maxVotes}
+        />
+    );
+    options.push(
+        <VotingOption
+            key="abstain"
+            id="abstain"
+            text={abstain_text}
+            updateVote={props.updateVote}
+            selected={props.selected}
+            maxVotes={props.maxVotes}
+        />
+    );
+    return (
+        <div id="voting-page">
+            <div id="currently-voting-for">
+                Currently voting for:{" "}
+                <div id="position">{props.position}</div>
             </div>
-        );
-    }
+            {props.maxVotes > 1 && (
+                <div>
+                    You can select up to <b>2</b> names.
+                </div>
+            )}
+            {props.maxVotes === 1 && (
+                <div>
+                    You can only select <b>1</b> name.
+                </div>
+            )}
+            <div id="options">{options}</div>
+            <button onClick={props.sendVote}>Send Vote</button>
+        </div>
+    );
 }
 
 class UserDashboard extends Component {
@@ -145,7 +141,7 @@ class UserDashboard extends Component {
                         maxVotes: json.maxVotes
                     });
                 } else {
-                    if (this.state.status != "welcome") {
+                    if (this.state.status !== "welcome") {
                         this.setState({
                             status: "waiting",
                             id: "",
@@ -178,7 +174,7 @@ class UserDashboard extends Component {
             if (e.target.checked) {
                 selected["No Confidence"] = false;
                 selected["Abstain"] = false;
-                if (this.state.maxVotes == 1) {
+                if (this.state.maxVotes === 1) {
                     // Deselect all other votes
                     for (let key in selected) {
                         if (key !== name) {
@@ -200,7 +196,7 @@ class UserDashboard extends Component {
                 names.push(key);
             }
         }
-        if (names.length == 0) {
+        if (names.length === 0) {
             this.props.setError("Please select an option.");
             return;
         }

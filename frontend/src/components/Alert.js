@@ -1,12 +1,10 @@
-import React, {Component} from 'react';
+import React from 'react';
 import '../styles/Alert.scss';
 
-class Alert extends Component {
-    render() {
-        return <div className={'alert alert-'+this.props.alertType + (this.props.visible ? ' alert-show': ' alert-hide')}>
-            {this.props.children}
-        </div>
-    }
+function Alert(props) {
+    return <div className={'alert alert-' + props.alertType + (props.visible ? ' alert-show' : ' alert-hide')}>
+        {props.children}
+    </div>
 }
 
 export default Alert;

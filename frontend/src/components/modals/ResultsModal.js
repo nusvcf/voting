@@ -177,7 +177,7 @@ class ResultsModal extends Component {
         let ballot = this.props.ballot;
         let switchViewBtn, view;
 
-        if (this.state.view == "voter") {
+        if (this.state.view === "voter") {
             switchViewBtn = (
                 <button
                     className="btn-secondary"
