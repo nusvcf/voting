@@ -8,7 +8,7 @@ import (
 
 var key = []byte("MY-KEY-HERE")
 
-func CreateJWT(userId string, expDuration time.Duration) (string, error) {
+func createJWT(userId string, expDuration time.Duration) (string, error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  userId,
 		"exp": time.Now().Add(expDuration).Unix(),
@@ -17,7 +17,7 @@ func CreateJWT(userId string, expDuration time.Duration) (string, error) {
 	return t.SignedString(key)
 }
 
-func ParseJWT(tokenString string) (string, error) {
+func parseJWT(tokenString string) (string, error) {
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		return key, nil

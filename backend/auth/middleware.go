@@ -14,7 +14,7 @@ func Middleware(forAdmin bool) func(c *gin.Context) {
 			return
 		}
 
-		userId, err := ParseJWT(cookie)
+		userId, err := parseJWT(cookie)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
@@ -30,12 +30,13 @@ func Middleware(forAdmin bool) func(c *gin.Context) {
 			return
 		}
 
+		c.Set("userId", userId)
 		c.Next()
 	}
 }
 
 func AddAuthCookie(c *gin.Context, userId string) error {
-	token, err := CreateJWT(userId, time.Minute*5)
+	token, err := createJWT(userId, time.Minute*5)
 	if err != nil {
 		return err
 	}

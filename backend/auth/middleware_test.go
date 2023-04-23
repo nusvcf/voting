@@ -1,8 +1,7 @@
-package auth_test
+package auth
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/nusvcf/voting/backend/auth"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -22,15 +21,15 @@ var _ = Describe("Middleware", func() {
 		recorder = httptest.NewRecorder()
 		c, _ = gin.CreateTestContext(recorder)
 
-		validAdminJWT, _ = auth.CreateJWT("admin", time.Minute)
-		validUserJWT, _ = auth.CreateJWT("0001", time.Minute)
+		validAdminJWT, _ = createJWT("admin", time.Minute)
+		validUserJWT, _ = createJWT("0001", time.Minute)
 	})
 
 	When("middleware should only validate admins", func() {
 		It("blocks invalid logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
 			c.Request = req
-			auth.Middleware(true)(c)
+			Middleware(true)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
 		})
 
@@ -41,7 +40,7 @@ var _ = Describe("Middleware", func() {
 				Value: validAdminJWT,
 			})
 			c.Request = req
-			auth.Middleware(true)(c)
+			Middleware(true)(c)
 			Expect(recorder.Code).ToNot(Equal(http.StatusUnauthorized))
 		})
 
@@ -52,7 +51,7 @@ var _ = Describe("Middleware", func() {
 				Value: validUserJWT,
 			})
 			c.Request = req
-			auth.Middleware(true)(c)
+			Middleware(true)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
 		})
 	})
@@ -65,7 +64,7 @@ var _ = Describe("Middleware", func() {
 				Value: "invalid-value",
 			})
 			c.Request = req
-			auth.Middleware(false)(c)
+			Middleware(false)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
 		})
 
@@ -76,7 +75,7 @@ var _ = Describe("Middleware", func() {
 				Value: validUserJWT,
 			})
 			c.Request = req
-			auth.Middleware(false)(c)
+			Middleware(false)(c)
 			Expect(recorder.Code).ToNot(Equal(http.StatusUnauthorized))
 		})
 
@@ -87,9 +86,23 @@ var _ = Describe("Middleware", func() {
 				Value: validAdminJWT,
 			})
 			c.Request = req
-			auth.Middleware(false)(c)
+			Middleware(false)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
 		})
+	})
+
+	It("includes userId in gin context", func() {
+		req := httptest.NewRequest(http.MethodGet, "/test", nil)
+		req.AddCookie(&http.Cookie{
+			Name:  "auth",
+			Value: validUserJWT,
+		})
+		c.Request = req
+		Middleware(false)(c)
+
+		userId, exists := c.Get("userId")
+		Expect(exists).To(BeTrue())
+		Expect(userId).To(Equal("0001"))
 	})
 })
 
@@ -98,12 +111,12 @@ var _ = Describe("Add Cookie", func() {
 		recorder := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(recorder)
 
-		err := auth.AddAuthCookie(c, "my-user-id")
+		err := AddAuthCookie(c, "my-user-id")
 		Expect(err).To(BeNil())
 		Expect(recorder.Result().Cookies()).NotTo(BeEmpty())
 
 		authCookieValue := recorder.Result().Cookies()[0]
-		userId, err := auth.ParseJWT(authCookieValue.Value)
+		userId, err := parseJWT(authCookieValue.Value)
 		Expect(err).To(BeNil())
 		Expect(userId).To(Equal("my-user-id"))
 	})
