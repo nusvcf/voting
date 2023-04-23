@@ -29,7 +29,6 @@ var _ = Describe("Middleware", func() {
 	When("middleware should only validate admins", func() {
 		It("blocks invalid logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.Header.Set("Authorization", "Bearer invalid-jwt")
 			c.Request = req
 			auth.Middleware(true)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
@@ -37,7 +36,10 @@ var _ = Describe("Middleware", func() {
 
 		It("allows valid admin logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.Header.Set("Authorization", "Bearer "+validAdminJWT)
+			req.AddCookie(&http.Cookie{
+				Name:  "auth",
+				Value: validAdminJWT,
+			})
 			c.Request = req
 			auth.Middleware(true)(c)
 			Expect(recorder.Code).ToNot(Equal(http.StatusUnauthorized))
@@ -45,7 +47,10 @@ var _ = Describe("Middleware", func() {
 
 		It("blocks valid user logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.Header.Set("Authorization", "Bearer "+validUserJWT)
+			req.AddCookie(&http.Cookie{
+				Name:  "auth",
+				Value: validUserJWT,
+			})
 			c.Request = req
 			auth.Middleware(true)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
@@ -55,7 +60,10 @@ var _ = Describe("Middleware", func() {
 	When("middleware should only validate users", func() {
 		It("blocks invalid logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.Header.Set("Authorization", "Bearer invalid-jwt")
+			req.AddCookie(&http.Cookie{
+				Name:  "auth",
+				Value: "invalid-value",
+			})
 			c.Request = req
 			auth.Middleware(false)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
@@ -63,7 +71,10 @@ var _ = Describe("Middleware", func() {
 
 		It("allows valid user logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.Header.Set("Authorization", "Bearer "+validUserJWT)
+			req.AddCookie(&http.Cookie{
+				Name:  "auth",
+				Value: validUserJWT,
+			})
 			c.Request = req
 			auth.Middleware(false)(c)
 			Expect(recorder.Code).ToNot(Equal(http.StatusUnauthorized))
@@ -71,7 +82,10 @@ var _ = Describe("Middleware", func() {
 
 		It("blocks valid admin logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.Header.Set("Authorization", "Bearer "+validAdminJWT)
+			req.AddCookie(&http.Cookie{
+				Name:  "auth",
+				Value: validAdminJWT,
+			})
 			c.Request = req
 			auth.Middleware(false)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
