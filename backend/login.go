@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/nusvcf/voting/backend/db"
 	"net/http"
 )
 
@@ -24,8 +25,20 @@ func loginHandler(c *gin.Context) {
 	}
 
 	var resp LoginResponse
+
+	_, err := db.GetDB().CheckSingleVoter(payload.Username, payload.Password)
+	if err != nil {
+		c.JSON(http.StatusOK, resp)
+		return
+	}
+
+	userType := "user"
+	if payload.Username == "admin" {
+		userType = "admin"
+	}
+
 	resp.Success = true
-	resp.UserType = "admin"
+	resp.UserType = userType
 
 	c.JSON(http.StatusOK, resp)
 }
