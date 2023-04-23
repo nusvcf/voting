@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 func Middleware(forAdmin bool) func(c *gin.Context) {
@@ -31,4 +32,14 @@ func Middleware(forAdmin bool) func(c *gin.Context) {
 
 		c.Next()
 	}
+}
+
+func AddAuthCookie(c *gin.Context, userId string) error {
+	token, err := CreateJWT(userId, time.Minute*5)
+	if err != nil {
+		return err
+	}
+
+	c.SetCookie("auth", token, 300, "/", "localhost", true, true)
+	return nil
 }
