@@ -4,7 +4,7 @@ CREATE TABLE bootstrap (
 
 CREATE TABLE voter (
     id          uuid PRIMARY KEY   DEFAULT gen_random_uuid(),
-    username    TEXT      NOT NULL,
+    username    TEXT      NOT NULL UNIQUE,
     password    TEXT      NOT NULL,
     created     TIMESTAMP NOT NULL DEFAULT NOW(),
     last_seen   TIMESTAMP,
