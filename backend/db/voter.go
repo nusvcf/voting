@@ -77,3 +77,9 @@ func (d *Database) DeleteVoter(id uuid.UUID) error {
 		Args: []interface{}{id},
 	})
 }
+
+func (d *Database) DeleteAllVoters() error {
+	return d.exec(queryOpts{
+		SQL: `DELETE FROM voter`,
+	})
+}

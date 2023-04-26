@@ -21,8 +21,8 @@ var _ = Describe("Middleware", func() {
 		recorder = httptest.NewRecorder()
 		c, _ = gin.CreateTestContext(recorder)
 
-		validAdminJWT, _ = createJWT("admin", time.Minute)
-		validUserJWT, _ = createJWT("0001", time.Minute)
+		validAdminJWT, _ = CreateJWT("admin", time.Minute)
+		validUserJWT, _ = CreateJWT("0001", time.Minute)
 	})
 
 	When("middleware should only validate admins", func() {

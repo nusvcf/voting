@@ -1,14 +1,16 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"github.com/brianvoe/gofakeit/v6"
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
+	"github.com/nusvcf/voting/backend/utils"
+
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/brianvoe/gofakeit/v6"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -46,11 +48,7 @@ var _ = Describe("Login", func() {
 		var voter structs.Voter
 
 		BeforeEach(func() {
-			voter = structs.Voter{
-				Username: gofakeit.Name(),
-				Password: gofakeit.Password(true, true, true, false, false, 8),
-			}
-
+			voter = utils.CreateVoter()
 			voter.ID, _ = db.GetDB().CreateVoter(voter)
 		})
 

@@ -30,5 +30,10 @@ func setupRouter() *gin.Engine {
 	adminRoutes := r.Group("/admin")
 	adminRoutes.Use(auth.Middleware(true))
 
+	adminRoutes.GET("/voters", getVotersHandler)
+	adminRoutes.POST("/voters", createVotersHandler)
+	adminRoutes.PUT("/voters/:id", invalidVoterHandler)
+	adminRoutes.DELETE("/voters/:id", deleteVoterHandler)
+
 	return r
 }

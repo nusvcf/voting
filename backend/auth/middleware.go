@@ -36,7 +36,7 @@ func Middleware(forAdmin bool) func(c *gin.Context) {
 }
 
 func AddAuthCookie(c *gin.Context, userId string) error {
-	token, err := createJWT(userId, time.Minute*5)
+	token, err := CreateJWT(userId, time.Minute*5)
 	if err != nil {
 		return err
 	}

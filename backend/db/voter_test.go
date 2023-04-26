@@ -1,9 +1,9 @@
 package db_test
 
 import (
-	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gofrs/uuid"
 	"github.com/nusvcf/voting/backend/structs"
+	"github.com/nusvcf/voting/backend/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"time"
@@ -25,11 +25,14 @@ func getVoterById(id uuid.UUID) structs.Voter {
 }
 
 var _ = Describe("Login", func() {
+	AfterEach(func() {
+		_ = dbObj.DeleteAllVoters()
+	})
 
 	It("can create account", func() {
-		newVoter := createVoter()
-
 		var err error
+
+		newVoter := utils.CreateVoter()
 		newVoter.ID, err = dbObj.CreateVoter(newVoter)
 
 		Expect(err).To(BeNil())
@@ -37,7 +40,7 @@ var _ = Describe("Login", func() {
 	})
 
 	When("there is an existing voter", func() {
-		voter := createVoter()
+		voter := utils.CreateVoter()
 
 		BeforeEach(func() {
 			voter.ID, _ = dbObj.CreateVoter(voter)
@@ -103,10 +106,3 @@ var _ = Describe("Login", func() {
 	})
 
 })
-
-func createVoter() structs.Voter {
-	return structs.Voter{
-		Username: gofakeit.Name(),
-		Password: gofakeit.Password(true, true, true, false, false, 8),
-	}
-}

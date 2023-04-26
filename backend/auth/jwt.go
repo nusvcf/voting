@@ -8,7 +8,7 @@ import (
 
 var key = []byte("MY-KEY-HERE")
 
-func createJWT(userId string, expDuration time.Duration) (string, error) {
+func CreateJWT(userId string, expDuration time.Duration) (string, error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  userId,
 		"exp": time.Now().Add(expDuration).Unix(),
