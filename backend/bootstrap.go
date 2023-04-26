@@ -56,6 +56,19 @@ func verifyPassword(combinedHash, providedPassword string) error {
 	}
 }
 
+type CheckBootstrapResponse struct {
+	IsBootstrapped bool `json:"is_bootstrapped"`
+}
+
+func isBootstrappedHandler(c *gin.Context) {
+	var resp CheckBootstrapResponse
+	_, err := db.GetDB().GetBootstrap()
+	if err == nil {
+		resp.IsBootstrapped = true
+	}
+	c.JSON(http.StatusOK, resp)
+}
+
 type BootstrapPayload struct {
 	AdminPassword string `json:"admin_password"`
 }

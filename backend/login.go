@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/nusvcf/voting/backend/auth"
 	"github.com/nusvcf/voting/backend/db"
 	"net/http"
 )
@@ -38,14 +39,18 @@ func loginHandler(c *gin.Context) {
 			return
 		}
 
+		_ = auth.AddAuthCookie(c, "admin")
+
 		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "admin"})
 	} else {
 		// Handle voter
-		_, err := db.GetDB().CheckSingleVoter(payload.Username, payload.Password)
+		id, err := db.GetDB().CheckSingleVoter(payload.Username, payload.Password)
 		if err != nil {
 			c.JSON(http.StatusOK, LoginResponse{})
 			return
 		}
+
+		_ = auth.AddAuthCookie(c, id.String())
 
 		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "user"})
 	}

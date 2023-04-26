@@ -44,6 +44,12 @@ var _ = Describe("Bootstrap", func() {
 	})
 
 	When("system is not yet bootstrapped", func() {
+		It("returns bootstrapped = false", func() {
+			resp, err := performCheckBootstrap()
+			Expect(err).To(BeNil())
+			Expect(resp.IsBootstrapped).To(BeFalse())
+		})
+
 		It("can boostrap", func() {
 			statusCode := performBootstrap("my-admin-password")
 			Expect(statusCode).To(Equal(http.StatusOK))
@@ -60,6 +66,12 @@ var _ = Describe("Bootstrap", func() {
 			performBootstrap("my-admin-password")
 		})
 
+		It("returns bootstrapped = true", func() {
+			resp, err := performCheckBootstrap()
+			Expect(err).To(BeNil())
+			Expect(resp.IsBootstrapped).To(BeTrue())
+		})
+
 		It("does not allow further bootstrap calls", func() {
 			statusCode := performBootstrap("my-admin-password")
 			Expect(statusCode).To(Equal(http.StatusInternalServerError))
@@ -73,6 +85,19 @@ var _ = Describe("Bootstrap", func() {
 		})
 	})
 })
+
+func performCheckBootstrap() (CheckBootstrapResponse, error) {
+	router := setupRouter()
+	req, _ := http.NewRequest("GET", "/bootstrap", nil)
+	responseRecorder := httptest.NewRecorder()
+	router.ServeHTTP(responseRecorder, req)
+	Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+	var resp CheckBootstrapResponse
+	err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
+
+	return resp, err
+}
 
 func performBootstrap(adminPassword string) int {
 	router := setupRouter()

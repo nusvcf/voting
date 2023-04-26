@@ -47,7 +47,7 @@ func createVotersHandler(c *gin.Context) {
 func createVoters(start int, end int) error {
 	for i := start; i <= end; i++ {
 		username := fmt.Sprintf(`%04d`, i)
-		password := utils.RandStr(8)
+		password := utils.RandStr(10)
 		_, err := db.GetDB().CreateVoter(structs.Voter{
 			Username: username,
 			Password: password,

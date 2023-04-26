@@ -22,6 +22,8 @@ func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.POST("/login", loginHandler)
+
+	r.GET("/bootstrap", isBootstrappedHandler)
 	r.POST("/bootstrap", bootstrapHandler)
 
 	userRoutes := r.Group("/user")

@@ -1,13 +1,22 @@
+import { format } from "date-fns";
 import React, { Component } from "react";
 import LoadingDiv from "./LoadingDiv";
 
-class VotersPage extends Component {
-    constructor() {
-        super();
+interface Voter {
+    id: string;
+    username: string;
+    password: string;
+    last_seen?: string;
+    invalidated?: string;
+}
+
+class VotersPage extends Component<any, any> {
+    constructor(props: any) {
+        super(props);
         this.state = {
             fetchingData: true,
-            addStart: 0,
-            addEnd: 0,
+            addStart: 1,
+            addEnd: 1,
             voters: []
         };
 
@@ -16,25 +25,28 @@ class VotersPage extends Component {
 
     fetchData = () => {
         fetch("/admin/voters")
-            .then(data => {
-                return data.json();
-            })
-            .then(json => {
+            .then(data => data.json())
+            .then((json: Voter[]) => {
                 this.setState({ voters: json, fetchingData: false });
+                const nextRange = parseInt(json[json.length-1].username) + 1;
+                this.setState({
+                    addStart: nextRange,
+                    addEnd: nextRange,
+                })
             })
             .catch(error => {
                 console.error(error);
             });
     };
 
-    updateAddStart = e => {
+    updateAddStart = (e: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({ addStart: parseInt(e.target.value) });
     };
-    updateAddEnd = e => {
+    updateAddEnd = (e: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({ addEnd: parseInt(e.target.value) });
     };
 
-    addVoters = e => {
+    addVoters = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         // Do a fetch
         fetch("/admin/voters", {
@@ -55,7 +67,7 @@ class VotersPage extends Component {
         });
     };
 
-    invalidateVoter = id => {
+    invalidateVoter = (id: string) => {
         if (
             window.confirm(
                 "Are you sure you want to invalidate this user?\n\nThey will no longer be able to cast any more votes."
@@ -72,7 +84,7 @@ class VotersPage extends Component {
         }
     };
 
-    deleteVoter = id => {
+    deleteVoter = (id: string) => {
         if (
             window.confirm(
                 "Are you sure you want to DELETE this user?\n\nThis will remove the user, and remove all past votes cast by them."
@@ -90,35 +102,43 @@ class VotersPage extends Component {
     };
 
     render() {
-        let rows = this.state.voters.map((voter, i) => (
-            <tr key={i}>
-                <td className={"id " + (voter.isValid ? "" : "invalid")}>
-                    {voter.id}
-                </td>
-                <td className={voter.isValid ? "" : "invalid"}>
-                    {voter.username}
-                </td>
-                <td className={voter.isValid ? "" : "invalid"}>
-                    {voter.password}
-                </td>
-                <td className="tbl-btns">
-                    {voter.isValid && (
+        if (this.state.fetchingData) {
+            return <LoadingDiv show={true} />
+        }
+
+        let rows = this.state.voters.map((voter: Voter, i: number) => {
+            const invalidClass = voter.invalidated ? "invalid" : ""
+
+            return (
+              <tr key={i}>
+                  <td className={invalidClass}>
+                      {voter.username}
+                  </td>
+                  <td className={invalidClass}>
+                      <span className="code">{voter.password}</span>
+                  </td>
+                  <td>
+                      <div className="tbl-btns">
+                      {!voter.invalidated && (
                         <button
-                            className="btn-secondary"
-                            onClick={() => this.invalidateVoter(voter.id)}
+                          className="btn-secondary"
+                          onClick={() => this.invalidateVoter(voter.id)}
                         >
                             Invalidate
                         </button>
-                    )}
-                    <button
+                      )}
+                      {voter.invalidated && <span className='invalidated-on'>Invalidated on {format(new Date(voter.invalidated), 'd MMM y, HH:mm')}</span>}
+                      <button
                         className="btn-warn"
                         onClick={() => this.deleteVoter(voter.id)}
-                    >
-                        Delete
-                    </button>
-                </td>
-            </tr>
-        ));
+                      >
+                          Delete
+                      </button>
+                      </div>
+                  </td>
+              </tr>
+            );
+        });
 
         return (
             <div id="voters-page">
@@ -140,7 +160,6 @@ class VotersPage extends Component {
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Username</th>
                             <th>Password</th>
                             <th>&nbsp;</th>
@@ -148,7 +167,6 @@ class VotersPage extends Component {
                     </thead>
                     <tbody>{rows}</tbody>
                 </table>
-				<LoadingDiv show={this.state.fetchingData} />
             </div>
         );
     }

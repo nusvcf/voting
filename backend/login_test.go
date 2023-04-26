@@ -90,7 +90,7 @@ func performLoginWithParsing(username, password string) (LoginResponse, error) {
 	Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 	var resp LoginResponse
-	_ = json.NewDecoder(responseRecorder.Body).Decode(&resp)
+	err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
 
-	return resp, nil
+	return resp, err
 }

@@ -7,7 +7,7 @@ import (
 	"math/big"
 )
 
-var letters = []rune("abcdefghijkmnpqrstuvwxyzABCDEFGHJKMNOPQRSTUVWXYZ23456789-@!?&")
+var letters = []rune("ABCDEFGHJKLMNPQRSTUVWXY3456789-@!?&#%")
 
 func RandStr(n int) string {
 	b := make([]rune, n)

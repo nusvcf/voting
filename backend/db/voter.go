@@ -17,7 +17,7 @@ func (d *Database) CreateVoter(voter structs.Voter) (uuid.UUID, error) {
 
 func (d *Database) GetVoters() ([]structs.Voter, error) {
 	rows, cancel, err := d.query(queryOpts{
-		SQL: `SELECT id, username, password, last_seen, invalidated FROM voter`,
+		SQL: `SELECT id, username, password, last_seen, invalidated FROM voter ORDER BY username`,
 	})
 	defer cancel()
 

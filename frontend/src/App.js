@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import WebFont from "webfontloader";
 
 import "./styles/App.scss";
@@ -7,6 +7,7 @@ import LoginForm from "./components/LoginForm";
 import Alert from "./components/Alert";
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
+import {BootstrapForm} from "./components/BootstrapForm";
 
 class App extends Component {
     constructor() {
@@ -19,12 +20,21 @@ class App extends Component {
         });
 
         this.state = {
+            loading: true,
+            bootstrapped: false,
             loggedIn: false,
             userType: "user",
             error: "",
             errorVisible: false,
             errorTimeout: null
         };
+
+        fetch('/bootstrap', {
+            method: 'GET'
+        }).then(data => data.json())
+            .then(data => {
+                this.setState({'loading': false, 'bootstrapped': data.is_bootstrapped})
+            })
     }
 
     login = userType => {
@@ -48,15 +58,23 @@ class App extends Component {
             error: message,
             errorVisible: true,
             errorTimeout: setTimeout(() => {
-                this.setState({ errorVisible: false });
+                this.setState({errorVisible: false});
                 setTimeout(() => {
-                    this.setState({ error: "" });
+                    this.setState({error: ""});
                 }, 500);
             }, 2000)
         });
     };
 
     render() {
+        if (this.state.loading) {
+            return <></>
+        }
+
+        if (!this.state.bootstrapped) {
+            return <div className="App"><BootstrapForm /></div>
+        }
+
         return (
             <div className="App">
                 {this.state.error.length > 0 && (
@@ -68,10 +86,10 @@ class App extends Component {
                     </Alert>
                 )}
                 {!this.state.loggedIn && (
-                    <LoginForm login={this.login} setError={this.setError} />
+                    <LoginForm login={this.login} setError={this.setError}/>
                 )}
                 {this.state.loggedIn && this.state.userType === "admin" && (
-                    <AdminDashboard clearState={this.clearState} />
+                    <AdminDashboard clearState={this.clearState}/>
                 )}
                 {this.state.loggedIn && this.state.userType === "user" && (
                     <UserDashboard
