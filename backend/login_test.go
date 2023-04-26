@@ -29,13 +29,13 @@ var _ = Describe("Login", func() {
 		})
 
 		It("fails on wrong password", func() {
-			resp, err := login("admin", "wrongpassword")
+			resp, err := performLoginWithParsing("admin", "wrongpassword")
 			Expect(err).To(BeNil())
 			Expect(resp.Success).To(BeFalse())
 		})
 
 		It("passes with correct admin credentials", func() {
-			resp, err := login("admin", adminPw)
+			resp, err := performLoginWithParsing("admin", adminPw)
 			Expect(err).To(BeNil())
 			Expect(resp.Success).To(BeTrue())
 			Expect(resp.UserType).To(Equal("admin"))
@@ -59,13 +59,13 @@ var _ = Describe("Login", func() {
 		})
 
 		It("fails on wrong password", func() {
-			resp, err := login(voter.Username, "incorrect-password")
+			resp, err := performLoginWithParsing(voter.Username, "incorrect-password")
 			Expect(err).To(BeNil())
 			Expect(resp.Success).To(BeFalse())
 		})
 
 		It("passes with correct user credentials", func() {
-			resp, err := login(voter.Username, voter.Password)
+			resp, err := performLoginWithParsing(voter.Username, voter.Password)
 			Expect(err).To(BeNil())
 			Expect(resp.Success).To(BeTrue())
 			Expect(resp.UserType).To(Equal("user"))
@@ -74,7 +74,7 @@ var _ = Describe("Login", func() {
 
 })
 
-func login(username, password string) (LoginResponse, error) {
+func performLogin(username, password string) *httptest.ResponseRecorder {
 	router := setupRouter()
 	body, _ := json.Marshal(LoginPayload{Username: username, Password: password})
 
@@ -84,6 +84,11 @@ func login(username, password string) (LoginResponse, error) {
 	responseRecorder := httptest.NewRecorder()
 	router.ServeHTTP(responseRecorder, req)
 
+	return responseRecorder
+}
+
+func performLoginWithParsing(username, password string) (LoginResponse, error) {
+	responseRecorder := performLogin(username, password)
 	Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 	var resp LoginResponse

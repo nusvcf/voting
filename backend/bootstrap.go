@@ -5,7 +5,10 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/nusvcf/voting/backend/db"
 	"golang.org/x/crypto/argon2"
+	"net/http"
 	"strings"
 )
 
@@ -50,5 +53,30 @@ func verifyPassword(combinedHash, providedPassword string) error {
 		return nil
 	} else {
 		return fmt.Errorf("incorrect password")
+	}
+}
+
+type BootstrapPayload struct {
+	AdminPassword string `json:"admin_password"`
+}
+
+func bootstrapHandler(c *gin.Context) {
+	var payload BootstrapPayload
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	hashedPw, err := generateSaltAndHashPassword(payload.AdminPassword)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = db.GetDB().SetBootstrap(hashedPw)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
 }

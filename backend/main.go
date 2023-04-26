@@ -22,6 +22,7 @@ func setupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.POST("/login", loginHandler)
+	r.POST("/bootstrap", bootstrapHandler)
 
 	userRoutes := r.Group("/user")
 	userRoutes.Use(auth.Middleware(false))

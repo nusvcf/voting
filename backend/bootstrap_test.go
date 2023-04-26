@@ -1,9 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/nusvcf/voting/backend/db"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"net/http"
+	"net/http/httptest"
 )
 
 var _ = Describe("Password hashing", func() {
@@ -34,31 +39,50 @@ var _ = Describe("Password hashing", func() {
 })
 
 var _ = Describe("Bootstrap", func() {
+	AfterEach(func() {
+		_ = db.GetDB().ClearBootstrap()
+	})
+
 	When("system is not yet bootstrapped", func() {
 		It("can boostrap", func() {
-			// Call API
-			// Expect success
-			Expect(true).To(BeFalse())
+			statusCode := performBootstrap("my-admin-password")
+			Expect(statusCode).To(Equal(http.StatusOK))
 		})
 
 		It("prevents admin login", func() {
-			Expect(true).To(BeFalse())
+			respRecorder := performLogin("admin", "my-admin-password")
+			Expect(respRecorder.Code).To(Equal(http.StatusInternalServerError))
 		})
 	})
 
 	When("system is bootstrapped", func() {
 		BeforeEach(func() {
-			// Do bootstrapping
+			performBootstrap("my-admin-password")
 		})
 
 		It("does not allow further bootstrap calls", func() {
-			// Call API
-			// Expect error
-			Expect(true).To(BeFalse())
+			statusCode := performBootstrap("my-admin-password")
+			Expect(statusCode).To(Equal(http.StatusInternalServerError))
 		})
 
 		It("allows admin to log in", func() {
-			Expect(true).To(BeFalse())
+			resp, err := performLoginWithParsing("admin", "my-admin-password")
+			Expect(err).To(BeNil())
+			Expect(resp.Success).To(BeTrue())
+			Expect(resp.UserType).To(Equal("admin"))
 		})
 	})
 })
+
+func performBootstrap(adminPassword string) int {
+	router := setupRouter()
+	body, _ := json.Marshal(BootstrapPayload{AdminPassword: adminPassword})
+
+	req, _ := http.NewRequest("POST", "/bootstrap", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	responseRecorder := httptest.NewRecorder()
+	router.ServeHTTP(responseRecorder, req)
+
+	return responseRecorder.Code
+}
