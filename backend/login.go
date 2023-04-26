@@ -17,6 +17,23 @@ type LoginResponse struct {
 	UserType string `json:"userType"`
 }
 
+func checkLoginHandler(c *gin.Context) {
+	userId, err := auth.GetUserIdFromCookie(c)
+	if err != nil {
+		c.JSON(http.StatusOK, LoginResponse{})
+		return
+	}
+
+	resp := LoginResponse{Success: true}
+	if userId == "admin" {
+		resp.UserType = "admin"
+	} else {
+		resp.UserType = "user"
+	}
+
+	c.JSON(http.StatusOK, resp)
+}
+
 func loginHandler(c *gin.Context) {
 	var payload LoginPayload
 

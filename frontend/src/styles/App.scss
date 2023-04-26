@@ -219,6 +219,7 @@ table {
     td {
         padding: 6px 18px;
         background-color: white;
+        border-bottom: 1px solid $grey-2;
     }
 }
 
@@ -263,19 +264,21 @@ table {
         margin: 0 auto;
 
         .tbl-btns {
-            text-align: right;
-
-            button + button {
-                margin-left: 8px;
-            }
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+            gap: 8px;
         }
     }
 
     #voters-page {
         max-width: 900px;
-        .tbl-btns {
-            width: 230px;
-            
+
+        .invalidated-on {
+            color: $grey-4;
+            font-size: 12px;
         }
     }
 
@@ -321,4 +324,12 @@ table {
             color: $grey-5;
         }
     }
+}
+
+.code {
+    font-family: monospace;
+    color: $grey-9;
+    background-color: $grey-1;
+    font-size: 0.9em;
+    padding: 2px 4px;
 }

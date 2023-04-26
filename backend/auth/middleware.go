@@ -6,15 +6,18 @@ import (
 	"time"
 )
 
+func GetUserIdFromCookie(c *gin.Context) (string, error) {
+	cookie, err := c.Cookie("auth")
+	if err != nil {
+		return "", err
+	}
+
+	return parseJWT(cookie)
+}
+
 func Middleware(forAdmin bool) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		cookie, err := c.Cookie("auth")
-		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		userId, err := parseJWT(cookie)
+		userId, err := GetUserIdFromCookie(c)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
@@ -31,6 +34,7 @@ func Middleware(forAdmin bool) func(c *gin.Context) {
 		}
 
 		c.Set("userId", userId)
+		_ = AddAuthCookie(c, userId) // refresh
 		c.Next()
 	}
 }

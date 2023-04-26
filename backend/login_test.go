@@ -94,3 +94,16 @@ func performLoginWithParsing(username, password string) (LoginResponse, error) {
 
 	return resp, err
 }
+
+//func performLoginCheck() (LoginResponse, error) {
+//	router := setupRouter()
+//	req, _ := http.NewRequest("GET", "/login", nil)
+//	responseRecorder := httptest.NewRecorder()
+//	router.ServeHTTP(responseRecorder, req)
+//	Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+//
+//	var resp LoginResponse
+//	err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
+//
+//	return resp, err
+//}

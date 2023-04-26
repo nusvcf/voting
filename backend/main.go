@@ -21,6 +21,7 @@ func main() {
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
+	r.GET("/login", checkLoginHandler)
 	r.POST("/login", loginHandler)
 
 	r.GET("/bootstrap", isBootstrappedHandler)

@@ -35,6 +35,14 @@ class App extends Component {
             .then(data => {
                 this.setState({'loading': false, 'bootstrapped': data.is_bootstrapped})
             })
+
+        fetch("/login", {
+        method: "GET"
+        }).then(data => data.json()).then(data => {
+            if (data.success) {
+                this.login(data.userType)
+            }
+        })
     }
 
     login = userType => {
