@@ -13,6 +13,7 @@ import (
 var _ = Describe("Login", func() {
 	BeforeEach(func() {
 		// Create users
+		dbObj
 	})
 
 	AfterEach(func() {

@@ -6,8 +6,9 @@ import (
 )
 
 type Voter struct {
-	ID       uuid.UUID `json:"id"`
-	Username string    `json:"username"`
-	Password string    `json:"password"`
-	LastSeen null.Time `json:"last_seen"`
+	ID          uuid.UUID `json:"id"`
+	Username    string    `json:"username"`
+	Password    string    `json:"password"`
+	LastSeen    null.Time `json:"last_seen"`
+	Invalidated null.Time `json:"invalidated"`
 }
