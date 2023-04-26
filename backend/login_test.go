@@ -3,6 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/brianvoe/gofakeit/v6"
+	"github.com/nusvcf/voting/backend/db"
+	"github.com/nusvcf/voting/backend/structs"
 	"net/http"
 	"net/http/httptest"
 
@@ -11,33 +14,64 @@ import (
 )
 
 var _ = Describe("Login", func() {
-	BeforeEach(func() {
-		// Create users
+	When("system has been bootstrapped", func() {
+		var adminPw string
+
+		BeforeEach(func() {
+			adminPw = gofakeit.Password(true, true, true, false, false, 8)
+			hashedPw, _ := generateSaltAndHashPassword(adminPw)
+			err := db.GetDB().SetBootstrap(hashedPw)
+			Expect(err).To(BeNil())
+		})
+
+		AfterEach(func() {
+			_ = db.GetDB().ClearBootstrap()
+		})
+
+		It("fails on wrong password", func() {
+			resp, err := login("admin", "wrongpassword")
+			Expect(err).To(BeNil())
+			Expect(resp.Success).To(BeFalse())
+		})
+
+		It("passes with correct admin credentials", func() {
+			resp, err := login("admin", adminPw)
+			Expect(err).To(BeNil())
+			Expect(resp.Success).To(BeTrue())
+			Expect(resp.UserType).To(Equal("admin"))
+		})
 	})
 
-	AfterEach(func() {
-		// Delete users
+	When("voter has been created", func() {
+		var voter structs.Voter
+
+		BeforeEach(func() {
+			voter = structs.Voter{
+				Username: gofakeit.Name(),
+				Password: gofakeit.Password(true, true, true, false, false, 8),
+			}
+
+			voter.ID, _ = db.GetDB().CreateVoter(voter)
+		})
+
+		AfterEach(func() {
+			_ = db.GetDB().DeleteVoter(voter.ID)
+		})
+
+		It("fails on wrong password", func() {
+			resp, err := login(voter.Username, "incorrect-password")
+			Expect(err).To(BeNil())
+			Expect(resp.Success).To(BeFalse())
+		})
+
+		It("passes with correct user credentials", func() {
+			resp, err := login(voter.Username, voter.Password)
+			Expect(err).To(BeNil())
+			Expect(resp.Success).To(BeTrue())
+			Expect(resp.UserType).To(Equal("user"))
+		})
 	})
 
-	It("fails on wrong password", func() {
-		resp, err := login("myusername", "wrongpassword")
-		Expect(err).To(BeNil())
-		Expect(resp.Success).To(BeFalse())
-	})
-
-	It("passes with correct admin credentials", func() {
-		resp, err := login("admin", "myadminpassword")
-		Expect(err).To(BeNil())
-		Expect(resp.Success).To(BeTrue())
-		Expect(resp.UserType).To(Equal("admin"))
-	})
-
-	It("passes with correct user credentials", func() {
-		resp, err := login("myusername", "mypassword")
-		Expect(err).To(BeNil())
-		Expect(resp.Success).To(BeTrue())
-		Expect(resp.UserType).To(Equal("user"))
-	})
 })
 
 func login(username, password string) (LoginResponse, error) {

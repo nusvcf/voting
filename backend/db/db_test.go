@@ -13,7 +13,6 @@ import (
 var dbObj = db.GetDB()
 
 func TestMain(m *testing.M) {
-	dbObj.Init()
 	code := m.Run()
 	dbObj.Pool.Close()
 	os.Exit(code)

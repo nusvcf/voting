@@ -26,6 +26,7 @@ func GetDB() *Database {
 	once.Do(func() {
 		rand.Seed(time.Now().UTC().UnixNano())
 		singleton = &Database{}
+		singleton.init()
 	})
 	return singleton
 }
@@ -51,7 +52,7 @@ func getDbConnStr() string {
 	return fmt.Sprintf("dbname=%s user=%s password=%s host=%s port=%s", dbName, dbUser, dbPass, dbHost, dbPort)
 }
 
-func (d *Database) Init() {
+func (d *Database) init() {
 	config, err := pgxpool.ParseConfig(getDbConnStr())
 	if err != nil {
 		log.Fatalln("Unable to parse database config:", err)

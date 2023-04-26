@@ -24,21 +24,29 @@ func loginHandler(c *gin.Context) {
 		return
 	}
 
-	var resp LoginResponse
-
-	_, err := db.GetDB().CheckSingleVoter(payload.Username, payload.Password)
-	if err != nil {
-		c.JSON(http.StatusOK, resp)
-		return
-	}
-
-	userType := "user"
 	if payload.Username == "admin" {
-		userType = "admin"
+		// Handle admin
+		hashedPw, err := db.GetDB().GetBootstrap()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		err = verifyPassword(hashedPw, payload.Password)
+		if err != nil {
+			c.JSON(http.StatusOK, LoginResponse{})
+			return
+		}
+
+		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "admin"})
+	} else {
+		// Handle voter
+		_, err := db.GetDB().CheckSingleVoter(payload.Username, payload.Password)
+		if err != nil {
+			c.JSON(http.StatusOK, LoginResponse{})
+			return
+		}
+
+		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "user"})
 	}
-
-	resp.Success = true
-	resp.UserType = userType
-
-	c.JSON(http.StatusOK, resp)
 }

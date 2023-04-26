@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	db.GetDB().Init()
+	db.GetDB()
 
 	r := setupRouter()
 	port := "5000"
