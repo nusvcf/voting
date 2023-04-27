@@ -4,7 +4,7 @@ import '../../styles/Modal.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 
-class NameItem extends Component {
+class NameItem extends Component<{removeName: () => void, name: string}> {
     render() {
         return <div className='name-item'>
             <span onClick={this.props.removeName} className='icon'><FontAwesomeIcon icon={faTimes} /></span>
@@ -13,9 +13,22 @@ class NameItem extends Component {
     }
 }
 
-class BallotModal extends Component {
-	constructor() {
-		super();
+interface BallotModalProps {
+  show: boolean;
+  hideModal: () => void;
+  onSubmit: () => void;
+}
+
+interface BallotModalState {
+  position: string;
+  maxVotes: number;
+  names: string[];
+  currentName: string;
+}
+
+class BallotModal extends Component<BallotModalProps, BallotModalState> {
+	constructor(props: BallotModalProps) {
+		super(props);
 		this.state = {
             position: '', 
             maxVotes: 1,
@@ -24,32 +37,32 @@ class BallotModal extends Component {
 		};
 	}
     
-    updatePosition = (e) => {
+    updatePosition = (e: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({position: e.target.value});
     }
 
-    updateMaxVotes = (e) => {
-        this.setState({maxVotes: e.target.value});
+    updateMaxVotes = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        this.setState({maxVotes: parseInt(e.target.value)});
     }
 
-    updateCurrentName = (e) => {
+    updateCurrentName = (e: React.ChangeEvent<HTMLInputElement>) => {
         this.setState({currentName: e.target.value});
     }
 
-    removeName = (i) => {
+    removeName = (i: number) => {
         let names = this.state.names;
         names.splice(i, 1);
         this.setState({names: names});
     }
 
-    addName = (e) => {
+    addName = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         let names = this.state.names;
         names.push(this.state.currentName)
         this.setState({names: names, currentName: ''});
     }
 
-    handleSubmit = (e) => {
+    handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         let payload = {
             position: this.state.position, 
