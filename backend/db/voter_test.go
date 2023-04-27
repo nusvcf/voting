@@ -1,8 +1,6 @@
 package db_test
 
 import (
-	"github.com/gofrs/uuid"
-	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -10,19 +8,6 @@ import (
 )
 
 const emptyUuid = "00000000-0000-0000-0000-000000000000"
-
-func getVoterById(id uuid.UUID) structs.Voter {
-	voters, _ := dbObj.GetVoters()
-
-	for _, currVoter := range voters {
-		if id == currVoter.ID {
-			return currVoter
-		}
-
-	}
-
-	return structs.Voter{}
-}
 
 var _ = Describe("Login", func() {
 	AfterEach(func() {
@@ -72,7 +57,7 @@ var _ = Describe("Login", func() {
 			err := dbObj.UpdateLastSeen(voter.ID)
 			Expect(err).To(BeNil())
 
-			voterFromDB := getVoterById(voter.ID)
+			voterFromDB := utils.GetVoterById(voter.ID)
 			Expect(voterFromDB.LastSeen.Valid).To(BeTrue())
 			Expect(time.Since(voterFromDB.LastSeen.Time).Seconds()).To(BeNumerically("<", 1))
 		})
@@ -98,7 +83,7 @@ var _ = Describe("Login", func() {
 			})
 
 			It("shows invalidated timestamp in get voters call", func() {
-				voterFromDB := getVoterById(voter.ID)
+				voterFromDB := utils.GetVoterById(voter.ID)
 				Expect(voterFromDB.Invalidated.Valid).To(BeTrue())
 				Expect(time.Since(voterFromDB.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
 			})

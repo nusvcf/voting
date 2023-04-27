@@ -67,6 +67,7 @@ func loginHandler(c *gin.Context) {
 			return
 		}
 
+		_ = db.GetDB().UpdateLastSeen(id)
 		_ = auth.AddAuthCookie(c, id.String())
 
 		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "user"})

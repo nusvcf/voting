@@ -3,6 +3,8 @@ package utils
 import (
 	"crypto/rand"
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/gofrs/uuid"
+	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
 	"math/big"
 )
@@ -24,4 +26,17 @@ func CreateVoter() structs.Voter {
 		Username: gofakeit.Name(),
 		Password: gofakeit.Password(true, true, true, false, false, 8),
 	}
+}
+
+func GetVoterById(id uuid.UUID) structs.Voter {
+	voters, _ := db.GetDB().GetVoters()
+
+	for _, currVoter := range voters {
+		if id == currVoter.ID {
+			return currVoter
+		}
+
+	}
+
+	return structs.Voter{}
 }
