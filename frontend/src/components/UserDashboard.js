@@ -3,7 +3,7 @@ import logo from "../imgs/logo-small.png";
 
 const WelcomeText = () => (
     <div className="waiting-text">
-        <h1>Welcome to VCF AGM 2019!</h1>
+        <h1>Welcome to VCF AGM 2023!</h1>
         This page will automatically update when voting starts.
     </div>
 );
