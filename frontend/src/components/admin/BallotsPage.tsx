@@ -9,21 +9,67 @@ export interface BallotVote {
   votedFor: string[]
 }
 
-export interface Ballot {
-  id: string
-  isOpen: boolean
-  isValid: boolean
-  position: string
-  maxVotes: number
-  percentageVotes: number
-  numValidVoters: number
-  numVotesInBallot: number
-  numNonAbstainVoters: number
-  numNoConfidence: number
-  names: BallotName[]
-  namesInBallot: { [name: string]: { count: number, voters: string[] } }
-  submittedUsers: { [id: string]: BallotVote }
+export class Ballot {
+  constructor(public id: string, public position: string, public maxVotes: number, private created: string, private closed: string | null, private invalidated: string | null, private names: string[], private votes: BallotVote[]) {
+
+  }
+
+  get isOpen() {
+    return this.closed === null;
+  }
+
+  get isValid() {
+    return this.invalidated === null;
+  }
+
+  get percentageVotes() {
+    return 1;
+  }
+
+  get numValidVoters() {
+    return 1;
+  }
+
+  get numVotesInBallot() {
+    return 1;
+  }
+
+  get numNonAbstainVoters() {
+    return 1;
+  }
+
+  get numNoConfidence() {
+    return 1;
+  }
+
+  get namesWithPercentageVotes(): BallotName[] {
+    return this.names.map(x => {
+      return {name: x, percentageVotes: 0}
+    });
+  }
+
+  get submittedUsers(): {[userId: string]: BallotVote} {
+    return {}
+  }
+
+
 }
+
+// export interface Ballot {
+//   id: string
+//   isOpen: boolean
+//   isValid: boolean
+//   position: string
+//   maxVotes: number
+//   percentageVotes: number
+//   numValidVoters: number
+//   numVotesInBallot: number
+//   numNonAbstainVoters: number
+//   numNoConfidence: number
+//   names: BallotName[]
+//   namesInBallot: { [name: string]: { count: number, voters: string[] } }
+//   submittedUsers: { [id: string]: BallotVote }
+// }
 
 export interface BallotName {
   name: string
@@ -107,7 +153,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
       }
     }
 
-    let names = ballot.names.map((item: BallotName, i: number) => (
+    let names = ballot.namesWithPercentageVotes.map((item: BallotName, i: number) => (
       <li key={i}>
         {item.name}{" "}
         <span className="percent-voted">
@@ -118,9 +164,6 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
 
     return (
       <tr>
-        <td className={"id " + (ballot.isValid ? "" : "invalid")}>
-          {ballot.id}
-        </td>
         <td
           className={ballot.isValid ? "" : "invalid"}
           style={{fontWeight: "bold"}}
@@ -181,8 +224,8 @@ class BallotsPage extends Component<any, any> {
   fetchData = () => {
     fetch("/admin/ballots")
       .then(data => data.json())
-      .then(json => {
-        this.setState({ballots: json, fetchingData: false});
+      .then((json: any[]) => {
+        this.setState({ballots: json.map(x => new Ballot(x.id, x.position, x.maxVotes, x.created, x.closed, x.invalidated, x.names, x.votes)), fetchingData: false});
       })
       .catch(error => {
         this.props.clearState();
@@ -214,7 +257,6 @@ class BallotsPage extends Component<any, any> {
         <table>
           <thead>
           <tr>
-            <th>ID</th>
             <th>Position</th>
             <th>Names</th>
             <th>Max Votes</th>

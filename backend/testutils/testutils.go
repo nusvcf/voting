@@ -23,6 +23,7 @@ func CreateBallot() structs.Ballot {
 		MaxVotes: gofakeit.Number(1, 2),
 		Names:    []string{gofakeit.Name(), gofakeit.Name(), gofakeit.Name()},
 		Created:  time.Now(),
+		Votes:    make([]structs.BallotVote, 0),
 	}
 }
 
@@ -34,5 +35,6 @@ func EqualBallot(otherBallot structs.Ballot) types.GomegaMatcher {
 			return time.Since(ballot.Created).Seconds() < 5
 		}, BeTrue()),
 		HaveField("Names", Equal(otherBallot.Names)),
+		HaveField("Votes", Equal(otherBallot.Votes)),
 	)
 }

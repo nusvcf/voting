@@ -61,15 +61,7 @@ function CandidateItem(props: {name: string, count: number, voters: string[]}) {
 }
 
 function ViewByCandidate(props: {ballot: Ballot}) {
-  let results = [];
-  for (let name in props.ballot.namesInBallot) {
-    results.push(
-      <CandidateItem
-        name={name}
-        {...props.ballot.namesInBallot[name]}
-      />
-    );
-  }
+  const results = props.ballot.namesWithPercentageVotes.map(x => <CandidateItem name={x.name} count={0} voters={[]} />)
 
   return (
     <table>
@@ -78,21 +70,21 @@ function ViewByCandidate(props: {ballot: Ballot}) {
   );
 }
 
-function QuickStats(props: Ballot) {
+function QuickStats(props: { ballot: Ballot }) {
   return (
     <table>
       <tbody>
       <tr>
         <th>No. of valid voters:</th>
-        <td>{props.numValidVoters}</td>
+        <td>{props.ballot.numValidVoters}</td>
       </tr>
       <tr>
         <th>No. who sent in a vote:</th>
         <td>
-          {props.numVotesInBallot} (
+          {props.ballot.numVotesInBallot} (
           {(
-            (props.numVotesInBallot /
-              props.numValidVoters) *
+            (props.ballot.numVotesInBallot /
+              props.ballot.numValidVoters) *
             100
           ).toFixed(2)}
           %)
@@ -103,13 +95,13 @@ function QuickStats(props: Ballot) {
           No. of abstain votes (either sent or didn't send):
         </th>
         <td>
-          {props.numValidVoters -
-            props.numNonAbstainVoters}{" "}
+          {props.ballot.numValidVoters -
+            props.ballot.numNonAbstainVoters}{" "}
           (
           {(
-            ((props.numValidVoters -
-                props.numNonAbstainVoters) /
-              props.numValidVoters) *
+            ((props.ballot.numValidVoters -
+                props.ballot.numNonAbstainVoters) /
+              props.ballot.numValidVoters) *
             100
           ).toFixed(2)}
           %)
@@ -118,10 +110,10 @@ function QuickStats(props: Ballot) {
       <tr>
         <th>No. of non-abstain votes:</th>
         <td>
-          {props.numNonAbstainVoters} (
+          {props.ballot.numNonAbstainVoters} (
           {(
-            (props.numNonAbstainVoters /
-              props.numValidVoters) *
+            (props.ballot.numNonAbstainVoters /
+              props.ballot.numValidVoters) *
             100
           ).toFixed(2)}
           %)
@@ -130,10 +122,10 @@ function QuickStats(props: Ballot) {
       <tr>
         <th>No. of “no confidence” votes</th>
         <td>
-          {props.numNoConfidence} (
+          {props.ballot.numNoConfidence} (
           {(
-            (props.numNoConfidence /
-              props.numNonAbstainVoters) *
+            (props.ballot.numNoConfidence /
+              props.ballot.numNonAbstainVoters) *
             100
           ).toFixed(2)}
           %)
@@ -193,7 +185,7 @@ class ResultsModal extends Component<{ballot: Ballot, hideModal: () => void}, {v
 
           <h1>Results for {ballot.position}</h1>
 
-          <QuickStats {...this.props.ballot} />
+          <QuickStats ballot={this.props.ballot} />
           {switchViewBtn}
           {view}
         </div>

@@ -6,7 +6,7 @@ interface Voter {
   id: string;
   username: string;
   password: string;
-  last_seen?: string;
+  lastSeen?: string;
   invalidated?: string;
 }
 
@@ -37,8 +37,8 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
   let timestampText = '';
   if (props.voter.invalidated) {
     timestampText = 'Invalidated on ' + format(new Date(props.voter.invalidated), "d MMM y, HH:mm")
-  } else if (props.voter.last_seen) {
-    timestampText = 'Last seen on ' + format(new Date(props.voter.last_seen), "d MMM y, HH:mm")
+  } else if (props.voter.lastSeen) {
+    timestampText = 'Last seen on ' + format(new Date(props.voter.lastSeen), "d MMM y, HH:mm")
   } else {
     timestampText = 'Not yet logged in'
   }
@@ -85,12 +85,15 @@ const VotersPage = () => {
     fetch("/admin/voters")
       .then(data => data.json())
       .then((receivedVoters: Voter[]) => {
-        const nextRange = parseInt(receivedVoters[receivedVoters.length - 1].username) + 1;
 
         setFetchingData(false)
         setVoters(receivedVoters)
-        setAddStart(nextRange);
-        setAddEnd(nextRange);
+
+        if (receivedVoters.length > 0) {
+          const nextRange = parseInt(receivedVoters[receivedVoters.length - 1].username) + 1;
+          setAddStart(nextRange);
+          setAddEnd(nextRange);
+        }
       })
       .catch(error => {
         console.error(error);

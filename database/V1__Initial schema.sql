@@ -22,13 +22,13 @@ CREATE TABLE ballot (
 
 CREATE TABLE ballot_name (
     id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    ballot_id uuid NOT NULL REFERENCES ballot (id),
+    ballot_id uuid NOT NULL REFERENCES ballot (id) ON UPDATE CASCADE ON DELETE CASCADE,
     name      TEXT
 );
 
 CREATE TABLE vote (
-    voter_id      uuid      NOT NULL REFERENCES voter (id),
-    ballot_id     uuid      NOT NULL REFERENCES ballot (id),
+    voter_id      uuid      NOT NULL REFERENCES voter (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    ballot_id     uuid      NOT NULL REFERENCES ballot (id) ON UPDATE CASCADE ON DELETE CASCADE,
     created       TIMESTAMP NOT NULL DEFAULT NOW(),
     abstain       bool      NOT NULL,
     no_confidence bool      NOT NULL,

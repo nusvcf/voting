@@ -38,6 +38,7 @@ func (d *Database) GetBallots() ([]structs.Ballot, error) {
 
 	for rows.Next() {
 		var ballot structs.Ballot
+		ballot.Votes = make([]structs.BallotVote, 0)
 		err = rows.Scan(&ballot.ID, &ballot.Position, &ballot.MaxVotes, &ballot.Created)
 		ballots = append(ballots, ballot)
 	}
