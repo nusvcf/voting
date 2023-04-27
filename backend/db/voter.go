@@ -41,7 +41,7 @@ func (d *Database) GetVoters() ([]structs.Voter, error) {
 }
 
 func (d *Database) CheckSingleVoter(username, password string) (uuid.UUID, error) {
-	var id uuid.UUID
+	id := uuid.Nil
 
 	err := d.queryRow(queryOpts{
 		SQL:  `SELECT id FROM voter WHERE username = $1 AND password = $2 AND invalidated IS NULL`,

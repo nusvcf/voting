@@ -38,5 +38,7 @@ func setupRouter() *gin.Engine {
 	adminRoutes.PUT("/voters/:id", invalidVoterHandler)
 	adminRoutes.DELETE("/voters/:id", deleteVoterHandler)
 
+	adminRoutes.GET("/ballots", getBallotsHandler)
+
 	return r
 }

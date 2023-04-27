@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Bootstrap", func() {
+var _ = Describe("DB Bootstrap", func() {
 	AfterEach(func() {
 		_ = dbObj.ClearBootstrap()
 	})

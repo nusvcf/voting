@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
+	"github.com/nusvcf/voting/backend/testutils"
 	"github.com/nusvcf/voting/backend/utils"
 	"time"
 
@@ -49,7 +50,7 @@ var _ = Describe("Login", func() {
 		var voter structs.Voter
 
 		BeforeEach(func() {
-			voter = utils.CreateVoter()
+			voter = testutils.CreateVoter()
 			voter.ID, _ = db.GetDB().CreateVoter(voter)
 		})
 

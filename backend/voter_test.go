@@ -6,30 +6,31 @@ import (
 	"github.com/nusvcf/voting/backend/auth"
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
+	"github.com/nusvcf/voting/backend/testutils"
 	"github.com/nusvcf/voting/backend/utils"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	"net/http"
 	"net/http/httptest"
 	"time"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Voters API", func() {
 	var voter1, voter2 structs.Voter
 
 	BeforeEach(func() {
-		voter1 = utils.CreateVoter()
-		voter1.ID, _ = db.GetDB().CreateVoter(voter1)
-		voter2 = utils.CreateVoter()
-		voter2.ID, _ = db.GetDB().CreateVoter(voter2)
-
 		performBootstrap("admin-pw")
 
+		voter1 = testutils.CreateVoter()
+		voter1.ID, _ = db.GetDB().CreateVoter(voter1)
+		voter2 = testutils.CreateVoter()
+		voter2.ID, _ = db.GetDB().CreateVoter(voter2)
 	})
 
 	AfterEach(func() {
-		_ = db.GetDB().DeleteAllVoters()
 		_ = db.GetDB().ClearBootstrap()
+		_ = db.GetDB().DeleteAllVoters()
 	})
 
 	It("can get the list of existing voters", func() {
@@ -40,7 +41,7 @@ var _ = Describe("Voters API", func() {
 		var resp []structs.Voter
 		err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
 		Expect(err).To(BeNil())
-		Expect(resp).To(BeEquivalentTo([]structs.Voter{voter1, voter2}))
+		Expect(resp).To(ContainElements(voter1, voter2))
 	})
 
 	It("can create new voters", func() {
@@ -55,9 +56,9 @@ var _ = Describe("Voters API", func() {
 
 		voters, _ := db.GetDB().GetVoters()
 		Expect(voters).To(HaveLen(5))
-		Expect(voters[2].Username).To(Equal("0003"))
-		Expect(voters[3].Username).To(Equal("0004"))
-		Expect(voters[4].Username).To(Equal("0005"))
+		Expect(voters[0].Username).To(Equal("0003"))
+		Expect(voters[1].Username).To(Equal("0004"))
+		Expect(voters[2].Username).To(Equal("0005"))
 	})
 
 	It("can fails with missing values", func() {
@@ -82,10 +83,11 @@ var _ = Describe("Voters API", func() {
 		responseRecorder := serveWithCookie(req)
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
-		voters, _ := db.GetDB().GetVoters()
-		Expect(voters[0].Invalidated.Valid).To(BeFalse())
-		Expect(voters[1].Invalidated.Valid).To(BeTrue())
-		Expect(time.Since(voters[1].Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
+		voter1Found := utils.GetVoterById(voter1.ID)
+		voter2Found := utils.GetVoterById(voter2.ID)
+		Expect(voter1Found.Invalidated.Valid).To(BeFalse())
+		Expect(voter2Found.Invalidated.Valid).To(BeTrue())
+		Expect(time.Since(voter2Found.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
 	})
 
 	It("can delete a single voter", func() {

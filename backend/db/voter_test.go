@@ -1,15 +1,15 @@
 package db_test
 
 import (
+	"github.com/gofrs/uuid"
+	"github.com/nusvcf/voting/backend/testutils"
 	"github.com/nusvcf/voting/backend/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"time"
 )
 
-const emptyUuid = "00000000-0000-0000-0000-000000000000"
-
-var _ = Describe("Login", func() {
+var _ = Describe("DB Login", func() {
 	AfterEach(func() {
 		_ = dbObj.DeleteAllVoters()
 	})
@@ -17,15 +17,15 @@ var _ = Describe("Login", func() {
 	It("can create account", func() {
 		var err error
 
-		newVoter := utils.CreateVoter()
+		newVoter := testutils.CreateVoter()
 		newVoter.ID, err = dbObj.CreateVoter(newVoter)
 
 		Expect(err).To(BeNil())
-		Expect(newVoter.ID.String()).ToNot(Equal(emptyUuid))
+		Expect(newVoter.ID).ToNot(Equal(uuid.Nil))
 	})
 
 	When("there is an existing voter", func() {
-		voter := utils.CreateVoter()
+		voter := testutils.CreateVoter()
 
 		BeforeEach(func() {
 			voter.ID, _ = dbObj.CreateVoter(voter)
@@ -44,7 +44,7 @@ var _ = Describe("Login", func() {
 		It("correctly handles wrong passwords", func() {
 			id, err := dbObj.CheckSingleVoter(voter.Username, "incorrectpassword")
 			Expect(err).ToNot(BeNil())
-			Expect(id.String()).To(Equal(emptyUuid))
+			Expect(id).To(Equal(uuid.Nil))
 		})
 
 		It("retrieves the list of users", func() {
@@ -79,7 +79,7 @@ var _ = Describe("Login", func() {
 			It("prevents user from logging in", func() {
 				id, err := dbObj.CheckSingleVoter(voter.Username, voter.Password)
 				Expect(err).ToNot(BeNil())
-				Expect(id.String()).To(Equal(emptyUuid))
+				Expect(id).To(Equal(uuid.Nil))
 			})
 
 			It("shows invalidated timestamp in get voters call", func() {
