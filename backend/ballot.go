@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
+	"github.com/jackc/pgx/v4"
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
 	"net/http"
@@ -35,7 +36,11 @@ func createBallotHandler(c *gin.Context) {
 func getCurrentBallotHandler(c *gin.Context) {
 	ballot, err := db.GetDB().GetLatestOpenBallot()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if err != pgx.ErrNoRows {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusOK, structs.UserBallot{})
+		}
 		return
 	}
 
@@ -57,5 +62,19 @@ func getCurrentBallotHandler(c *gin.Context) {
 		c.JSON(http.StatusOK, structs.UserBallot{})
 	} else {
 		c.JSON(http.StatusOK, ballot)
+	}
+}
+
+func closeBallotHandler(c *gin.Context) {
+	idStr := c.Param("id")
+	idUuid, err := uuid.FromString(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	err = db.GetDB().CloseBallot(idUuid)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
 	}
 }

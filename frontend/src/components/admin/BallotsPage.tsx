@@ -10,7 +10,7 @@ export interface BallotVote {
 }
 
 export class Ballot {
-  constructor(public id: string, public position: string, public maxVotes: number, private created: string, private closed: string | null, private invalidated: string | null, private names: string[], private votes: BallotVote[]) {
+  constructor(public id: string, public position: string, public maxVotes: number, private created: string, private closed: string | null, private invalidated: string | null, private names: BallotName[], private votes: BallotVote[]) {
 
   }
 
@@ -44,7 +44,7 @@ export class Ballot {
 
   get namesWithPercentageVotes(): BallotNamePercentage[] {
     return this.names.map(x => {
-      return {name: x, percentageVotes: 0}
+      return {name: x.name, percentageVotes: 0}
     });
   }
 
@@ -93,7 +93,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
     if (window.confirm("Are you sure you want to close the ballot?")) {
       fetch("/admin/ballots/" + this.props.ballot.id, {
         method: "POST"
-      });
+      }).then(this.props.fetchData);
     }
   };
 
@@ -101,7 +101,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
     if (window.confirm("Are you sure you want to invalidate the ballot?")) {
       fetch("/admin/ballots/" + this.props.ballot.id, {
         method: "PUT"
-      });
+      }).then(this.props.fetchData);
     }
   };
 
@@ -162,8 +162,8 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
       <li key={i}>
         {item.name}{" "}
         <span className="percent-voted">
-                    ({item.percentageVotes.toFixed(2)}%)
-                </span>
+            ({item.percentageVotes.toFixed(2)}%)
+        </span>
       </li>
     ));
 
@@ -182,9 +182,9 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
           {ballot.maxVotes}
         </td>
         <td>
-                    <span className={"status-" + status.toLowerCase()}>
-                        {status}
-                    </span>
+          <span className={"status-" + status.toLowerCase()}>
+              {status}
+          </span>
           <br/>
           <div className="percent-voted">
             {ballot.percentageVotes.toFixed(2)}% voted
@@ -194,7 +194,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
             {ballot.numNonAbstainVoters} non-abstain voters
           </div>
         </td>
-        <td className="tbl-btns">{btns}</td>
+        <td><div className="tbl-btns">{btns}</div></td>
         {this.state.showModal && (
           <ResultsModal
             hideModal={this.hideResults}

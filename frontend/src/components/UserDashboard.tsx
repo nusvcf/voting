@@ -157,8 +157,12 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
 
   const fetchData = () => {
     fetch("/user/ballot")
-      .then(data => data.json())
+      .then(data => {
+        console.log(data)
+        return data.json()
+      })
       .then((data: UserBallot) => {
+        console.log(data)
         if (data.position !== '') {
           let newSelected: {[k: string]: boolean} = {
             "Abstain": false,
@@ -176,6 +180,7 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
         }
       })
       .catch(error => {
+        console.log(error)
         props.clearState();
       });
   };

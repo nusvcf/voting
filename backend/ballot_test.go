@@ -80,16 +80,38 @@ var _ = Describe("Ballots", func() {
 		})
 
 		It("does not return the current ballot if the voter already voted", func() {
-			req, _ := http.NewRequest("GET", "/user/ballot", nil)
-			responseRecorder := serveWithCookie(req, voter.ID.String())
-			Expect(responseRecorder.Code).To(Equal(http.StatusOK))
-
-			var resp structs.UserBallot
-			err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
-			Expect(err).To(BeNil())
-			Expect(resp.ID).To(Equal(uuid.Nil))
-			Expect(resp.Position).To(BeEmpty())
-			Expect(resp.Names).To(BeEmpty())
+			ExpectUserHasNullBallot(voter.ID)
 		})
 	})
+
+	When("no ballot is created", func() {
+		BeforeEach(func() {
+			_ = db.GetDB().DeleteAllBallots()
+		})
+
+		It("does not return 500", func() {
+			ExpectUserHasNullBallot(voter.ID)
+		})
+	})
+
+	It("allows admin to close a ballot", func() {
+		req, _ := http.NewRequest("POST", "/admin/ballots/"+ballotId.String(), nil)
+		responseRecorder := serveWithCookie(req, "admin")
+		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+		ExpectUserHasNullBallot(voter.ID)
+	})
 })
+
+func ExpectUserHasNullBallot(voterId uuid.UUID) {
+	req, _ := http.NewRequest("GET", "/user/ballot", nil)
+	responseRecorder := serveWithCookie(req, voterId.String())
+	Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+	var resp structs.UserBallot
+	err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
+	Expect(err).To(BeNil())
+	Expect(resp.ID).To(Equal(uuid.Nil))
+	Expect(resp.Position).To(BeEmpty())
+	Expect(resp.Names).To(BeEmpty())
+}
