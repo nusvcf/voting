@@ -34,7 +34,7 @@ func createBallotHandler(c *gin.Context) {
 }
 
 func getCurrentBallotHandler(c *gin.Context) {
-	ballot, err := db.GetDB().GetLatestOpenBallot()
+	ballot, err := db.GetDB().GetEarliestOpenBallot()
 	if err != nil {
 		if err != pgx.ErrNoRows {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

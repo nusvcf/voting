@@ -101,11 +101,11 @@ func (d *Database) InvalidateBallot(id uuid.UUID) error {
 	})
 }
 
-func (d *Database) GetLatestOpenBallot() (structs.UserBallot, error) {
+func (d *Database) GetEarliestOpenBallot() (structs.UserBallot, error) {
 	var ballot structs.UserBallot
 
 	err := d.queryRow(queryOpts{
-		SQL:  "SELECT id, position, max_votes FROM ballot WHERE invalidated IS NULL AND closed IS NULL ORDER BY created DESC LIMIT 1",
+		SQL:  "SELECT id, position, max_votes FROM ballot WHERE invalidated IS NULL AND closed IS NULL ORDER BY created LIMIT 1",
 		Scan: []interface{}{&ballot.ID, &ballot.Position, &ballot.MaxVotes},
 	})
 

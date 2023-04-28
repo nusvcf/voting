@@ -52,7 +52,7 @@ var _ = Describe("DB Ballot", func() {
 
 	Describe("Latest Open Ballot", func() {
 		It("returns the current open ballot", func() {
-			openBallot, err := dbObj.GetLatestOpenBallot()
+			openBallot, err := dbObj.GetEarliestOpenBallot()
 			Expect(err).To(BeNil())
 			Expect(openBallot).To(testutils.EqualUserBallot(ballotId, ballot))
 		})
@@ -63,7 +63,7 @@ var _ = Describe("DB Ballot", func() {
 			})
 
 			It("does not return ballot", func() {
-				_, err := dbObj.GetLatestOpenBallot()
+				_, err := dbObj.GetEarliestOpenBallot()
 				Expect(err).ToNot(BeNil())
 			})
 		})
@@ -74,7 +74,7 @@ var _ = Describe("DB Ballot", func() {
 			})
 
 			It("does not return ballot", func() {
-				_, err := dbObj.GetLatestOpenBallot()
+				_, err := dbObj.GetEarliestOpenBallot()
 				Expect(err).ToNot(BeNil())
 			})
 		})
