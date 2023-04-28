@@ -23,12 +23,15 @@ var _ = Describe("Ballots", func() {
 
 		ballot = testutils.CreateAdminBallot()
 		ballotId, _ = db.GetDB().CreateBallot(ballot)
+
+		voter = testutils.CreateVoter()
 		voter.ID, _ = db.GetDB().CreateVoter(voter)
 	})
 
 	AfterEach(func() {
 		_ = db.GetDB().ClearBootstrap()
 		_ = db.GetDB().DeleteAllBallots()
+		_ = db.GetDB().DeleteAllVoters()
 	})
 
 	It("can get the list of existing ballots", func() {
