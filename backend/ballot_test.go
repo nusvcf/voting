@@ -71,7 +71,22 @@ var _ = Describe("Ballots", func() {
 		Expect(resp).To(testutils.EqualUserBallot(ballotId, ballot))
 	})
 
-	It("does not return the current ballot if the voter already voted", func() {
+	When("voter has already cast their vote", func() {
+		BeforeEach(func() {
+			_ = db.GetDB().CastVote(ballotId, voter.ID, structs.VoteCast{Abstain: true})
+		})
 
+		It("does not return the current ballot if the voter already voted", func() {
+			req, _ := http.NewRequest("GET", "/user/ballot", nil)
+			responseRecorder := serveWithCookie(req, voter.ID.String())
+			Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+			var resp structs.UserBallot
+			err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
+			Expect(err).To(BeNil())
+			Expect(resp.ID).To(Equal(uuid.Nil))
+			Expect(resp.Position).To(BeEmpty())
+			Expect(resp.Names).To(BeEmpty())
+		})
 	})
 })
