@@ -177,7 +177,7 @@ button:disabled {
                 font-size: 36px;
                 color: $primary-9;
                 text-transform: none;
-                letter-spacing: 0px;
+                letter-spacing: 0;
             }
         }
 
@@ -225,7 +225,7 @@ table {
         color: $primary-9;
         text-align: left;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 0;
         font-size: 14px;
 
         border-bottom: 2px solid $grey-3;
@@ -303,7 +303,7 @@ table {
         }
 
         .status-ongoing, .status-completed, .status-invalidated, .vote-status-normal, .vote-status-abstain, .vote-status-no-confidence {
-            font-size: 14px;
+            font-size: 12px;
             padding: 6px 12px;
             border-radius: 24px;
             display: inline-block;

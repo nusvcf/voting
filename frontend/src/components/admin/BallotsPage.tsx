@@ -5,14 +5,16 @@ import LoadingDiv from "./LoadingDiv";
 
 export interface BallotVote {
   id: string,
-  status: string,
+  voterId: string,
   abstain: boolean,
   noConfidence: boolean,
-  votedFor: string[]
+  votedFor?: string[]
 }
 
 export class Ballot {
-  constructor(public id: string, public position: string, public maxVotes: number, private created: string, private closed: string | null, private invalidated: string | null, private names: BallotName[], private votes: BallotVote[]) {
+  constructor(public id: string, public position: string, public maxVotes: number, public numValidVoters: number,
+              private created: string, private closed: string | null, private invalidated: string | null,
+              public names: BallotName[], private votes: BallotVote[]) {
 
   }
 
@@ -25,41 +27,51 @@ export class Ballot {
   }
 
   get percentageVotes() {
-    return 1;
-  }
-
-  get numValidVoters() {
-    return 1;
+    return 100 * this.votes.length / this.numValidVoters;
   }
 
   get numVotesInBallot() {
     return this.votes.length;
   }
 
-  get numNonAbstainVoters() {
-    return this.votes.filter(x => !x.abstain).length;
+  get numDidNotVote() {
+    return this.numValidVoters - this.numVotesInBallot;
+  }
+
+  get numAbstain() {
+    return this.votes.filter(x => x.abstain).length;
   }
 
   get numNoConfidence() {
     return this.votes.filter(x => x.noConfidence).length;
   }
 
-  get namesWithPercentageVotes(): BallotNamePercentage[] {
+  get numNonAbstainVoters() {
+    return this.numVotesInBallot - this.numAbstain;
+  }
+
+  get candidateResults(): CandidateResult[] {
     return this.names.map(x => {
-      const numVoters = this.votes.filter(v => v.votedFor.includes(x.id)).length
+      const voters = this.votes.filter(v => v.votedFor?.includes(x.id)).map(x => x.id);
+      const numVotes = voters.length
       const denom = this.numNonAbstainVoters
-      const percentageVotes = denom === 0 ? 0 : 100 * numVoters / denom;
-      return {name: x.name, percentageVotes}
+      const percentageVotes = denom === 0 ? 0 : 100 * numVotes / denom;
+      return {name: x.name, voters, percentageVotes}
     });
   }
 
   get submittedUsers(): {[userId: string]: BallotVote} {
-    return {}
+    let results: {[userId: string]: BallotVote} = {};
+    this.votes.forEach(vote => {
+      results[vote.voterId] = vote
+    })
+    return results;
   }
 }
 
-export interface BallotNamePercentage {
+export interface CandidateResult {
   name: string;
+  voters: string[];
   percentageVotes: number;
 }
 
@@ -102,8 +114,8 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
 
   render() {
     let ballot = this.props.ballot;
-    let btns = [];
-    let status = "";
+    let btns: any[];
+    let status: string;
 
     if (ballot.isOpen) {
       status = "Ongoing";
@@ -145,7 +157,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
       }
     }
 
-    let names = ballot.namesWithPercentageVotes.map((item: BallotNamePercentage, i: number) => (
+    let names = ballot.candidateResults.map((item: CandidateResult, i: number) => (
       <li key={i}>
         {item.name}{" "}
         <span className="percent-voted">
@@ -217,9 +229,9 @@ class BallotsPage extends Component<any, any> {
     fetch("/admin/ballots")
       .then(data => data.json())
       .then((json: any[]) => {
-        this.setState({ballots: json.map(x => new Ballot(x.id, x.position, x.maxVotes, x.created, x.closed, x.invalidated, x.names, x.votes)), fetchingData: false});
+        this.setState({ballots: json.map(x => new Ballot(x.id, x.position, x.maxVotes, x.numValidVoters, x.created, x.closed, x.invalidated, x.names, x.votes)), fetchingData: false});
       })
-      .catch(error => {
+      .catch(() => {
         this.props.clearState();
       });
   };

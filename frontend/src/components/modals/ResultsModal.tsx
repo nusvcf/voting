@@ -4,19 +4,27 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faIdCard, faTimes, faVoteYea} from "@fortawesome/free-solid-svg-icons";
 import {Ballot, BallotVote} from "../admin/BallotsPage";
 
-const VoterItem = (props: BallotVote) => {
+const VoterItem = (props: { ballot: Ballot, vote: BallotVote }) => {
+    let status = 'Normal';
+    if (props.vote.abstain) {
+        status = 'Abstain'
+    } else if (props.vote.noConfidence) {
+        status = 'No Confidence'
+    }
+
   return (
     <tr>
-      <td className="id">{props.id}</td>
-      <td
+      <td className="id">{props.vote.id}</td>
+        <td>
+      <div
         className={
-          "vote-status-" +
-          props.status.replace(" ", "-").toLowerCase()
+          "vote-status-" +status.replace(" ", "-").toLowerCase()
         }
       >
-        {props.status}
-      </td>
-      <td>{props.votedFor.join(", ")}</td>
+        {status}
+      </div>
+        </td>
+      <td>{props.vote.votedFor?.map(x => props.ballot.names.find(y => y.id === x)?.name).join(", ")}</td>
     </tr>
   );
 }
@@ -27,7 +35,8 @@ function ViewByVoter(props: {ballot: Ballot}) {
     results.push(
       <VoterItem
         key={id}
-        {...props.ballot.submittedUsers[id]}
+        ballot={props.ballot}
+        vote={props.ballot.submittedUsers[id]}
       />
     );
   }
@@ -37,7 +46,7 @@ function ViewByVoter(props: {ballot: Ballot}) {
       <tr>
         <th>Voter</th>
         <th>Vote Type</th>
-        <th>Vote Name</th>
+        <th>Voted For</th>
       </tr>
       </thead>
       <tbody>{results}</tbody>
@@ -45,11 +54,11 @@ function ViewByVoter(props: {ballot: Ballot}) {
   );
 }
 
-function CandidateItem(props: {name: string, count: number, voters: string[]}) {
+function CandidateItem(props: {name: string, voters: string[]}) {
   return (
     <tr>
       <td>
-        {props.name} ({props.count} voted)
+        {props.name} ({props.voters.length} voted)
       </td>
       <td>
         <ul>{props.voters.map((name) => (
@@ -61,7 +70,7 @@ function CandidateItem(props: {name: string, count: number, voters: string[]}) {
 }
 
 function ViewByCandidate(props: {ballot: Ballot}) {
-  const results = props.ballot.namesWithPercentageVotes.map(x => <CandidateItem name={x.name} count={0} voters={[]} />)
+  const results = props.ballot.candidateResults.map(x => <CandidateItem name={x.name} voters={x.voters} />)
 
   return (
     <table>
@@ -92,7 +101,8 @@ function QuickStats(props: { ballot: Ballot }) {
       </tr>
       <tr>
         <th>
-          No. of abstain votes (either sent or didn't send):
+          No. of abstain:<br />
+            <span style={{fontSize: '12px', letterSpacing: '0', opacity: '0.4'}}>({props.ballot.numDidNotVote} did not vote, {props.ballot.numAbstain} voted abstain)</span>
         </th>
         <td>
           {props.ballot.numValidVoters -
@@ -140,7 +150,7 @@ class ResultsModal extends Component<{ballot: Ballot, hideModal: () => void}, {v
   constructor(props: {ballot: Ballot, hideModal: () => void}) {
     super(props);
     this.state = {
-      view: "voter"
+      view: "candidate"
     };
   }
 
