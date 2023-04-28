@@ -42,7 +42,7 @@ export class Ballot {
     return 1;
   }
 
-  get namesWithPercentageVotes(): BallotName[] {
+  get namesWithPercentageVotes(): BallotNamePercentage[] {
     return this.names.map(x => {
       return {name: x, percentageVotes: 0}
     });
@@ -71,9 +71,14 @@ export class Ballot {
 //   submittedUsers: { [id: string]: BallotVote }
 // }
 
+export interface BallotNamePercentage {
+  name: string;
+  percentageVotes: number;
+}
+
 export interface BallotName {
+  id: string;
   name: string
-  percentageVotes: number
 }
 
 class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any> {
@@ -153,7 +158,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
       }
     }
 
-    let names = ballot.namesWithPercentageVotes.map((item: BallotName, i: number) => (
+    let names = ballot.namesWithPercentageVotes.map((item: BallotNamePercentage, i: number) => (
       <li key={i}>
         {item.name}{" "}
         <span className="percent-voted">
