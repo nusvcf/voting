@@ -142,7 +142,7 @@ function VotingPage(props: {
             maxVotes={props.ballot.maxVotes}
         />
       </div>
-      <button onClick={() => props.sendVote(selected)}>Send Vote</button>
+      <button onClick={() => props.sendVote(selected)} disabled={selected.votedFor.length > props.ballot.maxVotes}>Send Vote</button>
     </div>
   );
 }
@@ -194,7 +194,6 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
   };
 
   const sendVote = (selected: VoteCast) => {
-    console.log('hi')
     if (ballot === null) return;
     if (!selected.abstain && !selected.noConfidence && selected.votedFor.length === 0) {
       props.setError("Please select an option.");
@@ -213,19 +212,15 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
       },
       body: JSON.stringify(selected)
     })
-        .then(data => data.json())
-        .then(json => {
-          if (json.success) {
+        .then(() => {
             setStatus(Status.Waiting);
             setBallot(null);
-          } else {
-            props.setError(
-                "There was a problem casting your vote. Please try again later. "
-            );
-          }
         })
         .catch(error => {
           props.clearState();
+          props.setError(
+              "There was a problem casting your vote. Please log in and try again. "
+          );
         });
   };
 

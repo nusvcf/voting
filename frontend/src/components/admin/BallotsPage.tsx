@@ -6,6 +6,8 @@ import LoadingDiv from "./LoadingDiv";
 export interface BallotVote {
   id: string,
   status: string,
+  abstain: boolean,
+  noConfidence: boolean,
   votedFor: string[]
 }
 
@@ -31,45 +33,30 @@ export class Ballot {
   }
 
   get numVotesInBallot() {
-    return 1;
+    return this.votes.length;
   }
 
   get numNonAbstainVoters() {
-    return 1;
+    return this.votes.filter(x => !x.abstain).length;
   }
 
   get numNoConfidence() {
-    return 1;
+    return this.votes.filter(x => x.noConfidence).length;
   }
 
   get namesWithPercentageVotes(): BallotNamePercentage[] {
     return this.names.map(x => {
-      return {name: x.name, percentageVotes: 0}
+      const numVoters = this.votes.filter(v => v.votedFor.includes(x.id)).length
+      const denom = this.numNonAbstainVoters
+      const percentageVotes = denom === 0 ? 0 : 100 * numVoters / denom;
+      return {name: x.name, percentageVotes}
     });
   }
 
   get submittedUsers(): {[userId: string]: BallotVote} {
     return {}
   }
-
-
 }
-
-// export interface Ballot {
-//   id: string
-//   isOpen: boolean
-//   isValid: boolean
-//   position: string
-//   maxVotes: number
-//   percentageVotes: number
-//   numValidVoters: number
-//   numVotesInBallot: number
-//   numNonAbstainVoters: number
-//   numNoConfidence: number
-//   names: BallotName[]
-//   namesInBallot: { [name: string]: { count: number, voters: string[] } }
-//   submittedUsers: { [id: string]: BallotVote }
-// }
 
 export interface BallotNamePercentage {
   name: string;

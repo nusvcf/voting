@@ -10,7 +10,7 @@ html {
 body,
 html,
 input,
-button, 
+button,
 select {
     font-family: "Karla";
 }
@@ -58,8 +58,8 @@ select {
     }
 
     input[type="text"],
-    input[type="password"], 
-    input[type="number"], 
+    input[type="password"],
+    input[type="number"],
     select {
         font-size: 14px;
         padding: 10px;
@@ -87,7 +87,6 @@ input[type="submit"] {
     cursor: pointer;
     top: 0;
     position: relative;
-
 }
 
 button:hover,
@@ -96,8 +95,18 @@ input[type="submit"]:hover {
     // border-top: 3px solid $primary-8;
     background-color: $primary-6;
     border-bottom: 3px solid $grey-1;
-
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+button:disabled {
+    background-color: $grey-3;
+    border-bottom: 0;
+    cursor: not-allowed;
+    &:hover {
+        top: 0;
+        background-color: $grey-2;
+        box-shadow: none;
+    }
 }
 
 .btn-secondary {
