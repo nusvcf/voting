@@ -11,11 +11,12 @@ import (
 )
 
 var _ = Describe("DB Ballot", func() {
-	var ballot structs.Ballot
+	var ballot structs.AdminBallot
+	var ballotId uuid.UUID
 
 	BeforeEach(func() {
-		ballot = testutils.CreateBallot()
-		_ = dbObj.CreateBallot(&ballot)
+		ballot = testutils.CreateAdminBallot()
+		ballotId, _ = dbObj.CreateBallot(ballot)
 	})
 
 	AfterEach(func() {
@@ -23,10 +24,10 @@ var _ = Describe("DB Ballot", func() {
 	})
 
 	It("creates a ballot", func() {
-		newBallot := testutils.CreateBallot()
-		err := dbObj.CreateBallot(&newBallot)
+		newBallot := testutils.CreateAdminBallot()
+		ballotId, err := dbObj.CreateBallot(newBallot)
 		Expect(err).To(BeNil())
-		Expect(newBallot.ID).ToNot(Equal(uuid.Nil))
+		Expect(ballotId).ToNot(Equal(uuid.Nil))
 	})
 
 	It("gets ballot details with names", func() {
@@ -36,16 +37,16 @@ var _ = Describe("DB Ballot", func() {
 	})
 
 	It("can close ballots", func() {
-		err := dbObj.CloseBallot(ballot.ID)
+		err := dbObj.CloseBallot(ballotId)
 		Expect(err).To(BeNil())
-		foundBallot := utils.GetBallotById(ballot.ID)
+		foundBallot := utils.GetBallotById(ballotId)
 		Expect(time.Since(foundBallot.Closed.Time).Seconds()).To(BeNumerically("<", 1))
 	})
 
 	It("can invalidate ballots", func() {
-		err := dbObj.InvalidateBallot(ballot.ID)
+		err := dbObj.InvalidateBallot(ballotId)
 		Expect(err).To(BeNil())
-		foundBallot := utils.GetBallotById(ballot.ID)
+		foundBallot := utils.GetBallotById(ballotId)
 		Expect(time.Since(foundBallot.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
 	})
 
@@ -58,7 +59,7 @@ var _ = Describe("DB Ballot", func() {
 
 		When("ballot is closed", func() {
 			BeforeEach(func() {
-				_ = dbObj.CloseBallot(ballot.ID)
+				_ = dbObj.CloseBallot(ballotId)
 			})
 
 			It("does not return ballot", func() {
@@ -69,7 +70,7 @@ var _ = Describe("DB Ballot", func() {
 
 		When("ballot is invalidated", func() {
 			BeforeEach(func() {
-				_ = dbObj.InvalidateBallot(ballot.ID)
+				_ = dbObj.InvalidateBallot(ballotId)
 			})
 
 			It("does not return ballot", func() {

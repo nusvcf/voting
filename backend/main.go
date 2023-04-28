@@ -30,6 +30,8 @@ func setupRouter() *gin.Engine {
 	userRoutes := r.Group("/user")
 	userRoutes.Use(auth.Middleware(false))
 
+	userRoutes.GET("/ballot", getCurrentBallotHandler)
+
 	adminRoutes := r.Group("/admin")
 	adminRoutes.Use(auth.Middleware(true))
 

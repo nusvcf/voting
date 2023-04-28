@@ -5,25 +5,30 @@ import (
 	"github.com/nusvcf/voting/backend/structs"
 )
 
-func (d *Database) CreateBallot(ballot *structs.Ballot) error {
+func (d *Database) CreateBallot(ballot structs.AdminBallot) (uuid.UUID, error) {
+	id := uuid.Nil
+
 	err := d.queryRow(queryOpts{
 		SQL:  `INSERT INTO ballot (position, max_votes) VALUES ($1, $2) RETURNING id`,
 		Args: []interface{}{ballot.Position, ballot.MaxVotes},
-		Scan: []interface{}{&ballot.ID},
+		Scan: []interface{}{&id},
 	})
 
 	if err != nil {
-		return err
+		return id, err
 	}
 
 	for _, name := range ballot.Names {
 		err = d.exec(queryOpts{
 			SQL:  `INSERT INTO ballot_name (ballot_id, name) VALUES ($1, $2)`,
-			Args: []interface{}{ballot.ID, name},
+			Args: []interface{}{id, name},
 		})
+		if err != nil {
+			return id, err
+		}
 	}
 
-	return nil
+	return id, nil
 }
 
 func (d *Database) GetBallots() ([]structs.Ballot, error) {
@@ -55,9 +60,9 @@ func (d *Database) GetBallots() ([]structs.Ballot, error) {
 	return ballots, nil
 }
 
-func (d *Database) getBallotNames(ballotID uuid.UUID) ([]string, error) {
+func (d *Database) getBallotNames(ballotID uuid.UUID) ([]structs.BallotName, error) {
 	rows, cancel, err := d.query(queryOpts{
-		SQL:  `SELECT name FROM ballot_name WHERE ballot_id = $1`,
+		SQL:  `SELECT id, name FROM ballot_name WHERE ballot_id = $1`,
 		Args: []interface{}{ballotID},
 	})
 	if err != nil {
@@ -65,14 +70,14 @@ func (d *Database) getBallotNames(ballotID uuid.UUID) ([]string, error) {
 	}
 	defer cancel()
 
-	ballotNames := make([]string, 0)
+	ballotNames := make([]structs.BallotName, 0)
 
 	for rows.Next() {
-		var name string
-		if err := rows.Scan(&name); err != nil {
+		var ballotName structs.BallotName
+		if err := rows.Scan(&ballotName.Id, &ballotName.Name); err != nil {
 			return nil, err
 		}
-		ballotNames = append(ballotNames, name)
+		ballotNames = append(ballotNames, ballotName)
 	}
 
 	return ballotNames, nil

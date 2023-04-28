@@ -13,13 +13,15 @@ import (
 )
 
 var _ = Describe("Ballots", func() {
-	var ballot structs.Ballot
+	var ballot structs.AdminBallot
+	var voter structs.Voter
 
 	BeforeEach(func() {
 		performBootstrap("admin-pw")
 
-		ballot = testutils.CreateBallot()
-		_ = db.GetDB().CreateBallot(&ballot)
+		ballot = testutils.CreateAdminBallot()
+		_, _ = db.GetDB().CreateBallot(ballot)
+		voter.ID, _ = db.GetDB().CreateVoter(voter)
 	})
 
 	AfterEach(func() {
@@ -29,7 +31,7 @@ var _ = Describe("Ballots", func() {
 
 	It("can get the list of existing ballots", func() {
 		req, _ := http.NewRequest("GET", "/admin/ballots", nil)
-		responseRecorder := serveWithCookie(req)
+		responseRecorder := serveWithCookie(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		var resp []structs.Ballot
@@ -44,16 +46,30 @@ var _ = Describe("Ballots", func() {
 			"maxVotes": 2,
 			"names": ["Matthew", "Mark"]
 		}`))
-		responseRecorder := serveWithCookie(req)
+		responseRecorder := serveWithCookie(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		ballots, err := db.GetDB().GetBallots()
 		Expect(err).To(BeNil())
-		Expect(ballots).To(ContainElement(testutils.EqualBallot(structs.Ballot{
+		Expect(ballots).To(ContainElement(testutils.EqualBallot(structs.AdminBallot{
 			Position: "Chair",
 			MaxVotes: 2,
 			Names:    []string{"Matthew", "Mark"},
-			Votes:    []structs.BallotVote{},
 		})))
+	})
+
+	It("returns the current open ballot for a voter", func() {
+		req, _ := http.NewRequest("GET", "/user/ballot", nil)
+		responseRecorder := serveWithCookie(req, voter.ID.String())
+		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+		var resp structs.UserBallot
+		err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
+		Expect(err).To(BeNil())
+		Expect(resp).To(testutils.EqualUserBallot(ballot))
+	})
+
+	It("does not return the current ballot if the voter already voted", func() {
+
 	})
 })

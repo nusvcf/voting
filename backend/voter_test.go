@@ -35,7 +35,7 @@ var _ = Describe("Voters API", func() {
 
 	It("can get the list of existing voters", func() {
 		req, _ := http.NewRequest("GET", "/admin/voters", nil)
-		responseRecorder := serveWithCookie(req)
+		responseRecorder := serveWithCookie(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		var resp []structs.Voter
@@ -51,7 +51,7 @@ var _ = Describe("Voters API", func() {
 			"end": 5
 		}
 		`)))
-		responseRecorder := serveWithCookie(req)
+		responseRecorder := serveWithCookie(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		voters, _ := db.GetDB().GetVoters()
@@ -63,7 +63,7 @@ var _ = Describe("Voters API", func() {
 
 	It("can fails with missing values", func() {
 		req, _ := http.NewRequest("POST", "/admin/voters", bytes.NewBuffer([]byte(`{}`)))
-		responseRecorder := serveWithCookie(req)
+		responseRecorder := serveWithCookie(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusBadRequest))
 	})
 
@@ -74,13 +74,13 @@ var _ = Describe("Voters API", func() {
 			"end": 3
 		}
 		`)))
-		responseRecorder := serveWithCookie(req)
+		responseRecorder := serveWithCookie(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusBadRequest))
 	})
 
 	It("can invalidate a single voter", func() {
 		req, _ := http.NewRequest("PUT", "/admin/voters/"+voter2.ID.String(), nil)
-		responseRecorder := serveWithCookie(req)
+		responseRecorder := serveWithCookie(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		voter1Found := utils.GetVoterById(voter1.ID)
@@ -92,7 +92,7 @@ var _ = Describe("Voters API", func() {
 
 	It("can delete a single voter", func() {
 		req, _ := http.NewRequest("DELETE", "/admin/voters/"+voter2.ID.String(), nil)
-		responseRecorder := serveWithCookie(req)
+		responseRecorder := serveWithCookie(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		voters, _ := db.GetDB().GetVoters()
@@ -101,8 +101,8 @@ var _ = Describe("Voters API", func() {
 	})
 })
 
-func serveWithCookie(req *http.Request) *httptest.ResponseRecorder {
-	validAdminJWT, _ := auth.CreateJWT("admin", time.Minute)
+func serveWithCookie(req *http.Request, userId string) *httptest.ResponseRecorder {
+	validAdminJWT, _ := auth.CreateJWT(userId, time.Minute)
 
 	req.AddCookie(&http.Cookie{
 		Name:  "auth",

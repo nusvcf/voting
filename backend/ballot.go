@@ -18,16 +18,25 @@ func getBallotsHandler(c *gin.Context) {
 }
 
 func createBallotHandler(c *gin.Context) {
-	var payload structs.Ballot
+	var payload structs.AdminBallot
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := db.GetDB().CreateBallot(&payload); err != nil {
+	if _, err := db.GetDB().CreateBallot(payload); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+}
+
+func getCurrentBallotHandler(c *gin.Context) {
+	ballot, err := db.GetDB().GetLatestOpenBallot()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	c.JSON(http.StatusOK, ballot)
 }

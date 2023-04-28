@@ -30,3 +30,11 @@ func (d *Database) exec(opts queryOpts) error {
 	_, err := d.Pool.Exec(ctx, opts.SQL, opts.Args...)
 	return err
 }
+
+func (d *Database) txExec(tx pgx.Tx, opts queryOpts) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	_, err := tx.Exec(ctx, opts.SQL, opts.Args...)
+
+	return err
+}

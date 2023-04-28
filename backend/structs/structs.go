@@ -15,20 +15,27 @@ type Voter struct {
 }
 
 type BallotVote struct {
-	ID       uuid.UUID `json:"id"`
-	VoterID  uuid.UUID `json:"voterId"`
-	Status   string    `json:"status"`
-	VotedFor []string  `json:"votedFor"`
+	VoterId      uuid.UUID `json:"voterId"`
+	Created      time.Time `json:"created"`
+	Status       string    `json:"status"`
+	Abstain      bool      `json:"abstain"`
+	NoConfidence bool      `json:"noConfidence"`
+	VotedFor     []string  `json:"votedFor"`
+}
+
+type BallotName struct {
+	Id   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }
 
 type Ballot struct {
 	ID          uuid.UUID    `json:"id"`
-	Position    string       `json:"position" binding:"required"`
-	MaxVotes    int          `json:"maxVotes" binding:"required"`
+	Position    string       `json:"position"`
+	MaxVotes    int          `json:"maxVotes"`
 	Created     time.Time    `json:"created"`
 	Closed      null.Time    `json:"closed"`
 	Invalidated null.Time    `json:"invalidated"`
-	Names       []string     `json:"names" binding:"required"`
+	Names       []BallotName `json:"names"`
 	Votes       []BallotVote `json:"votes"`
 }
 
@@ -36,8 +43,16 @@ type Ballot struct {
 // actual Ballot object. This is done to make it explicit which
 // fields would not be populated for users.
 type UserBallot struct {
-	ID       uuid.UUID `json:"id"`
-	Position string    `json:"position" binding:"required"`
-	MaxVotes int       `json:"maxVotes" binding:"required"`
-	Names    []string  `json:"names" binding:"required"`
+	ID       uuid.UUID    `json:"id"`
+	Position string       `json:"position"`
+	MaxVotes int          `json:"maxVotes"`
+	Names    []BallotName `json:"names"`
+}
+
+// AdminBallot is the payload expected from the admin endpoint
+// when creating a new ballot.
+type AdminBallot struct {
+	Position string   `json:"position" binding:"required"`
+	MaxVotes int      `json:"maxVotes" binding:"required"`
+	Names    []string `json:"names" binding:"required"`
 }
