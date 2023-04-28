@@ -64,7 +64,6 @@ func (d *Database) UpdateLastSeen(id uuid.UUID) error {
 }
 
 func (d *Database) InvalidateVoter(id uuid.UUID) error {
-	//return nil
 	return d.exec(queryOpts{
 		SQL:  `UPDATE voter SET invalidated = NOW() WHERE id = $1`,
 		Args: []interface{}{id},
