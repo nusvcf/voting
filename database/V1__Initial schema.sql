@@ -27,10 +27,16 @@ CREATE TABLE ballot_name (
 );
 
 CREATE TABLE vote (
+    id            uuid PRIMARY KEY   DEFAULT gen_random_uuid(),
     voter_id      uuid      NOT NULL REFERENCES voter (id) ON UPDATE CASCADE ON DELETE CASCADE,
     ballot_id     uuid      NOT NULL REFERENCES ballot (id) ON UPDATE CASCADE ON DELETE CASCADE,
     created       TIMESTAMP NOT NULL DEFAULT NOW(),
     abstain       bool      NOT NULL,
     no_confidence bool      NOT NULL,
-    name_id       uuid REFERENCES ballot_name (id)
+    CONSTRAINT vote_unique UNIQUE (voter_id, ballot_id)
+);
+
+CREATE TABLE vote_name (
+    vote_id uuid NOT NULL REFERENCES vote (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    name_id uuid NOT NULL REFERENCES ballot_name (id) ON UPDATE CASCADE ON DELETE CASCADE
 );

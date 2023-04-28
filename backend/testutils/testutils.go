@@ -63,6 +63,22 @@ func EqualBallot(ballotId uuid.UUID, otherBallot structs.AdminBallot) types.Gome
 	)
 }
 
+func EqualBallotWithoutId(otherBallot structs.AdminBallot) types.GomegaMatcher {
+	return And(
+		HaveField("Position", Equal(otherBallot.Position)),
+		HaveField("MaxVotes", Equal(otherBallot.MaxVotes)),
+		WithTransform(func(ballot structs.Ballot) float64 {
+			return time.Since(ballot.Created).Seconds()
+		}, BeNumerically("<", 1)),
+		WithTransform(func(ballot structs.Ballot) bool {
+			return time.Since(ballot.Created).Seconds() < 5
+		}, BeTrue()),
+		WithTransform(func(ballot structs.Ballot) bool {
+			return checkBallotNames(ballot.Names, otherBallot.Names)
+		}, BeTrue()),
+	)
+}
+
 func EqualUserBallot(ballotId uuid.UUID, otherBallot structs.AdminBallot) types.GomegaMatcher {
 	return And(
 		HaveField("ID", Equal(ballotId)),

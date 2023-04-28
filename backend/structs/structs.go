@@ -14,13 +14,23 @@ type Voter struct {
 	Invalidated null.Time `json:"invalidated"`
 }
 
+// VoteCast by a voter through the API
+type VoteCast struct {
+	Abstain      bool        `json:"abstain"`
+	NoConfidence bool        `json:"noConfidence"`
+	VotedFor     []uuid.UUID `json:"votedFor"`
+}
+
+// BallotVote that is stored in the database when a voter makes a vote using VoteCast, and
+// passed to the admin when retrieving information on a ballot.
 type BallotVote struct {
-	VoterId      uuid.UUID `json:"voterId"`
-	Created      time.Time `json:"created"`
-	Status       string    `json:"status"`
-	Abstain      bool      `json:"abstain"`
-	NoConfidence bool      `json:"noConfidence"`
-	VotedFor     []string  `json:"votedFor"`
+	Id           uuid.UUID   `json:"id"`
+	VoterId      uuid.UUID   `json:"voterId"`
+	Created      time.Time   `json:"created"`
+	Status       string      `json:"status"`
+	Abstain      bool        `json:"abstain"`
+	NoConfidence bool        `json:"noConfidence"`
+	VotedFor     []uuid.UUID `json:"votedFor"`
 }
 
 type BallotName struct {

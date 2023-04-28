@@ -4,6 +4,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/testutils"
+	"github.com/nusvcf/voting/backend/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -28,19 +29,22 @@ var _ = Describe("DB Ballot Vote", func() {
 
 	Describe("allows voter to cast vote", func() {
 		It("can vote for 2 names", func() {
-			//err := dbObj.CastVote(ballotId, structs.BallotVote{VoterId: voter.ID, VotedFor: []string{ballot.Names[0], ballot.Names[1]}})
-			//Expect(err).To(BeNil())
-			//
-			//votes, err := dbObj.GetVotes(ballotId)
-			//Expect(err).To(BeNil())
-			//Expect(votes).To(ContainElement(testutils.EqualVote(structs.BallotVote{
-			//	VoterId:      voter.ID,
-			//	NoConfidence: true,
-			//})))
+			dbBallot := utils.GetBallotById(ballotId)
+			voteIds := []uuid.UUID{dbBallot.Names[0].Id, dbBallot.Names[1].Id}
+
+			err := dbObj.CastVote(ballotId, voter.ID, structs.VoteCast{VotedFor: voteIds})
+			Expect(err).To(BeNil())
+
+			votes, err := dbObj.GetVotes(ballotId)
+			Expect(err).To(BeNil())
+			Expect(votes).To(ContainElement(testutils.EqualVote(structs.BallotVote{
+				VoterId:  voter.ID,
+				VotedFor: voteIds,
+			})))
 		})
 
 		It("can cast no confidence vote", func() {
-			err := dbObj.CastVote(ballotId, structs.BallotVote{VoterId: voter.ID, NoConfidence: true})
+			err := dbObj.CastVote(ballotId, voter.ID, structs.VoteCast{NoConfidence: true})
 			Expect(err).To(BeNil())
 
 			votes, err := dbObj.GetVotes(ballotId)
@@ -52,7 +56,7 @@ var _ = Describe("DB Ballot Vote", func() {
 		})
 
 		It("can cast abstain vote", func() {
-			err := dbObj.CastVote(ballotId, structs.BallotVote{VoterId: voter.ID, Abstain: true})
+			err := dbObj.CastVote(ballotId, voter.ID, structs.VoteCast{Abstain: true})
 			Expect(err).To(BeNil())
 
 			votes, err := dbObj.GetVotes(ballotId)
@@ -75,13 +79,13 @@ var _ = Describe("DB Ballot Vote", func() {
 
 		When("voter has already voted", func() {
 			BeforeEach(func() {
-				_ = dbObj.CastVote(ballotId, structs.BallotVote{VoterId: voter.ID, Abstain: true})
+				_ = dbObj.CastVote(ballotId, voter.ID, structs.VoteCast{Abstain: true})
 			})
 
-			It("returns false", func() {
-				//hasVoted, err := dbObj.VoterHasVotedForBallot(voter.ID, ballotId)
-				//Expect(err).To(BeNil())
-				//Expect(hasVoted).To(BeTrue())
+			It("returns true", func() {
+				hasVoted, err := dbObj.VoterHasVotedForBallot(voter.ID, ballotId)
+				Expect(err).To(BeNil())
+				Expect(hasVoted).To(BeTrue())
 			})
 		})
 	})

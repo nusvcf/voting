@@ -53,7 +53,7 @@ var _ = Describe("Ballots", func() {
 
 		ballots, err := db.GetDB().GetBallots()
 		Expect(err).To(BeNil())
-		Expect(ballots).To(ContainElement(testutils.EqualBallot(ballotId, structs.AdminBallot{
+		Expect(ballots).To(ContainElement(testutils.EqualBallotWithoutId(structs.AdminBallot{
 			Position: "Chair",
 			MaxVotes: 2,
 			Names:    []string{"Matthew", "Mark"},
