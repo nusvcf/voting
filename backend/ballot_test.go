@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/gofrs/uuid"
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/testutils"
@@ -14,13 +15,14 @@ import (
 
 var _ = Describe("Ballots", func() {
 	var ballot structs.AdminBallot
+	var ballotId uuid.UUID
 	var voter structs.Voter
 
 	BeforeEach(func() {
 		performBootstrap("admin-pw")
 
 		ballot = testutils.CreateAdminBallot()
-		_, _ = db.GetDB().CreateBallot(ballot)
+		ballotId, _ = db.GetDB().CreateBallot(ballot)
 		voter.ID, _ = db.GetDB().CreateVoter(voter)
 	})
 
@@ -37,7 +39,7 @@ var _ = Describe("Ballots", func() {
 		var resp []structs.Ballot
 		err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
 		Expect(err).To(BeNil())
-		Expect(resp).To(ContainElement(testutils.EqualBallot(ballot)))
+		Expect(resp).To(ContainElement(testutils.EqualBallot(ballotId, ballot)))
 	})
 
 	It("can create a new ballot", func() {
@@ -51,7 +53,7 @@ var _ = Describe("Ballots", func() {
 
 		ballots, err := db.GetDB().GetBallots()
 		Expect(err).To(BeNil())
-		Expect(ballots).To(ContainElement(testutils.EqualBallot(structs.AdminBallot{
+		Expect(ballots).To(ContainElement(testutils.EqualBallot(ballotId, structs.AdminBallot{
 			Position: "Chair",
 			MaxVotes: 2,
 			Names:    []string{"Matthew", "Mark"},
@@ -66,7 +68,7 @@ var _ = Describe("Ballots", func() {
 		var resp structs.UserBallot
 		err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
 		Expect(err).To(BeNil())
-		Expect(resp).To(testutils.EqualUserBallot(ballot))
+		Expect(resp).To(testutils.EqualUserBallot(ballotId, ballot))
 	})
 
 	It("does not return the current ballot if the voter already voted", func() {

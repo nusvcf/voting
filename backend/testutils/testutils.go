@@ -46,11 +46,14 @@ func checkBallotNames(ballotNames []structs.BallotName, names []string) bool {
 	return true
 }
 
-func EqualBallot(otherBallot structs.AdminBallot) types.GomegaMatcher {
+func EqualBallot(ballotId uuid.UUID, otherBallot structs.AdminBallot) types.GomegaMatcher {
 	return And(
-		HaveField("ID", Not(Equal(uuid.Nil))), // TODO
+		HaveField("ID", Equal(ballotId)),
 		HaveField("Position", Equal(otherBallot.Position)),
 		HaveField("MaxVotes", Equal(otherBallot.MaxVotes)),
+		WithTransform(func(ballot structs.Ballot) float64 {
+			return time.Since(ballot.Created).Seconds()
+		}, BeNumerically("<", 1)),
 		WithTransform(func(ballot structs.Ballot) bool {
 			return time.Since(ballot.Created).Seconds() < 5
 		}, BeTrue()),
@@ -60,9 +63,9 @@ func EqualBallot(otherBallot structs.AdminBallot) types.GomegaMatcher {
 	)
 }
 
-func EqualUserBallot(otherBallot structs.AdminBallot) types.GomegaMatcher {
+func EqualUserBallot(ballotId uuid.UUID, otherBallot structs.AdminBallot) types.GomegaMatcher {
 	return And(
-		HaveField("ID", Not(Equal(uuid.Nil))), // TODO
+		HaveField("ID", Equal(ballotId)),
 		HaveField("Position", Equal(otherBallot.Position)),
 		HaveField("MaxVotes", Equal(otherBallot.MaxVotes)),
 		WithTransform(func(ballot structs.UserBallot) bool {

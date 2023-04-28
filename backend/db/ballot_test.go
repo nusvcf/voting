@@ -33,7 +33,7 @@ var _ = Describe("DB Ballot", func() {
 	It("gets ballot details with names", func() {
 		ballots, err := dbObj.GetBallots()
 		Expect(err).To(BeNil())
-		Expect(ballots).To(ContainElement(testutils.EqualBallot(ballot)))
+		Expect(ballots).To(ContainElement(testutils.EqualBallot(ballotId, ballot)))
 	})
 
 	It("can close ballots", func() {
@@ -54,7 +54,7 @@ var _ = Describe("DB Ballot", func() {
 		It("returns the current open ballot", func() {
 			openBallot, err := dbObj.GetLatestOpenBallot()
 			Expect(err).To(BeNil())
-			Expect(openBallot).To(testutils.EqualUserBallot(ballot))
+			Expect(openBallot).To(testutils.EqualUserBallot(ballotId, ballot))
 		})
 
 		When("ballot is closed", func() {
