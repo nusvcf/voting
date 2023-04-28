@@ -74,6 +74,20 @@ var _ = Describe("Ballots", func() {
 		Expect(resp).To(testutils.EqualUserBallot(ballotId, ballot))
 	})
 
+	It("lets user cast their vote", func() {
+		req, _ := http.NewRequest("POST", "/user/ballot/"+ballotId.String(), bytes.NewBufferString(`{
+			"abstain": true,
+			"noConfidence": false,
+			"votedFor": []
+		}`))
+		responseRecorder := serveWithCookie(req, voter.ID.String())
+		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+		voted, err := db.GetDB().VoterHasVotedForBallot(voter.ID, ballotId)
+		Expect(err).To(BeNil())
+		Expect(voted).To(BeTrue())
+	})
+
 	When("voter has already cast their vote", func() {
 		BeforeEach(func() {
 			_ = db.GetDB().CastVote(ballotId, voter.ID, structs.VoteCast{Abstain: true})

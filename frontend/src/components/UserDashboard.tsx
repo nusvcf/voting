@@ -24,28 +24,21 @@ function VotingOption(props: {
   id: string,
   text: string,
   maxVotes: number,
-  selected: { [key: string]: boolean },
-  updateVote: (s: string, e: any) => void
+  selected: boolean,
+  updateVote: () => void
 }) {
-  let key = props.text;
   let inputType = "checkbox";
-  if (props.text === NO_CONF_TEXT) {
-    key = "No Confidence";
-    inputType = "radio";
-  } else if (props.text === ABSTAIN_TEXT) {
-    key = "Abstain";
-    inputType = "radio";
-  } else if (props.maxVotes === 1) {
+  if (props.text === NO_CONF_TEXT || props.text === ABSTAIN_TEXT || props.maxVotes === 1) {
     inputType = "radio";
   }
-  let selected = props.selected[key];
+
   return (
     <div className="option">
       <input
         type={inputType}
         id={props.id}
-        onChange={e => props.updateVote(props.text, e)}
-        checked={selected}
+        onChange={ props.updateVote}
+        checked={props.selected}
       />
       <label id={props.id + "-label"} htmlFor={props.id}>
         {props.text}
@@ -56,49 +49,73 @@ function VotingOption(props: {
 
 function VotingPage(props: {
   ballot: UserBallot,
-  selected: { [key: string]: boolean },
-  updateVote: (s: string, e: any) => void,
-  sendVote: () => void
+  setError: (s: string) => void,
+  fetchData: () => void,
+  clearState: () => void,
+  sendVote: (s: VoteCast) => void
 }) {
+  const [selected, setSelected] = useState<VoteCast>({abstain: false, noConfidence: false, votedFor: []});
+
+  const selectAbstain = () => {
+    setSelected({
+      abstain: true,
+      noConfidence: false,
+      votedFor: []
+    })
+  }
+
+  const selectNoConfidence = () => {
+    setSelected({
+      abstain: false,
+      noConfidence: true,
+      votedFor: []
+    })
+  }
+
+  const selectName = (nameId: string) => {
+    let nameIds: string[] = [] // TODO
+
+    // 1. maxVotes == 1, and nameId is in list: do nothing
+    // 2. maxVotes == 2, and nameId is not in list: set to this name id
+    // 3. maxVotes > 1, and nameId is in list: remove
+    // 4. maxVotes > 1, and nameId is not in list: ???
+
+    if (props.ballot.maxVotes === 1) {
+      nameIds = [nameId];
+    } else {
+      if (selected.votedFor.includes(nameId)) {
+        nameIds = [...selected.votedFor]
+        nameIds.splice(nameIds.indexOf(nameId), 1)
+      } else {
+        nameIds = [...selected.votedFor, nameId]
+      }
+    }
+
+    setSelected({
+      abstain: false,
+      noConfidence: false,
+      votedFor: nameIds
+    })
+  }
+
   let options = props.ballot.names.map(name => (
     <VotingOption
       key={name.id}
       id={name.id}
       text={name.name}
-      updateVote={props.updateVote}
-      selected={props.selected}
+      updateVote={() => selectName(name.id)}
+      selected={selected.votedFor.includes(name.id)}
       maxVotes={props.ballot.maxVotes}
     />
   ));
-  options.push(
-    <VotingOption
-      key="no-conf"
-      id="no-conf"
-      text={NO_CONF_TEXT}
-      updateVote={props.updateVote}
-      selected={props.selected}
-      maxVotes={props.ballot.maxVotes}
-    />
-  );
-  options.push(
-    <VotingOption
-      key="abstain"
-      id="abstain"
-      text={ABSTAIN_TEXT}
-      updateVote={props.updateVote}
-      selected={props.selected}
-      maxVotes={props.ballot.maxVotes}
-    />
-  );
   return (
     <div id="voting-page">
       <div id="currently-voting-for">
-        Currently voting for:{" "}
-        <div id="position">{props.ballot.position}</div>
+        Currently voting for: <div id="position">{props.ballot.position}</div>
       </div>
       {props.ballot.maxVotes > 1 && (
         <div>
-          You can select up to <b>2</b> names.
+          You can select up to <b>{props.ballot.maxVotes}</b> names.
         </div>
       )}
       {props.ballot.maxVotes === 1 && (
@@ -106,8 +123,26 @@ function VotingPage(props: {
           You can only select <b>1</b> name.
         </div>
       )}
-      <div id="options">{options}</div>
-      <button onClick={props.sendVote}>Send Vote</button>
+      <div id="options">
+        {options}
+        <VotingOption
+            key="no-conf"
+            id="no-conf"
+            text={NO_CONF_TEXT}
+            updateVote={selectNoConfidence}
+            selected={selected.noConfidence}
+            maxVotes={props.ballot.maxVotes}
+        />
+        <VotingOption
+            key="abstain"
+            id="abstain"
+            text={ABSTAIN_TEXT}
+            updateVote={selectAbstain}
+            selected={selected.abstain}
+            maxVotes={props.ballot.maxVotes}
+        />
+      </div>
+      <button onClick={() => props.sendVote(selected)}>Send Vote</button>
     </div>
   );
 }
@@ -125,59 +160,32 @@ interface UserBallot {
   names: BallotName[]
 }
 
+interface VoteCast {
+  abstain: boolean;
+  noConfidence: boolean;
+  votedFor: string[];
+}
+
 const UserDashboard = (props: {clearState: () => void, setError: (s: string) => void}) => {
   const [status, setStatus] = useState(Status.Welcome);
   const [ballot, setBallot] = useState<UserBallot | null>(null);
-  const [selected, setSelected] = useState<{[k: string]: boolean}>({});
 
   useEffect(() => {
     fetchData();
   }, [])
 
-  // interval = null;
-  //
-  // constructor() {
-  //   super();
-  //   this.state = {
-  //     status: "welcome",
-  //     id: "",
-  //     position: "",
-  //     names: [],
-  //     selected: {},
-  //     maxVotes: 1
-  //   };
-  //
-  //   this.fetchData();
-  //   this.interval = setInterval(this.fetchData, 2000);
-  // }
-  //
-  // componentWillUnmount() {
-  //   clearInterval(this.interval);
-  // }
-
   const fetchData = () => {
     fetch("/user/ballot")
-      .then(data => {
-        console.log(data)
-        return data.json()
-      })
+      .then(data => data.json())
       .then((data: UserBallot) => {
-        console.log(data)
         if (data.position !== '') {
-          let newSelected: {[k: string]: boolean} = {
-            "Abstain": false,
-            "No Confidence": false
-          };
-          for (let i = 0; i < data.names.length; i++) {
-            newSelected[data.names[i].id] = false;
-          }
-
-          setSelected(newSelected)
           setBallot(data);
           setStatus(Status.Voting);
         } else if (status !== Status.Welcome) {
           setStatus(Status.Waiting)
         }
+
+        setTimeout(fetchData, 1000)
       })
       .catch(error => {
         console.log(error)
@@ -185,78 +193,40 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
       });
   };
 
-  const updateVote = (selectValue: string, e: any) => {
-    // if (e.target.checked && selectValue === NO_CONF_TEXT) {
-    //   selected["No Confidence"] = true;
-    //   selected["Abstain"] = false;
-    //   for (let i = 0; i < names.length; i++) {
-    //     selected[names[i]] = !e.target.checked;
-    //   }
-    // } else if (e.target.checked && selectValue === ABSTAIN_TEXT) {
-    //   selected["No Confidence"] = false;
-    //   selected["Abstain"] = true;
-    //   for (let i = 0; i < names.length; i++) {
-    //     selected[names[i]] = !e.target.checked;
-    //   }
-    // } else {
-    //   if (e.target.checked) {
-    //     selected["No Confidence"] = false;
-    //     selected["Abstain"] = false;
-    //     if (maxVotes === 1) {
-    //       // Deselect all other votes
-    //       for (let key in selected) {
-    //         if (key !== selectValue) {
-    //           selected[key] = false;
-    //         }
-    //       }
-    //     }
-    //   }
-    //   selected[selectValue] = e.target.checked;
-    // }
-    // this.setState({selected: selected});
-  };
-
-  const sendVote = () => {
+  const sendVote = (selected: VoteCast) => {
+    console.log('hi')
     if (ballot === null) return;
-
-    // Perform fetch
-    let names = [];
-    for (let key in selected) {
-      if (selected[key]) {
-        names.push(key);
-      }
-    }
-    if (names.length === 0) {
+    if (!selected.abstain && !selected.noConfidence && selected.votedFor.length === 0) {
       props.setError("Please select an option.");
       return;
     }
-    if (names.length > ballot.maxVotes) {
+
+    if (selected.votedFor.length > ballot.maxVotes) {
       props.setError("You have selected too many names.");
       return;
     }
+
     fetch("/user/ballot/" + ballot.id, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        names: names
-      })
+      body: JSON.stringify(selected)
     })
-      .then(data => data.json())
-      .then(json => {
-        if (json.success) {
-          setStatus(Status.Waiting);
-          setBallot(null);
-        } else {
-          props.setError(
-            "There was a problem casting your vote. Please try again later. "
-          );
-        }
-      })
-      .catch(error => {
-        props.clearState();
-      });
+        .then(data => data.json())
+        .then(json => {
+          if (json.success) {
+            setStatus(Status.Waiting);
+            setBallot(null);
+          } else {
+            props.setError(
+                "There was a problem casting your vote. Please try again later. "
+            );
+          }
+        })
+        .catch(error => {
+          props.clearState();
+        });
   };
 
     return (
@@ -267,9 +237,10 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
         {status === Status.Voting && ballot !== null && (
           <VotingPage
             ballot={ballot}
-            selected={selected}
-            updateVote={updateVote}
+            fetchData={fetchData}
+            clearState={props.clearState}
             sendVote={sendVote}
+            setError={props.setError}
           />
         )}
       </div>

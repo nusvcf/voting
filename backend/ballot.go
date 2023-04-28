@@ -78,3 +78,31 @@ func closeBallotHandler(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}
 }
+
+func castVoteHandler(c *gin.Context) {
+	idStr := c.Param("id")
+	ballotId, err := uuid.FromString(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	voterIdString := c.GetString("userId")
+	voterId, err := uuid.FromString(voterIdString)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	var payload structs.VoteCast
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = db.GetDB().CastVote(ballotId, voterId, payload)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+}
