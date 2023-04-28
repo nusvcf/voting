@@ -35,7 +35,7 @@ func (d *Database) GetBallots() ([]structs.Ballot, error) {
 	ballots := make([]structs.Ballot, 0)
 
 	rows, cancel, err := d.query(queryOpts{
-		SQL: `SELECT id, position, max_votes, created, closed, invalidated 
+		SQL: `SELECT id, position, max_votes, valid_voters, created, closed, invalidated 
 			FROM ballot ORDER BY created`,
 	})
 	if err != nil {
@@ -46,7 +46,7 @@ func (d *Database) GetBallots() ([]structs.Ballot, error) {
 	for rows.Next() {
 		var ballot structs.Ballot
 		ballot.Votes = make([]structs.BallotVote, 0)
-		err = rows.Scan(&ballot.ID, &ballot.Position, &ballot.MaxVotes, &ballot.Created, &ballot.Closed, &ballot.Invalidated)
+		err = rows.Scan(&ballot.ID, &ballot.Position, &ballot.MaxVotes, &ballot.NumValidVoters, &ballot.Created, &ballot.Closed, &ballot.Invalidated)
 		ballots = append(ballots, ballot)
 	}
 
@@ -54,6 +54,12 @@ func (d *Database) GetBallots() ([]structs.Ballot, error) {
 		ballots[i].Names, err = d.getBallotNames(ballot.ID)
 		if err != nil {
 			return nil, err
+		}
+
+		ballots[i].Votes, err = d.GetVotes(ballot.ID)
+
+		if !ballot.Closed.Valid {
+			ballots[i].NumValidVoters, _ = d.GetNumValidVoters()
 		}
 	}
 
@@ -88,9 +94,14 @@ func (d *Database) DeleteAllBallots() error {
 }
 
 func (d *Database) CloseBallot(id uuid.UUID) error {
+	numValidVoters, err := d.GetNumValidVoters()
+	if err != nil {
+		return err
+	}
+
 	return d.exec(queryOpts{
-		SQL:  `UPDATE ballot SET closed = NOW() WHERE id = $1`,
-		Args: []interface{}{id},
+		SQL:  `UPDATE ballot SET closed = NOW(), valid_voters = $2 WHERE id = $1`,
+		Args: []interface{}{id, numValidVoters},
 	})
 }
 

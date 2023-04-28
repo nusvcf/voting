@@ -39,14 +39,15 @@ type BallotName struct {
 }
 
 type Ballot struct {
-	ID          uuid.UUID    `json:"id"`
-	Position    string       `json:"position"`
-	MaxVotes    int          `json:"maxVotes"`
-	Created     time.Time    `json:"created"`
-	Closed      null.Time    `json:"closed"`
-	Invalidated null.Time    `json:"invalidated"`
-	Names       []BallotName `json:"names"`
-	Votes       []BallotVote `json:"votes"`
+	ID             uuid.UUID    `json:"id"`
+	Position       string       `json:"position"`
+	MaxVotes       int          `json:"maxVotes"`
+	NumValidVoters int          `json:"numValidVoters"`
+	Created        time.Time    `json:"created"`
+	Closed         null.Time    `json:"closed"`
+	Invalidated    null.Time    `json:"invalidated"`
+	Names          []BallotName `json:"names"`
+	Votes          []BallotVote `json:"votes"`
 }
 
 // UserBallot represents a subset of the fields found on the

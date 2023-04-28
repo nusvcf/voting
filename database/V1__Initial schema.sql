@@ -12,12 +12,13 @@ CREATE TABLE voter (
 );
 
 CREATE TABLE ballot (
-    id          uuid PRIMARY KEY   DEFAULT gen_random_uuid(),
-    position    TEXT,
-    max_votes   SMALLINT,
-    created     TIMESTAMP NOT NULL DEFAULT NOW(),
-    closed      TIMESTAMP,
-    invalidated TIMESTAMP
+    id            uuid PRIMARY KEY   DEFAULT gen_random_uuid(),
+    position      TEXT,
+    max_votes     SMALLINT,
+    valid_voters  INT NOT NULL DEFAULT 0,
+    created       TIMESTAMP NOT NULL DEFAULT NOW(),
+    closed        TIMESTAMP,
+    invalidated   TIMESTAMP
 );
 
 CREATE TABLE ballot_name (

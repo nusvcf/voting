@@ -79,4 +79,36 @@ var _ = Describe("DB Ballot", func() {
 			})
 		})
 	})
+
+	Describe("Get num valid voters", func() {
+		var voterId uuid.UUID
+
+		BeforeEach(func() {
+			voterId, _ = dbObj.CreateVoter(testutils.CreateVoter())
+			_ = dbObj.UpdateLastSeen(voterId)
+		})
+
+		AfterEach(func() {
+			_ = dbObj.DeleteAllVoters()
+		})
+
+		When("ballot is open", func() {
+			It("gets count from number of voters", func() {
+				fetchedBallot := utils.GetBallotById(ballotId)
+				Expect(fetchedBallot.NumValidVoters).To(BeNumerically(">", 0))
+			})
+		})
+
+		When("ballot is closed", func() {
+			BeforeEach(func() {
+				_ = dbObj.CloseBallot(ballotId)
+				_ = dbObj.InvalidateVoter(voterId)
+			})
+
+			It("gets count from stored value in ballot", func() {
+				fetchedBallot := utils.GetBallotById(ballotId)
+				Expect(fetchedBallot.NumValidVoters).To(BeNumerically(">", 0))
+			})
+		})
+	})
 })

@@ -82,3 +82,12 @@ func (d *Database) DeleteAllVoters() error {
 		SQL: `DELETE FROM voter`,
 	})
 }
+
+func (d *Database) GetNumValidVoters() (int, error) {
+	var count int
+	err := d.queryRow(queryOpts{
+		SQL:  `SELECT COUNT(id) FROM voter WHERE invalidated IS NULL AND last_seen IS NOT NULL`,
+		Scan: []interface{}{&count},
+	})
+	return count, err
+}

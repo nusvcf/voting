@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-var _ = Describe("DB Login", func() {
+var _ = Describe("DB Voter", func() {
 	AfterEach(func() {
 		_ = dbObj.DeleteAllVoters()
 	})
@@ -90,4 +90,24 @@ var _ = Describe("DB Login", func() {
 		})
 	})
 
+	When("there are several voters, with different states", func() {
+		BeforeEach(func() {
+			_ = dbObj.DeleteAllVoters() // just to start from a clean slate
+
+			id1, _ := dbObj.CreateVoter(testutils.CreateVoter())
+			_, _ = dbObj.CreateVoter(testutils.CreateVoter())
+			_, _ = dbObj.CreateVoter(testutils.CreateVoter())
+			id4, _ := dbObj.CreateVoter(testutils.CreateVoter())
+			id5, _ := dbObj.CreateVoter(testutils.CreateVoter())
+			_ = dbObj.UpdateLastSeen(id1)
+			_ = dbObj.InvalidateVoter(id4)
+			_ = dbObj.InvalidateVoter(id5)
+		})
+
+		It("returns the correct number of valid voters", func() {
+			numVoters, err := dbObj.GetNumValidVoters()
+			Expect(err).To(BeNil())
+			Expect(numVoters).To(Equal(1))
+		})
+	})
 })

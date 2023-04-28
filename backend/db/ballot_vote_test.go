@@ -89,4 +89,11 @@ var _ = Describe("DB Ballot Vote", func() {
 			})
 		})
 	})
+
+	It("returns results after a vote is cast", func() {
+		_ = dbObj.CastVote(ballotId, voter.ID, structs.VoteCast{Abstain: true})
+		ballot := utils.GetBallotById(ballotId)
+		Expect(ballot.Votes).To(HaveLen(1))
+		Expect(ballot.Votes[0].Abstain).To(BeTrue())
+	})
 })
