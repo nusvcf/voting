@@ -65,6 +65,7 @@ func EqualBallot(ballotId uuid.UUID, otherBallot structs.AdminBallot) types.Gome
 
 func EqualBallotWithoutId(otherBallot structs.AdminBallot) types.GomegaMatcher {
 	return And(
+		HaveField("ID", Not(Equal(uuid.Nil))),
 		HaveField("Position", Equal(otherBallot.Position)),
 		HaveField("MaxVotes", Equal(otherBallot.MaxVotes)),
 		WithTransform(func(ballot structs.Ballot) float64 {
