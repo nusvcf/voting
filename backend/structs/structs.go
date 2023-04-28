@@ -31,3 +31,13 @@ type Ballot struct {
 	Names       []string     `json:"names" binding:"required"`
 	Votes       []BallotVote `json:"votes"`
 }
+
+// UserBallot represents a subset of the fields found on the
+// actual Ballot object. This is done to make it explicit which
+// fields would not be populated for users.
+type UserBallot struct {
+	ID       uuid.UUID `json:"id"`
+	Position string    `json:"position" binding:"required"`
+	MaxVotes int       `json:"maxVotes" binding:"required"`
+	Names    []string  `json:"names" binding:"required"`
+}

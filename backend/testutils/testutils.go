@@ -38,3 +38,12 @@ func EqualBallot(otherBallot structs.Ballot) types.GomegaMatcher {
 		HaveField("Votes", Equal(otherBallot.Votes)),
 	)
 }
+
+func EqualUserBallot(otherBallot structs.Ballot) types.GomegaMatcher {
+	return And(
+		HaveField("ID", Equal(otherBallot.ID)),
+		HaveField("Position", Equal(otherBallot.Position)),
+		HaveField("MaxVotes", Equal(otherBallot.MaxVotes)),
+		HaveField("Names", Equal(otherBallot.Names)),
+	)
+}

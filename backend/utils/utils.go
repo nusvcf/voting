@@ -27,8 +27,19 @@ func GetVoterById(id uuid.UUID) structs.Voter {
 		if id == currVoter.ID {
 			return currVoter
 		}
-
 	}
 
 	return structs.Voter{}
+}
+
+func GetBallotById(id uuid.UUID) structs.Ballot {
+	ballots, _ := db.GetDB().GetBallots()
+
+	for _, currBallot := range ballots {
+		if id == currBallot.ID {
+			return currBallot
+		}
+	}
+
+	return structs.Ballot{}
 }
