@@ -5,13 +5,22 @@ import (
 	"github.com/nusvcf/voting/backend/auth"
 	"github.com/nusvcf/voting/backend/db"
 	"log"
+	"os"
 )
+
+func getenv(key, fallback string) string {
+	value := os.Getenv(key)
+	if len(value) == 0 {
+		return fallback
+	}
+	return value
+}
 
 func main() {
 	db.GetDB()
 
 	r := setupRouter()
-	port := "5000"
+	port := getenv("PORT", "5000")
 	err := r.Run(":" + port)
 	if err != nil {
 		log.Fatalln(err)
