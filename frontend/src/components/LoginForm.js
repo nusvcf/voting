@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import logo from '../imgs/logo.png';
+import {BACKEND_URL} from "../constants";
 
 class LoginForm extends Component {
     constructor() {
@@ -27,7 +28,7 @@ class LoginForm extends Component {
     handleSubmit(event) {
         event.preventDefault();
         this.setState({ loggingIn: true })
-        fetch("/login", {
+        fetch(BACKEND_URL + "/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

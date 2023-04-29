@@ -1,6 +1,7 @@
 import React, { useEffect, useState} from "react";
 import logo from "../imgs/logo-small.png";
 import {BallotName} from "./admin/BallotsPage";
+import {BACKEND_URL} from "../constants";
 
 const WelcomeText = () => (
   <div className="waiting-text">
@@ -175,7 +176,7 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
   }, [])
 
   const fetchData = () => {
-    fetch("/user/ballot")
+    fetch(BACKEND_URL + "/user/ballot")
       .then(data => data.json())
       .then((data: UserBallot) => {
         if (data.position !== '') {
@@ -205,7 +206,7 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
       return;
     }
 
-    fetch("/user/ballot/" + ballot.id, {
+    fetch(BACKEND_URL + "/user/ballot/" + ballot.id, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

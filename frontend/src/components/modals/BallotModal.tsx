@@ -3,6 +3,7 @@ import '../../styles/Modal.scss';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import {BACKEND_URL} from "../../constants";
 
 class NameItem extends Component<{removeName: () => void, name: string}> {
     render() {
@@ -70,7 +71,7 @@ class BallotModal extends Component<BallotModalProps, BallotModalState> {
             names: this.state.names
         }
         // Do a submit here
-        fetch('/admin/ballots', {
+        fetch(BACKEND_URL + '/admin/ballots', {
             method: 'POST', 
             headers: {
 				'Content-Type': 'application/json'

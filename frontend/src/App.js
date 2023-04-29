@@ -8,6 +8,7 @@ import Alert from "./components/Alert";
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
 import {BootstrapForm} from "./components/BootstrapForm";
+import {BACKEND_URL} from "./constants";
 
 class App extends Component {
     constructor() {
@@ -29,14 +30,14 @@ class App extends Component {
             errorTimeout: null
         };
 
-        fetch('/bootstrap', {
+        fetch(BACKEND_URL + '/bootstrap', {
             method: 'GET'
         }).then(data => data.json())
             .then(data => {
                 this.setState({'loading': false, 'bootstrapped': data.is_bootstrapped})
             })
 
-        fetch("/login", {
+        fetch(BACKEND_URL + "/login", {
         method: "GET"
         }).then(data => data.json()).then(data => {
             if (data.success) {

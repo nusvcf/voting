@@ -1,5 +1,6 @@
 import logo from "../imgs/logo.png";
 import React, {useState} from "react";
+import {BACKEND_URL} from "../constants";
 
 export const BootstrapForm = () => {
   const [password, setPassword] = useState('')
@@ -7,7 +8,7 @@ export const BootstrapForm = () => {
 
   const handleSubmit = () => {
     setSaving(true)
-    fetch("/bootstrap", {
+    fetch(BACKEND_URL + "/bootstrap", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

@@ -1,6 +1,7 @@
 import {format} from "date-fns";
 import React, {useEffect, useState} from "react";
 import LoadingDiv from "./LoadingDiv";
+import {BACKEND_URL} from "../../constants";
 
 interface Voter {
   id: string;
@@ -18,7 +19,7 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
 
   const invalidateVoter = () => {
     if (window.confirm(INVALIDATION_MESSAGE)) {
-      fetch(`/admin/voters/${props.voter.id}`, {
+      fetch(BACKEND_URL + `/admin/voters/${props.voter.id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"}
       }).then(props.fetchData);
@@ -27,7 +28,7 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
 
   const deleteVoter = () => {
     if (window.confirm(DELETE_MESSAGE)) {
-      fetch(`/admin/voters/${props.voter.id}`, {
+      fetch(BACKEND_URL + `/admin/voters/${props.voter.id}`, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"}
       }).then(props.fetchData);
@@ -82,7 +83,7 @@ const VotersPage = () => {
   const [voters, setVoters] = useState<Voter[]>([]);
 
   const fetchData = () => {
-    fetch("/admin/voters")
+    fetch(BACKEND_URL + "/admin/voters")
       .then(data => data.json())
       .then((receivedVoters: Voter[]) => {
 
@@ -113,7 +114,7 @@ const VotersPage = () => {
   const addVoters = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     // Do a fetch
-    fetch("/admin/voters", {
+    fetch(BACKEND_URL + "/admin/voters", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
