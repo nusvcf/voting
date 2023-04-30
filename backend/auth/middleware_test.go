@@ -35,10 +35,7 @@ var _ = Describe("Middleware", func() {
 
 		It("allows valid admin logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.AddCookie(&http.Cookie{
-				Name:  "auth",
-				Value: validAdminJWT,
-			})
+			req.Header.Set("auth", validAdminJWT)
 			c.Request = req
 			Middleware(true)(c)
 			Expect(recorder.Code).ToNot(Equal(http.StatusUnauthorized))
@@ -46,10 +43,7 @@ var _ = Describe("Middleware", func() {
 
 		It("blocks valid user logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.AddCookie(&http.Cookie{
-				Name:  "auth",
-				Value: validUserJWT,
-			})
+			req.Header.Set("auth", validUserJWT)
 			c.Request = req
 			Middleware(true)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
@@ -59,10 +53,7 @@ var _ = Describe("Middleware", func() {
 	When("middleware should only validate users", func() {
 		It("blocks invalid logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.AddCookie(&http.Cookie{
-				Name:  "auth",
-				Value: "invalid-value",
-			})
+			req.Header.Set("auth", "invalid-value")
 			c.Request = req
 			Middleware(false)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
@@ -70,10 +61,7 @@ var _ = Describe("Middleware", func() {
 
 		It("allows valid user logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.AddCookie(&http.Cookie{
-				Name:  "auth",
-				Value: validUserJWT,
-			})
+			req.Header.Set("auth", validUserJWT)
 			c.Request = req
 			Middleware(false)(c)
 			Expect(recorder.Code).ToNot(Equal(http.StatusUnauthorized))
@@ -81,10 +69,7 @@ var _ = Describe("Middleware", func() {
 
 		It("blocks valid admin logins", func() {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
-			req.AddCookie(&http.Cookie{
-				Name:  "auth",
-				Value: validAdminJWT,
-			})
+			req.Header.Set("auth", validAdminJWT)
 			c.Request = req
 			Middleware(false)(c)
 			Expect(recorder.Code).To(Equal(http.StatusUnauthorized))
@@ -93,10 +78,7 @@ var _ = Describe("Middleware", func() {
 
 	It("includes userId in gin context", func() {
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
-		req.AddCookie(&http.Cookie{
-			Name:  "auth",
-			Value: validUserJWT,
-		})
+		req.Header.Set("auth", validUserJWT)
 		c.Request = req
 		Middleware(false)(c)
 

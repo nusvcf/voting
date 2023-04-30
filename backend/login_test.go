@@ -95,7 +95,7 @@ var _ = Describe("Login", func() {
 		It("returns success if user has logged in before", func() {
 			router := setupRouter()
 			req, _ := http.NewRequest("GET", "/login", nil)
-			responseRecorder := serveWithCookie(req, "0001")
+			responseRecorder := serveWithHeader(req, "0001")
 			router.ServeHTTP(responseRecorder, req)
 			Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
@@ -110,7 +110,7 @@ var _ = Describe("Login", func() {
 		It("returns success if admin has logged in before", func() {
 			router := setupRouter()
 			req, _ := http.NewRequest("GET", "/login", nil)
-			responseRecorder := serveWithCookie(req, "admin")
+			responseRecorder := serveWithHeader(req, "admin")
 			router.ServeHTTP(responseRecorder, req)
 			Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 

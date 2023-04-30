@@ -20,7 +20,7 @@ type LoginResponse struct {
 }
 
 func checkLoginHandler(c *gin.Context) {
-	userId, err := auth.GetUserIdFromCookie(c)
+	userId, err := auth.GetUserIdFromHeader(c)
 	if err != nil {
 		c.JSON(http.StatusOK, LoginResponse{})
 		return

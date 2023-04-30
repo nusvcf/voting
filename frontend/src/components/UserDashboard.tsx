@@ -1,7 +1,7 @@
-import React, { useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import logo from "../imgs/logo-small.png";
 import {BallotName} from "./admin/BallotsPage";
-import {BACKEND_URL} from "../constants";
+import {BACKEND_URL, getAuth} from "../constants";
 
 const WelcomeText = () => (
   <div className="waiting-text">
@@ -38,7 +38,7 @@ function VotingOption(props: {
       <input
         type={inputType}
         id={props.id}
-        onChange={ props.updateVote}
+        onChange={props.updateVote}
         checked={props.selected}
       />
       <label id={props.id + "-label"} htmlFor={props.id}>
@@ -122,23 +122,25 @@ function VotingPage(props: {
       <div id="options">
         {options}
         <VotingOption
-            key="no-conf"
-            id="no-conf"
-            text={NO_CONF_TEXT}
-            updateVote={selectNoConfidence}
-            selected={selected.noConfidence}
-            maxVotes={props.ballot.maxVotes}
+          key="no-conf"
+          id="no-conf"
+          text={NO_CONF_TEXT}
+          updateVote={selectNoConfidence}
+          selected={selected.noConfidence}
+          maxVotes={props.ballot.maxVotes}
         />
         <VotingOption
-            key="abstain"
-            id="abstain"
-            text={ABSTAIN_TEXT}
-            updateVote={selectAbstain}
-            selected={selected.abstain}
-            maxVotes={props.ballot.maxVotes}
+          key="abstain"
+          id="abstain"
+          text={ABSTAIN_TEXT}
+          updateVote={selectAbstain}
+          selected={selected.abstain}
+          maxVotes={props.ballot.maxVotes}
         />
       </div>
-      <button onClick={() => props.sendVote(selected)} disabled={selected.votedFor.length > props.ballot.maxVotes}>Send Vote</button>
+      <button onClick={() => props.sendVote(selected)} disabled={selected.votedFor.length > props.ballot.maxVotes}>Send
+        Vote
+      </button>
     </div>
   );
 }
@@ -150,7 +152,7 @@ enum Status {
 }
 
 interface UserBallot {
-  id :string
+  id: string
   position: string
   maxVotes: number
   names: BallotName[]
@@ -162,7 +164,7 @@ interface VoteCast {
   votedFor: string[];
 }
 
-const UserDashboard = (props: {clearState: () => void, setError: (s: string) => void}) => {
+const UserDashboard = (props: { clearState: () => void, setError: (s: string) => void }) => {
   const [status, setStatus] = useState(Status.Welcome);
   const [ballot, setBallot] = useState<UserBallot | null>(null);
 
@@ -173,7 +175,7 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
 
   const fetchData = () => {
     fetch(BACKEND_URL + "/user/ballot", {
-      credentials: 'include'
+      headers: {"auth": getAuth()}
     })
       .then(data => data.json())
       .then((data: UserBallot) => {
@@ -206,40 +208,40 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
 
     fetch(BACKEND_URL + "/user/ballot/" + ballot.id, {
       method: "POST",
-      credentials: 'include',
       headers: {
+        "auth": getAuth(),
         "Content-Type": "application/json"
       },
       body: JSON.stringify(selected)
     })
-        .then(() => {
-            setStatus(Status.Waiting);
-            setBallot(null);
-        })
-        .catch(() => {
-          props.clearState();
-          props.setError(
-              "There was a problem casting your vote. Please log in and try again. "
-          );
-        });
+      .then(() => {
+        setStatus(Status.Waiting);
+        setBallot(null);
+      })
+      .catch(() => {
+        props.clearState();
+        props.setError(
+          "There was a problem casting your vote. Please log in and try again. "
+        );
+      });
   };
 
-    return (
-      <div id="user">
-        <img src={logo} className="logo" alt="logo"/>
-        {status === Status.Welcome && <WelcomeText/>}
-        {status === Status.Waiting && <WaitingText/>}
-        {status === Status.Voting && ballot !== null && (
-          <VotingPage
-            ballot={ballot}
-            fetchData={fetchData}
-            clearState={props.clearState}
-            sendVote={sendVote}
-            setError={props.setError}
-          />
-        )}
-      </div>
-    );
+  return (
+    <div id="user">
+      <img src={logo} className="logo" alt="logo"/>
+      {status === Status.Welcome && <WelcomeText/>}
+      {status === Status.Waiting && <WaitingText/>}
+      {status === Status.Voting && ballot !== null && (
+        <VotingPage
+          ballot={ballot}
+          fetchData={fetchData}
+          clearState={props.clearState}
+          sendVote={sendVote}
+          setError={props.setError}
+        />
+      )}
+    </div>
+  );
 }
 
 export default UserDashboard;

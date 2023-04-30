@@ -35,6 +35,7 @@ func setupRouter() *gin.Engine {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"https://vote.nusvcf.com", "https://vcf-voting.pages.dev", "http://localhost:3000"}
 	config.AllowCredentials = true
+	config.AllowHeaders = []string{"auth", "Content-Type"}
 	r.Use(cors.New(config))
 
 	r.GET("/login", checkLoginHandler)

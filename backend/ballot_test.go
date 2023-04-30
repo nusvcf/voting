@@ -36,7 +36,7 @@ var _ = Describe("Ballots", func() {
 
 	It("can get the list of existing ballots", func() {
 		req, _ := http.NewRequest("GET", "/admin/ballots", nil)
-		responseRecorder := serveWithCookie(req, "admin")
+		responseRecorder := serveWithHeader(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		var resp []structs.Ballot
@@ -51,7 +51,7 @@ var _ = Describe("Ballots", func() {
 			"maxVotes": 2,
 			"names": ["Matthew", "Mark"]
 		}`))
-		responseRecorder := serveWithCookie(req, "admin")
+		responseRecorder := serveWithHeader(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		ballots, err := db.GetDB().GetBallots()
@@ -65,7 +65,7 @@ var _ = Describe("Ballots", func() {
 
 	It("returns the current open ballot for a voter", func() {
 		req, _ := http.NewRequest("GET", "/user/ballot", nil)
-		responseRecorder := serveWithCookie(req, voter.ID.String())
+		responseRecorder := serveWithHeader(req, voter.ID.String())
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		var resp structs.UserBallot
@@ -80,7 +80,7 @@ var _ = Describe("Ballots", func() {
 			"noConfidence": false,
 			"votedFor": []
 		}`))
-		responseRecorder := serveWithCookie(req, voter.ID.String())
+		responseRecorder := serveWithHeader(req, voter.ID.String())
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		voted, err := db.GetDB().VoterHasVotedForBallot(voter.ID, ballotId)
@@ -110,7 +110,7 @@ var _ = Describe("Ballots", func() {
 
 	It("allows admin to close a ballot", func() {
 		req, _ := http.NewRequest("POST", "/admin/ballots/"+ballotId.String(), nil)
-		responseRecorder := serveWithCookie(req, "admin")
+		responseRecorder := serveWithHeader(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		ExpectUserHasNullBallot(voter.ID)
@@ -119,7 +119,7 @@ var _ = Describe("Ballots", func() {
 
 func ExpectUserHasNullBallot(voterId uuid.UUID) {
 	req, _ := http.NewRequest("GET", "/user/ballot", nil)
-	responseRecorder := serveWithCookie(req, voterId.String())
+	responseRecorder := serveWithHeader(req, voterId.String())
 	Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 	var resp structs.UserBallot

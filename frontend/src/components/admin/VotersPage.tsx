@@ -1,7 +1,7 @@
 import {format} from "date-fns";
 import React, {useEffect, useState} from "react";
 import LoadingDiv from "./LoadingDiv";
-import {BACKEND_URL} from "../../constants";
+import {BACKEND_URL, getAuth} from "../../constants";
 
 interface Voter {
   id: string;
@@ -21,8 +21,10 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
     if (window.confirm(INVALIDATION_MESSAGE)) {
       fetch(BACKEND_URL + `/admin/voters/${props.voter.id}`, {
         method: "PUT",
-        credentials: 'include',
-        headers: {"Content-Type": "application/json"}
+        headers: {
+          "Content-Type": "application/json",
+          "auth": getAuth()
+        }
       }).then(props.fetchData);
     }
   };
@@ -31,8 +33,10 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
     if (window.confirm(DELETE_MESSAGE)) {
       fetch(BACKEND_URL + `/admin/voters/${props.voter.id}`, {
         method: "DELETE",
-        credentials: 'include',
-        headers: {"Content-Type": "application/json"}
+        headers: {
+          "Content-Type": "application/json",
+          "auth": getAuth()
+        }
       }).then(props.fetchData);
     }
   };
@@ -85,7 +89,11 @@ const VotersPage = () => {
   const [voters, setVoters] = useState<Voter[]>([]);
 
   const fetchData = () => {
-    fetch(BACKEND_URL + "/admin/voters", { credentials: 'include' })
+    fetch(BACKEND_URL + "/admin/voters", {
+      headers: {
+        "auth": getAuth()
+      }
+    })
       .then(data => data.json())
       .then((receivedVoters: Voter[]) => {
 
@@ -118,8 +126,8 @@ const VotersPage = () => {
     // Do a fetch
     fetch(BACKEND_URL + "/admin/voters", {
       method: "POST",
-      credentials: 'include',
       headers: {
+        'auth': getAuth(),
         "Content-Type": "application/json"
       },
       body: JSON.stringify({

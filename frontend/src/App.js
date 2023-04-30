@@ -8,7 +8,7 @@ import Alert from "./components/Alert";
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
 import {BootstrapForm} from "./components/BootstrapForm";
-import {BACKEND_URL} from "./constants";
+import {BACKEND_URL, getAuth} from "./constants";
 
 class App extends Component {
     constructor() {
@@ -39,7 +39,7 @@ class App extends Component {
 
         fetch(BACKEND_URL + "/login", {
             method: "GET",
-            credentials: 'include'
+            headers: {'auth': getAuth()},
         }).then(data => data.json()).then(data => {
             if (data.success) {
                 this.login(data.userType)

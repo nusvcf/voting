@@ -3,7 +3,7 @@ import '../../styles/Modal.scss';
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faTimes} from '@fortawesome/free-solid-svg-icons'
-import {BACKEND_URL} from "../../constants";
+import {BACKEND_URL, getAuth} from "../../constants";
 
 class NameItem extends Component<{ removeName: () => void, name: string }> {
   render() {
@@ -70,15 +70,16 @@ class BallotModal extends Component<BallotModalProps, BallotModalState> {
       maxVotes: this.state.maxVotes,
       names: this.state.names
     }
-    // Do a submit here
+
     fetch(BACKEND_URL + '/admin/ballots', {
       method: 'POST',
-      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        "auth": getAuth()
       },
       body: JSON.stringify(payload)
     })
+
     this.setState({position: '', maxVotes: 1, names: [], currentName: ''})
     this.props.hideModal();
     this.props.onSubmit();

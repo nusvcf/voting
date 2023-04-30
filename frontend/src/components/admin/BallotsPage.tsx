@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import BallotModal from "../modals/BallotModal";
 import ResultsModal from "../modals/ResultsModal";
 import LoadingDiv from "./LoadingDiv";
-import {BACKEND_URL} from "../../constants";
+import {BACKEND_URL, getAuth} from "../../constants";
 
 export interface BallotVote {
   id: string,
@@ -93,7 +93,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
     if (window.confirm("Are you sure you want to close the ballot?")) {
       fetch(BACKEND_URL + "/admin/ballots/" + this.props.ballot.id, {
         method: "POST",
-        credentials: 'include'
+        headers: {"auth": getAuth()}
       }).then(this.props.fetchData);
     }
   };
@@ -102,7 +102,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
     if (window.confirm("Are you sure you want to invalidate the ballot?")) {
       fetch(BACKEND_URL + "/admin/ballots/" + this.props.ballot.id, {
         method: "PUT",
-        credentials: 'include'
+        headers: {"auth": getAuth()}
       }).then(this.props.fetchData);
     }
   };
@@ -230,7 +230,7 @@ class BallotsPage extends Component<any, any> {
 
   fetchData = () => {
     fetch(BACKEND_URL + "/admin/ballots", {
-      credentials: 'include'
+      headers: {'auth': getAuth()}
     })
       .then(data => data.json())
       .then((json: any[]) => {

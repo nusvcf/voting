@@ -5,18 +5,14 @@ import (
 	"net/http"
 )
 
-func GetUserIdFromCookie(c *gin.Context) (string, error) {
-	cookie, err := c.Cookie("auth")
-	if err != nil {
-		return "", err
-	}
-
-	return parseJWT(cookie)
+func GetUserIdFromHeader(c *gin.Context) (string, error) {
+	token := c.GetHeader("auth")
+	return parseJWT(token)
 }
 
 func Middleware(forAdmin bool) func(c *gin.Context) {
 	return func(c *gin.Context) {
-		userId, err := GetUserIdFromCookie(c)
+		userId, err := GetUserIdFromHeader(c)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
