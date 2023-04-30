@@ -99,5 +99,3 @@ jobs:
       - backend-test
     uses: ./.github/workflows/deploy-in-env.yml
     secrets: inherit
-    with:
-      BACKEND_URL: ${{ vars.BACKEND_URL }}
