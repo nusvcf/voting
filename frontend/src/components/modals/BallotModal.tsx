@@ -58,6 +58,8 @@ class BallotModal extends Component<BallotModalProps, BallotModalState> {
 
   addName = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    if (this.state.currentName.length === 0) return;
+    if (this.state.names.includes(this.state.currentName)) return;
     let names = this.state.names;
     names.push(this.state.currentName)
     this.setState({names: names, currentName: ''});
