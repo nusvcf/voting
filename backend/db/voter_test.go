@@ -32,13 +32,19 @@ var _ = Describe("DB Voter", func() {
 		})
 
 		AfterEach(func() {
-			_ = dbObj.DeleteVoter(voter.ID)
+			_ = dbObj.DeleteAllVoters()
 		})
 
 		It("can retrieve single voter for login", func() {
 			id, err := dbObj.CheckSingleVoter(voter.Username, voter.Password)
 			Expect(err).To(BeNil())
 			Expect(id).To(Equal(voter.ID))
+		})
+
+		It("returns that id is valid", func() {
+			valid, err := dbObj.CheckIfVoterIdValid(voter.ID)
+			Expect(err).To(BeNil())
+			Expect(valid).To(BeTrue())
 		})
 
 		It("correctly handles wrong passwords", func() {
@@ -86,6 +92,12 @@ var _ = Describe("DB Voter", func() {
 				voterFromDB := utils.GetVoterById(voter.ID)
 				Expect(voterFromDB.Invalidated.Valid).To(BeTrue())
 				Expect(time.Since(voterFromDB.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
+			})
+
+			It("returns that id is not valid", func() {
+				valid, err := dbObj.CheckIfVoterIdValid(voter.ID)
+				Expect(err).To(BeNil())
+				Expect(valid).To(BeFalse())
 			})
 		})
 	})

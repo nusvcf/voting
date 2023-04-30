@@ -56,6 +56,16 @@ func (d *Database) CheckSingleVoter(username, password string) (uuid.UUID, error
 	return id, err
 }
 
+func (d *Database) CheckIfVoterIdValid(id uuid.UUID) (bool, error) {
+	var count int
+	err := d.queryRow(queryOpts{
+		SQL:  `SELECT COUNT(id) FROM voter WHERE id = $1 AND invalidated IS NULL`,
+		Args: []interface{}{id},
+		Scan: []interface{}{&count},
+	})
+	return count > 0, err
+}
+
 func (d *Database) UpdateLastSeen(id uuid.UUID) error {
 	return d.exec(queryOpts{
 		SQL:  `UPDATE voter SET last_seen = NOW() WHERE id = $1`,
