@@ -180,12 +180,12 @@ const UserDashboard = (props: { clearState: () => void, setError: (s: string) =>
       .then(data => data.json())
       .then((data: UserBallot) => {
         if (data.position !== '') {
-          setBallot(data);
           setStatus(Status.Voting);
-        } else if (status !== Status.Welcome) {
+        } else if (status !== Status.Welcome || ballot !== null) {
           setStatus(Status.Waiting)
         }
 
+        setBallot(data)
         setTimeout(fetchData, 1000)
       })
       .catch(error => {
@@ -226,20 +226,30 @@ const UserDashboard = (props: { clearState: () => void, setError: (s: string) =>
       });
   };
 
+  if (status === Status.Welcome || ballot === null) {
+    return <div id='user'>
+      <img src={logo} className="logo" alt="logo"/>
+      <WelcomeText/>
+    </div>
+  }
+
+  if (status === Status.Waiting || ballot?.position === '') {
+    return <div id='user'>
+      <img src={logo} className="logo" alt="logo"/>
+      <WaitingText/>
+    </div>
+  }
+
   return (
     <div id="user">
       <img src={logo} className="logo" alt="logo"/>
-      {status === Status.Welcome && <WelcomeText/>}
-      {status === Status.Waiting && <WaitingText/>}
-      {status === Status.Voting && ballot !== null && (
-        <VotingPage
-          ballot={ballot}
-          fetchData={fetchData}
-          clearState={props.clearState}
-          sendVote={sendVote}
-          setError={props.setError}
-        />
-      )}
+      <VotingPage
+        ballot={ballot}
+        fetchData={fetchData}
+        clearState={props.clearState}
+        sendVote={sendVote}
+        setError={props.setError}
+      />
     </div>
   );
 }
