@@ -1,0 +1,110 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      BACKEND_URL:
+        required: true
+        type: string
+
+jobs:
+  cloudflare-pages:
+    name: Publish frontend to Cloudflare Pages
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          REACT_APP_BACKEND_URL: ${{ inputs.BACKEND_URL }}
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: 4271ef0e388679b7e116dada5b9da6ec
+          projectName: vcf-voting
+          directory: frontend/build
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+  db-migration:
+    name: Apply migration to Cloud SQL
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    defaults:
+      run:
+        working-directory: database
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/243088615532/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+          service_account: deploy@nusvcf.iam.gserviceaccount.com
+
+      - name: Download Cloud SQL Auth proxy
+        run: |
+          curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.1.2/cloud-sql-proxy.linux.amd64
+          chmod +x cloud-sql-proxy
+      - name: Start proxy
+        run: ./cloud-sql-proxy nusvcf:asia-southeast1:vcf-voting &
+
+      - name: Pull Flyway image
+        run: docker pull flyway/flyway:latest
+      - name: Run migrations
+        run: |
+          docker run --net=host --rm \
+            -v $(pwd):/flyway/sql \
+            flyway/flyway:latest \
+            -url=jdbc:postgresql://localhost:5432/vcf-voting -user=vcf-voting -password=${{ secrets.DB_PASSWORD }} migrate
+        working-directory: database
+
+  cloud-run:
+    name: Deploy backend onto GCP Cloud Run
+    runs-on: ubuntu-latest
+    needs: [db-migration]
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - id: auth
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/243088615532/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+          service_account: deploy@nusvcf.iam.gserviceaccount.com
+      - id: deploy
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: vcf-voting
+          region: asia-southeast1
+          source: backend
+          flags: "--set-cloudsql-instances=nusvcf:asia-southeast1:vcf-voting --max-instances=5 --memory=128Mi --allow-unauthenticated"
+          env_vars: |
+            INSTANCE_UNIX_SOCKET=/cloudsql/nusvcf:asia-southeast1:vcf-voting
+            DB_NAME=vcf-voting
+          secrets: |
+            DB_PASS=DB_PASS:latest

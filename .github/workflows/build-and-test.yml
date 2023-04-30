@@ -1,0 +1,105 @@
+name: Build and Test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend-build:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Build
+        run: npm run build
+
+  backend-build:
+    name: Build backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.19"
+          check-latest: true
+          cache-dependency-path: backend/go.sum
+      - name: Build
+        run: go build
+
+  backend-test:
+    name: Test backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: vcf-voting
+          POSTGRES_PASSWORD: "P!hDTpix9xyH.yxYYFaU7BTivxxncmoiXRbhDBQuHE8-Zkbv*yjwc-V!oLYnK2Rs"
+          POSTGRES_DB: vcf-voting
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.19"
+          check-latest: true
+          cache-dependency-path: backend/go.sum
+      - name: Pull Flyway image
+        run: docker pull flyway/flyway:latest
+      - name: Run migrations
+        run: |
+          docker run --net=host --rm \
+            -v $(pwd):/flyway/sql \
+            flyway/flyway:latest \
+            -connectRetries=3 -url=jdbc:postgresql://localhost:5432/vcf-voting -user=vcf-voting -password=P!hDTpix9xyH.yxYYFaU7BTivxxncmoiXRbhDBQuHE8-Zkbv*yjwc-V!oLYnK2Rs migrate
+        working-directory: database
+      - name: Run tests
+        run: |
+          go test -coverpkg ./... -coverprofile backend-cover.out ./... -json | tee backend-cover.json
+          if grep -q FAIL backend-cover.json; then
+            exit 1
+          fi
+
+  deploy-to-ci:
+    name: Deploy to CI environment
+    if: github.event_name == 'push'
+    needs:
+      - frontend-build
+      - backend-test
+    uses: ./.github/workflows/deploy-in-env.yml
+    secrets: inherit
+    with:
+      BACKEND_URL: ${{ vars.BACKEND_URL }}
