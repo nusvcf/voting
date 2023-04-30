@@ -376,3 +376,9 @@ table {
     font-size: 0.9em;
     padding: 2px 4px;
 }
+
+.highlight {
+    opacity: 0.5;
+    transition: all 0.2s;
+    background-color: $primary-1;
+}

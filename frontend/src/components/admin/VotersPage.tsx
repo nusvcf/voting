@@ -16,6 +16,8 @@ const DELETE_MESSAGE = "Are you sure you want to DELETE this user?\n\nThis will 
 
 function VoterRow(props: { voter: Voter, fetchData: () => void }) {
   const invalidClass = props.voter.invalidated ? "invalid hide-on-print " : ""
+  const [pwHighlighted, setPwHighlighted] = useState(false);
+  const [usernameHighlighted, setUsernameHighlighted] = useState(false);
 
   const invalidateVoter = () => {
     if (window.confirm(INVALIDATION_MESSAGE)) {
@@ -50,12 +52,26 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
     timestampText = 'Not yet logged in'
   }
 
+  const copyToClipboard = (field: 'username' | 'password') => {
+    navigator.clipboard.writeText(props.voter[field])
+    switch (field) {
+      case 'username':
+        setUsernameHighlighted(true)
+        setTimeout(() => setUsernameHighlighted(false), 1000)
+        break
+      case 'password':
+        setPwHighlighted(true)
+        setTimeout(() => setPwHighlighted(false), 1000)
+        break;
+    }
+  }
+
   return <tr className={invalidClass}>
-    <td className='to-strikethrough'>
-      {props.voter.username}
+    <td className='to-strikethrough' onClick={() => copyToClipboard('username')}>
+      <span style={{cursor: 'pointer'}} className={usernameHighlighted ? 'highlight' : ''}>{props.voter.username}</span>
     </td>
-    <td className='to-strikethrough'>
-      <span className="code">{props.voter.password}</span>
+    <td className='to-strikethrough' onClick={() => copyToClipboard('password')}>
+      <span style={{cursor: 'pointer'}} className={"code " + (pwHighlighted ? 'highlight' : '')} id={`voter-${props.voter.id}-password`}>{props.voter.password}</span>
     </td>
     <td>
       <span
