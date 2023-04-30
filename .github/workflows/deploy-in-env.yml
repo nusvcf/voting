@@ -33,6 +33,8 @@ jobs:
           REACT_APP_BACKEND_URL: ${{ inputs.BACKEND_URL }}
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
+        env:
+          FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: 4271ef0e388679b7e116dada5b9da6ec
