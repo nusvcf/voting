@@ -82,33 +82,27 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
   </tr>;
 }
 
-const VotersPage = () => {
+const VotersPage = (props: { clearState: () => void }) => {
   const [fetchingData, setFetchingData] = useState(true);
   const [addStart, setAddStart] = useState(1);
   const [addEnd, setAddEnd] = useState(1);
   const [voters, setVoters] = useState<Voter[]>([]);
 
   const fetchData = () => {
-    fetch(BACKEND_URL + "/admin/voters", {
+    return fetch(BACKEND_URL + "/admin/voters", {
       headers: {
         "auth": getAuth()
       }
     })
       .then(data => data.json())
       .then((receivedVoters: Voter[]) => {
-
         setFetchingData(false)
         setVoters(receivedVoters)
-
-        if (receivedVoters.length > 0) {
-          const nextRange = parseInt(receivedVoters[receivedVoters.length - 1].username) + 1;
-          setAddStart(nextRange);
-          setAddEnd(nextRange);
-        }
+        return receivedVoters
       })
-      .catch(error => {
-        console.error(error);
-        // if 401, reload page
+      .catch(() => {
+        props.clearState();
+        return [];
       });
   };
 
@@ -134,12 +128,22 @@ const VotersPage = () => {
         start: addStart,
         end: addEnd
       })
-    }).then(fetchData);
+    }).then(fetchData).then(updateStartEndIDs);
 
   };
 
+  const updateStartEndIDs = (receivedVoters: Voter[]) => {
+    if (receivedVoters.length > 0) {
+      const nextRange = parseInt(receivedVoters[receivedVoters.length - 1].username) + 1;
+      setAddStart(nextRange);
+      setAddEnd(nextRange);
+    }
+  }
+
   useEffect(() => {
-    fetchData();
+    fetchData().then(updateStartEndIDs);
+    const interval = setInterval(fetchData, 1000)
+    return () => clearInterval(interval)
   }, [])
 
   if (fetchingData) return <LoadingDiv show={true}/>;
