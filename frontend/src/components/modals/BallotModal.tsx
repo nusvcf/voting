@@ -67,6 +67,16 @@ class BallotModal extends Component<BallotModalProps, BallotModalState> {
 
   handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (this.state.position === '') {
+      alert('Please key in a position')
+      return;
+    }
+
+    if (this.state.names.length === 0) {
+      alert('Please key in at least one name')
+      return;
+    }
+
     let payload = {
       position: this.state.position,
       maxVotes: this.state.maxVotes,
