@@ -61,6 +61,7 @@ func setupRouter() *gin.Engine {
 	adminRoutes.GET("/ballots", getBallotsHandler)
 	adminRoutes.POST("/ballots", createBallotHandler)
 	adminRoutes.POST("/ballots/:id", closeBallotHandler)
+	adminRoutes.PUT("/ballots/:id", invalidateBallotHandler)
 
 	return r
 }

@@ -79,6 +79,20 @@ func closeBallotHandler(c *gin.Context) {
 	}
 }
 
+func invalidateBallotHandler(c *gin.Context) {
+	idStr := c.Param("id")
+	idUuid, err := uuid.FromString(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	err = db.GetDB().InvalidateBallot(idUuid)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+}
+
 func castVoteHandler(c *gin.Context) {
 	idStr := c.Param("id")
 	ballotId, err := uuid.FromString(idStr)

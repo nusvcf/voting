@@ -7,7 +7,9 @@ import (
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/testutils"
+	"github.com/nusvcf/voting/backend/utils"
 	"net/http"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -114,6 +116,15 @@ var _ = Describe("Ballots", func() {
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
 		ExpectUserHasNullBallot(voter.ID)
+	})
+
+	It("allows admin to invalidate a ballot", func() {
+		req, _ := http.NewRequest("PUT", "/admin/ballots/"+ballotId.String(), nil)
+		responseRecorder := serveWithHeader(req, "admin")
+		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+		ballot := utils.GetBallotById(ballotId)
+		Expect(time.Since(ballot.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
 	})
 })
 
