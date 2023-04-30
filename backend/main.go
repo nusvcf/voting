@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/nusvcf/voting/backend/auth"
 	"github.com/nusvcf/voting/backend/db"
@@ -20,6 +21,7 @@ func main() {
 	db.GetDB()
 
 	r := setupRouter()
+
 	port := getenv("PORT", "5000")
 	err := r.Run(":" + port)
 	if err != nil {
@@ -29,6 +31,11 @@ func main() {
 
 func setupRouter() *gin.Engine {
 	r := gin.Default()
+
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"https://vote.nusvcf.com", "https://vcf-voting.pages.dev", "http://localhost:3000"}
+	config.AllowCredentials = true
+	r.Use(cors.New(config))
 
 	r.GET("/login", checkLoginHandler)
 	r.POST("/login", loginHandler)

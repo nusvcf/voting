@@ -1,9 +1,9 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"time"
 )
 
 func GetUserIdFromCookie(c *gin.Context) (string, error) {
@@ -18,6 +18,7 @@ func GetUserIdFromCookie(c *gin.Context) (string, error) {
 func Middleware(forAdmin bool) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		userId, err := GetUserIdFromCookie(c)
+		fmt.Println(userId)
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
@@ -34,17 +35,6 @@ func Middleware(forAdmin bool) func(c *gin.Context) {
 		}
 
 		c.Set("userId", userId)
-		_ = AddAuthCookie(c, userId) // refresh
 		c.Next()
 	}
-}
-
-func AddAuthCookie(c *gin.Context, userId string) error {
-	token, err := CreateJWT(userId, time.Minute*5)
-	if err != nil {
-		return err
-	}
-
-	c.SetCookie("auth", token, 300, "/", "localhost", true, true)
-	return nil
 }

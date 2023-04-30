@@ -5,6 +5,7 @@ import (
 	"github.com/nusvcf/voting/backend/auth"
 	"github.com/nusvcf/voting/backend/db"
 	"net/http"
+	"time"
 )
 
 type LoginPayload struct {
@@ -15,6 +16,7 @@ type LoginPayload struct {
 type LoginResponse struct {
 	Success  bool   `json:"success"`
 	UserType string `json:"userType"`
+	Token    string `json:"token"`
 }
 
 func checkLoginHandler(c *gin.Context) {
@@ -30,6 +32,8 @@ func checkLoginHandler(c *gin.Context) {
 	} else {
 		resp.UserType = "user"
 	}
+
+	resp.Token, _ = auth.CreateJWT(userId, time.Hour*5)
 
 	c.JSON(http.StatusOK, resp)
 }
@@ -56,9 +60,13 @@ func loginHandler(c *gin.Context) {
 			return
 		}
 
-		_ = auth.AddAuthCookie(c, "admin")
+		token, err := auth.CreateJWT("admin", time.Hour*3)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 
-		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "admin"})
+		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "admin", Token: token})
 	} else {
 		// Handle voter
 		id, err := db.GetDB().CheckSingleVoter(payload.Username, payload.Password)
@@ -68,8 +76,13 @@ func loginHandler(c *gin.Context) {
 		}
 
 		_ = db.GetDB().UpdateLastSeen(id)
-		_ = auth.AddAuthCookie(c, id.String())
 
-		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "user"})
+		token, err := auth.CreateJWT(id.String(), time.Hour*3)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+
+		c.JSON(http.StatusOK, LoginResponse{Success: true, UserType: "user", Token: token})
 	}
 }

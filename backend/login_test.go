@@ -78,6 +78,51 @@ var _ = Describe("Login", func() {
 		})
 	})
 
+	Describe("login check", func() {
+		It("returns fail if user has not yet logged in", func() {
+			router := setupRouter()
+			req, _ := http.NewRequest("GET", "/login", nil)
+			responseRecorder := httptest.NewRecorder()
+			router.ServeHTTP(responseRecorder, req)
+			Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+			var resp LoginResponse
+			err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
+			Expect(err).To(BeNil())
+			Expect(resp.Success).To(BeFalse())
+		})
+
+		It("returns success if user has logged in before", func() {
+			router := setupRouter()
+			req, _ := http.NewRequest("GET", "/login", nil)
+			responseRecorder := serveWithCookie(req, "0001")
+			router.ServeHTTP(responseRecorder, req)
+			Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+			var resp LoginResponse
+			err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
+			Expect(err).To(BeNil())
+			Expect(resp.Success).To(BeTrue())
+			Expect(resp.UserType).To(Equal("user"))
+			Expect(resp.Token).To(Not(BeEmpty()))
+		})
+
+		It("returns success if admin has logged in before", func() {
+			router := setupRouter()
+			req, _ := http.NewRequest("GET", "/login", nil)
+			responseRecorder := serveWithCookie(req, "admin")
+			router.ServeHTTP(responseRecorder, req)
+			Expect(responseRecorder.Code).To(Equal(http.StatusOK))
+
+			var resp LoginResponse
+			err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
+			Expect(err).To(BeNil())
+			Expect(resp.Success).To(BeTrue())
+			Expect(resp.UserType).To(Equal("admin"))
+			Expect(resp.Token).To(Not(BeEmpty()))
+		})
+	})
+
 })
 
 func performLogin(username, password string) *httptest.ResponseRecorder {
@@ -102,16 +147,3 @@ func performLoginWithParsing(username, password string) (LoginResponse, error) {
 
 	return resp, err
 }
-
-//func performLoginCheck() (LoginResponse, error) {
-//	router := setupRouter()
-//	req, _ := http.NewRequest("GET", "/login", nil)
-//	responseRecorder := httptest.NewRecorder()
-//	router.ServeHTTP(responseRecorder, req)
-//	Expect(responseRecorder.Code).To(Equal(http.StatusOK))
-//
-//	var resp LoginResponse
-//	err := json.NewDecoder(responseRecorder.Body).Decode(&resp)
-//
-//	return resp, err
-//}

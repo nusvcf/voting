@@ -105,19 +105,3 @@ var _ = Describe("Middleware", func() {
 		Expect(userId).To(Equal("0001"))
 	})
 })
-
-var _ = Describe("Add Cookie", func() {
-	It("adds cookie that can be parsed", func() {
-		recorder := httptest.NewRecorder()
-		c, _ := gin.CreateTestContext(recorder)
-
-		err := AddAuthCookie(c, "my-user-id")
-		Expect(err).To(BeNil())
-		Expect(recorder.Result().Cookies()).NotTo(BeEmpty())
-
-		authCookieValue := recorder.Result().Cookies()[0]
-		userId, err := parseJWT(authCookieValue.Value)
-		Expect(err).To(BeNil())
-		Expect(userId).To(Equal("my-user-id"))
-	})
-})
