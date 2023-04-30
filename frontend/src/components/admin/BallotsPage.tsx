@@ -3,6 +3,7 @@ import BallotModal from "../modals/BallotModal";
 import ResultsModal from "../modals/ResultsModal";
 import LoadingDiv from "./LoadingDiv";
 import {BACKEND_URL, getAuth} from "../../constants";
+import {Voter} from "./VotersPage";
 
 export interface BallotVote {
   id: string,
@@ -15,7 +16,7 @@ export interface BallotVote {
 export class Ballot {
   constructor(public id: string, public position: string, public maxVotes: number, public numValidVoters: number,
               private created: string, private closed: string | null, private invalidated: string | null,
-              public names: BallotName[], private votes: BallotVote[]) {
+              public names: BallotName[], public votes: BallotVote[]) {
 
   }
 
@@ -53,20 +54,12 @@ export class Ballot {
 
   get candidateResults(): CandidateResult[] {
     return this.names.map(x => {
-      const voters = this.votes.filter(v => v.votedFor?.includes(x.id)).map(x => x.id);
+      const voters = this.votes.filter(v => v.votedFor?.includes(x.id)).map(x => x.voterId);
       const numVotes = voters.length
       const denom = this.numNonAbstainVoters
       const percentageVotes = denom === 0 ? 0 : 100 * numVotes / denom;
       return {name: x.name, voters, percentageVotes}
     });
-  }
-
-  get submittedUsers(): {[userId: string]: BallotVote} {
-    let results: {[userId: string]: BallotVote} = {};
-    this.votes.forEach(vote => {
-      results[vote.voterId] = vote
-    })
-    return results;
   }
 }
 
@@ -81,7 +74,7 @@ export interface BallotName {
   name: string
 }
 
-class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any> {
+class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void, voters: Voter[] }, {showModal: boolean}> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -196,11 +189,14 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
             {ballot.numNonAbstainVoters} non-abstain voters
           </div>
         </td>
-        <td><div className="tbl-btns">{btns}</div></td>
+        <td>
+          <div className="tbl-btns">{btns}</div>
+        </td>
         {this.state.showModal && (
           <ResultsModal
             hideModal={this.hideResults}
             ballot={ballot}
+            voters={this.props.voters}
           />
         )}
       </tr>
@@ -208,19 +204,33 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
   }
 }
 
-class BallotsPage extends Component<any, any> {
+class BallotsPage extends Component<{ clearState: () => void }, {
+  showModal: boolean,
+  ballots: Ballot[] | null,
+  voters: Voter[] | null
+}> {
   interval: NodeJS.Timer | null = null;
 
   constructor(props: any) {
     super(props);
     this.state = {
-      fetchingData: true,
       showModal: false,
-      ballots: []
+      ballots: null,
+      voters: null
     };
 
     this.fetchData();
     this.interval = setInterval(this.fetchData, 800);
+
+    fetch(BACKEND_URL + "/admin/voters", {
+      headers: {
+        "auth": getAuth()
+      }
+    })
+      .then(data => data.json())
+      .then((receivedVoters: Voter[]) => {
+        this.setState({voters: receivedVoters})
+      })
   }
 
   componentWillUnmount() {
@@ -234,7 +244,9 @@ class BallotsPage extends Component<any, any> {
     })
       .then(data => data.json())
       .then((json: any[]) => {
-        this.setState({ballots: json.map(x => new Ballot(x.id, x.position, x.maxVotes, x.numValidVoters, x.created, x.closed, x.invalidated, x.names, x.votes)), fetchingData: false});
+        this.setState({
+          ballots: json.map(x => new Ballot(x.id, x.position, x.maxVotes, x.numValidVoters, x.created, x.closed, x.invalidated, x.names, x.votes)),
+        });
       })
       .catch(() => {
         this.props.clearState();
@@ -250,9 +262,14 @@ class BallotsPage extends Component<any, any> {
   };
 
   render() {
+    if (this.state.voters === null || this.state.ballots === null) {
+      return <LoadingDiv show={true}/>
+    }
+
     let rows = this.state.ballots.map((ballot: Ballot) => (
       <BallotRow
         key={ballot.id}
+        voters={this.state.voters || []}
         ballot={ballot}
         fetchData={this.fetchData}
       />
@@ -280,7 +297,6 @@ class BallotsPage extends Component<any, any> {
           hideModal={this.hideModal}
           onSubmit={this.fetchData}
         />
-        <LoadingDiv show={this.state.fetchingData}/>
       </div>
     );
   }

@@ -3,43 +3,34 @@ import "../../styles/Modal.scss";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faIdCard, faTimes, faVoteYea} from "@fortawesome/free-solid-svg-icons";
 import {Ballot, BallotVote} from "../admin/BallotsPage";
+import {Voter} from "../admin/VotersPage";
 
-const VoterItem = (props: { ballot: Ballot, vote: BallotVote }) => {
-    let status = 'Normal';
-    if (props.vote.abstain) {
-        status = 'Abstain'
-    } else if (props.vote.noConfidence) {
-        status = 'No Confidence'
-    }
+const VoterItem = (props: { ballot: Ballot, vote: BallotVote, name: string }) => {
+  let status = 'Normal';
+  if (props.vote.abstain) {
+    status = 'Abstain'
+  } else if (props.vote.noConfidence) {
+    status = 'No Confidence'
+  }
 
   return (
     <tr>
-      <td className="id">{props.vote.id}</td>
-        <td>
-      <div
-        className={
-          "vote-status-" +status.replace(" ", "-").toLowerCase()
-        }
-      >
-        {status}
-      </div>
-        </td>
+      <td className="id">{props.name}</td>
+      <td>
+        <div
+          className={
+            "vote-status-" + status.replace(" ", "-").toLowerCase()
+          }
+        >
+          {status}
+        </div>
+      </td>
       <td>{props.vote.votedFor?.map(x => props.ballot.names.find(y => y.id === x)?.name).join(", ")}</td>
     </tr>
   );
 }
 
-function ViewByVoter(props: {ballot: Ballot}) {
-  let results = [];
-  for (let id in props.ballot.submittedUsers) {
-    results.push(
-      <VoterItem
-        key={id}
-        ballot={props.ballot}
-        vote={props.ballot.submittedUsers[id]}
-      />
-    );
-  }
+function ViewByVoter(props: { ballot: Ballot, lookup: (s: string) => string }) {
   return (
     <table>
       <thead>
@@ -49,12 +40,17 @@ function ViewByVoter(props: {ballot: Ballot}) {
         <th>Voted For</th>
       </tr>
       </thead>
-      <tbody>{results}</tbody>
+      <tbody>{props.ballot.votes.map(x => <VoterItem
+        key={x.id}
+        name={props.lookup(x.voterId)}
+        ballot={props.ballot}
+        vote={x}
+      />)}</tbody>
     </table>
   );
 }
 
-function CandidateItem(props: {name: string, voters: string[]}) {
+function CandidateItem(props: { name: string, voters: string[] }) {
   return (
     <tr>
       <td>
@@ -62,19 +58,18 @@ function CandidateItem(props: {name: string, voters: string[]}) {
       </td>
       <td>
         <ul>{props.voters.map((name) => (
-          <li key={name}>{name}</li>
+          <li key={name} className='id'>{name}</li>
         ))}</ul>
       </td>
     </tr>
   );
 }
 
-function ViewByCandidate(props: {ballot: Ballot}) {
-  const results = props.ballot.candidateResults.map(x => <CandidateItem name={x.name} voters={x.voters} />)
-
+function ViewByCandidate(props: { ballot: Ballot, lookup: (s: string) => string }) {
   return (
     <table>
-      <tbody>{results}</tbody>
+      <tbody>{props.ballot.candidateResults.map(x => <CandidateItem key={x.name} name={(x.name)}
+                                                                    voters={x.voters.map(x => props.lookup(x))}/>)}</tbody>
     </table>
   );
 }
@@ -101,8 +96,8 @@ function QuickStats(props: { ballot: Ballot }) {
       </tr>
       <tr>
         <th>
-          No. of abstain:<br />
-            <span style={{fontSize: '12px', letterSpacing: '0', opacity: '0.4'}}>({props.ballot.numDidNotVote} did not vote, {props.ballot.numAbstain} voted abstain)</span>
+          No. of abstain:<br/>
+          <span style={{fontSize: '12px', letterSpacing: '0', opacity: '0.4'}}>({props.ballot.numDidNotVote} did not vote, {props.ballot.numAbstain} voted abstain)</span>
         </th>
         <td>
           {props.ballot.numValidVoters -
@@ -146,12 +141,22 @@ function QuickStats(props: { ballot: Ballot }) {
   );
 }
 
-class ResultsModal extends Component<{ballot: Ballot, hideModal: () => void}, {view: string}> {
-  constructor(props: {ballot: Ballot, hideModal: () => void}) {
+interface ResultsModalProps {
+  ballot: Ballot;
+  hideModal: () => void;
+  voters: Voter[]
+}
+
+class ResultsModal extends Component<ResultsModalProps, { view: string }> {
+  constructor(props: ResultsModalProps) {
     super(props);
     this.state = {
       view: "candidate"
     };
+  }
+
+  lookup = (id: string) => {
+    return this.props.voters.find(x => x.id === id)?.username || id;
   }
 
   switchView = (view: string) => {
@@ -172,7 +177,7 @@ class ResultsModal extends Component<{ballot: Ballot, hideModal: () => void}, {v
           &nbsp;&nbsp;View by Candidate
         </button>
       );
-      view = <ViewByVoter ballot={this.props.ballot}/>;
+      view = <ViewByVoter ballot={this.props.ballot} lookup={this.lookup}/>;
     } else {
       switchViewBtn = (
         <button
@@ -183,7 +188,7 @@ class ResultsModal extends Component<{ballot: Ballot, hideModal: () => void}, {v
           &nbsp;&nbsp;View by Voter
         </button>
       );
-      view = <ViewByCandidate ballot={this.props.ballot}/>;
+      view = <ViewByCandidate ballot={this.props.ballot} lookup={this.lookup}/>;
     }
 
     return (
@@ -195,7 +200,7 @@ class ResultsModal extends Component<{ballot: Ballot, hideModal: () => void}, {v
 
           <h1>Results for {ballot.position}</h1>
 
-          <QuickStats ballot={this.props.ballot} />
+          <QuickStats ballot={this.props.ballot}/>
           {switchViewBtn}
           {view}
         </div>

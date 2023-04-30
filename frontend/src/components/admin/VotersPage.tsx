@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import LoadingDiv from "./LoadingDiv";
 import {BACKEND_URL, getAuth} from "../../constants";
 
-interface Voter {
+export interface Voter {
   id: string;
   username: string;
   password: string;
