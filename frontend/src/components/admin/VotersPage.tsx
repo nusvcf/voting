@@ -144,6 +144,7 @@ const VotersPage = (props: { clearState: () => void }) => {
     fetchData().then(updateStartEndIDs);
     const interval = setInterval(fetchData, 1000)
     return () => clearInterval(interval)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (fetchingData) return <LoadingDiv show={true}/>;
