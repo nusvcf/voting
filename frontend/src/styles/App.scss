@@ -15,6 +15,18 @@ select {
     font-family: "Karla", Futura, sans-serif;
 }
 
+.hide-on-print {
+    @media print {
+        display: none !important;
+    }
+}
+
+@page {
+    size: 210mm 297mm;
+    /* Chrome sets own margins, we change these printer settings */
+    margin: 0;
+}
+
 .id {
     color: $grey-4;
     font-style: italic;
@@ -217,7 +229,9 @@ table {
     width: 100%;
     border-collapse: collapse;
 
-    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    @media screen {
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
 
     th {
         padding: 18px 18px;
@@ -294,6 +308,14 @@ table {
         .invalidated-on {
             color: $grey-4;
             font-size: 12px;
+        }
+    }
+
+    #voters-table {
+        td {
+            @media print {
+                padding: 18px;
+            }
         }
     }
 

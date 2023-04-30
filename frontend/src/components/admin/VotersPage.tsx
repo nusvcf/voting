@@ -15,7 +15,7 @@ const INVALIDATION_MESSAGE = "Are you sure you want to invalidate this user?\n\n
 const DELETE_MESSAGE = "Are you sure you want to DELETE this user?\n\nThis will remove the user, and remove all past votes cast by them.";
 
 function VoterRow(props: { voter: Voter, fetchData: () => void }) {
-  const invalidClass = props.voter.invalidated ? "invalid" : ""
+  const invalidClass = props.voter.invalidated ? "invalid hide-on-print " : ""
 
   const invalidateVoter = () => {
     if (window.confirm(INVALIDATION_MESSAGE)) {
@@ -59,10 +59,10 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
     </td>
     <td>
       <span
-        className="invalidated-on">{timestampText}</span>
+        className="invalidated-on hide-on-print">{timestampText}</span>
     </td>
     <td>
-      <div className="tbl-btns">
+      <div className="tbl-btns hide-on-print">
         {!props.voter.invalidated && (
           <button
             className="btn-secondary"
@@ -150,7 +150,7 @@ const VotersPage = (props: { clearState: () => void }) => {
 
   return (
     <div id="voters-page">
-      <div className="input-group input-group-row">
+      <div className="input-group input-group-row hide-on-print">
         <input
           type="number"
           value={addStart}
@@ -165,12 +165,12 @@ const VotersPage = (props: { clearState: () => void }) => {
           +&nbsp;&nbsp;Add Voters
         </button>
       </div>
-      <table>
+      <table id='voters-table'>
         <thead>
         <tr>
           <th>Username</th>
           <th>Password</th>
-          <th>Last Seen</th>
+          <th><span className='hide-on-print'>Last Seen</span></th>
           <th>&nbsp;</th>
         </tr>
         </thead>

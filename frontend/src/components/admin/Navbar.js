@@ -13,7 +13,7 @@ class NavbarItem extends Component {
 
 class Navbar extends Component {
     render() {
-        return <div id='navbar'>
+        return <div id='navbar' className='hide-on-print'>
             <img src={logo} className='logo' alt='logo' />
             <NavbarItem pageName='voters' page={this.props.page} changePage={this.props.changePage}>Voters</NavbarItem>
             <NavbarItem pageName='ballots' page={this.props.page} changePage={this.props.changePage}>Ballots</NavbarItem>
