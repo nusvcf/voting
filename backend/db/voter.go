@@ -63,7 +63,18 @@ func (d *Database) CheckIfVoterIdValid(id uuid.UUID) (bool, error) {
 		Args: []interface{}{id},
 		Scan: []interface{}{&count},
 	})
-	return count > 0, err
+
+	if err != nil {
+		return false, err
+	}
+
+	if count == 0 {
+		return false, nil
+	}
+
+	err = d.UpdateLastSeen(id)
+
+	return true, err
 }
 
 func (d *Database) UpdateLastSeen(id uuid.UUID) error {
