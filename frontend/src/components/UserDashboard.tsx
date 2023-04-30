@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
-import logo from "../imgs/logo-small.png";
 import {BallotName} from "./admin/BallotsPage";
 import {BACKEND_URL, getAuth} from "../constants";
+import {HeaderBar} from "./user/HeaderBar";
 
 const WelcomeText = () => (
   <div className="waiting-text">
@@ -229,21 +229,21 @@ const UserDashboard = (props: { clearState: () => void, setError: (s: string) =>
 
   if (status === Status.Welcome || ballot === null) {
     return <div id='user'>
-      <img src={logo} className="logo" alt="logo"/>
+      <HeaderBar clearState={props.clearState} />
       <WelcomeText/>
     </div>
   }
 
   if (status === Status.Waiting || ballot?.position === '') {
     return <div id='user'>
-      <img src={logo} className="logo" alt="logo"/>
+      <HeaderBar clearState={props.clearState} />
       <WaitingText/>
     </div>
   }
 
   return (
     <div id="user">
-      <img src={logo} className="logo" alt="logo"/>
+      <HeaderBar clearState={props.clearState} />
       <VotingPage
         ballot={ballot}
         fetchData={fetchData}

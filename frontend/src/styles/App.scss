@@ -161,6 +161,17 @@ button:disabled {
     margin: 0 auto;
     max-width: 600px;
 
+    #header-bar {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .navbar-link {
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+    }
+
     .waiting-text {
         padding: 12px;
         text-align: center;
@@ -257,34 +268,12 @@ table {
         display: flex;
         flex-direction: row;
         align-items: center;
+        width: 100%;
 
         margin-bottom: 24px;
 
         .logo {
             margin-right: 24px;
-        }
-
-        .navbar-link {
-            padding: 8px 4px;
-            margin: 0 16px;
-            text-transform: uppercase;
-            font-weight: bold;
-            color: $grey-5;
-            letter-spacing: 2px;
-            cursor: pointer;
-            font-size: 14px;
-            border-bottom: 3px solid rgba(0,0,0,0);
-
-            transition: 0.3s all;
-        }
-
-        .navbar-link:hover {
-            color: $primary-7;
-        }
-
-        .navbar-link-active {
-            color: $primary-6;
-            border-bottom: 3px solid $primary-6;
         }
     }
 
@@ -381,4 +370,27 @@ table {
     opacity: 0.5;
     transition: all 0.2s;
     background-color: $primary-1;
+}
+
+.navbar-link {
+    padding: 8px 4px;
+    margin: 0 16px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: $grey-5;
+    letter-spacing: 2px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 3px solid rgba(0,0,0,0);
+
+    transition: 0.3s all;
+}
+
+.navbar-link:hover {
+    color: $primary-7;
+}
+
+.navbar-link-active {
+    color: $primary-6;
+    border-bottom: 3px solid $primary-6;
 }
