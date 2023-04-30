@@ -169,7 +169,8 @@ const UserDashboard = (props: { clearState: () => void, setError: (s: string) =>
   const [ballot, setBallot] = useState<UserBallot | null>(null);
 
   useEffect(() => {
-    fetchData();
+    const interval = setInterval(fetchData, 1000)
+    return () => clearInterval(interval)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -186,7 +187,6 @@ const UserDashboard = (props: { clearState: () => void, setError: (s: string) =>
         }
 
         setBallot(data)
-        setTimeout(fetchData, 1000)
       })
       .catch(error => {
         console.log(error)
