@@ -92,8 +92,7 @@ jobs:
           fi
 
   deploy-to-ci:
-    name: Deploy to CI environment
-    if: github.event_name == 'push'
+    name: Deploy
     needs:
       - frontend-build
       - backend-test
