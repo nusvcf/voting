@@ -92,7 +92,8 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
   closeBallot = () => {
     if (window.confirm("Are you sure you want to close the ballot?")) {
       fetch(BACKEND_URL + "/admin/ballots/" + this.props.ballot.id, {
-        method: "POST"
+        method: "POST",
+        credentials: 'include'
       }).then(this.props.fetchData);
     }
   };
@@ -100,7 +101,8 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void }, any
   invalidateBallot = () => {
     if (window.confirm("Are you sure you want to invalidate the ballot?")) {
       fetch(BACKEND_URL + "/admin/ballots/" + this.props.ballot.id, {
-        method: "PUT"
+        method: "PUT",
+        credentials: 'include'
       }).then(this.props.fetchData);
     }
   };
@@ -227,7 +229,9 @@ class BallotsPage extends Component<any, any> {
   }
 
   fetchData = () => {
-    fetch(BACKEND_URL + "/admin/ballots")
+    fetch(BACKEND_URL + "/admin/ballots", {
+      credentials: 'include'
+    })
       .then(data => data.json())
       .then((json: any[]) => {
         this.setState({ballots: json.map(x => new Ballot(x.id, x.position, x.maxVotes, x.numValidVoters, x.created, x.closed, x.invalidated, x.names, x.votes)), fetchingData: false});

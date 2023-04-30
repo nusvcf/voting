@@ -176,7 +176,9 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
   }, [])
 
   const fetchData = () => {
-    fetch(BACKEND_URL + "/user/ballot")
+    fetch(BACKEND_URL + "/user/ballot", {
+      credentials: 'include'
+    })
       .then(data => data.json())
       .then((data: UserBallot) => {
         if (data.position !== '') {
@@ -208,6 +210,7 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
 
     fetch(BACKEND_URL + "/user/ballot/" + ballot.id, {
       method: "POST",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json"
       },

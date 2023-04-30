@@ -38,7 +38,8 @@ class App extends Component {
             })
 
         fetch(BACKEND_URL + "/login", {
-        method: "GET"
+            method: "GET",
+            credentials: 'include'
         }).then(data => data.json()).then(data => {
             if (data.success) {
                 this.login(data.userType)
@@ -81,7 +82,7 @@ class App extends Component {
         }
 
         if (!this.state.bootstrapped) {
-            return <div className="App"><BootstrapForm /></div>
+            return <div className="App"><BootstrapForm/></div>
         }
 
         return (

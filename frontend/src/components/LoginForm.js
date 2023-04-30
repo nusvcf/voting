@@ -44,6 +44,8 @@ class LoginForm extends Component {
             .then(dataJson => {
                 if (dataJson.success) {
                     this.props.login(dataJson.userType);
+                    console.log(dataJson.token)
+                    document.cookie = `auth=${dataJson.token};max-age=18000`
                 } else {
                     // Show error message
                     this.setState({ loggingIn: false })

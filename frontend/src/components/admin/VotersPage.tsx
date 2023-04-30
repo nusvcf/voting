@@ -21,6 +21,7 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
     if (window.confirm(INVALIDATION_MESSAGE)) {
       fetch(BACKEND_URL + `/admin/voters/${props.voter.id}`, {
         method: "PUT",
+        credentials: 'include',
         headers: {"Content-Type": "application/json"}
       }).then(props.fetchData);
     }
@@ -30,6 +31,7 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
     if (window.confirm(DELETE_MESSAGE)) {
       fetch(BACKEND_URL + `/admin/voters/${props.voter.id}`, {
         method: "DELETE",
+        credentials: 'include',
         headers: {"Content-Type": "application/json"}
       }).then(props.fetchData);
     }
@@ -83,7 +85,7 @@ const VotersPage = () => {
   const [voters, setVoters] = useState<Voter[]>([]);
 
   const fetchData = () => {
-    fetch(BACKEND_URL + "/admin/voters")
+    fetch(BACKEND_URL + "/admin/voters", { credentials: 'include' })
       .then(data => data.json())
       .then((receivedVoters: Voter[]) => {
 
@@ -116,6 +118,7 @@ const VotersPage = () => {
     // Do a fetch
     fetch(BACKEND_URL + "/admin/voters", {
       method: "POST",
+      credentials: 'include',
       headers: {
         "Content-Type": "application/json"
       },
