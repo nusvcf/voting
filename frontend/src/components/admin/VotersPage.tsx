@@ -1,4 +1,4 @@
-import {format} from "date-fns";
+import {format, formatDistanceToNow} from "date-fns";
 import React, {useEffect, useState} from "react";
 import LoadingDiv from "./LoadingDiv";
 import {BACKEND_URL, getAuth} from "../../constants";
@@ -47,7 +47,7 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
   if (props.voter.invalidated) {
     timestampText = 'Invalidated on ' + format(new Date(props.voter.invalidated), "d MMM y, HH:mm")
   } else if (props.voter.lastSeen) {
-    timestampText = 'Last seen on ' + format(new Date(props.voter.lastSeen), "d MMM y, HH:mm")
+    timestampText = 'Last seen ' + formatDistanceToNow(new Date(props.voter.lastSeen)) + ' ago'
   } else {
     timestampText = 'Not yet logged in'
   }
