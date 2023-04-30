@@ -74,12 +74,7 @@ function VotingPage(props: {
   }
 
   const selectName = (nameId: string) => {
-    let nameIds: string[] = [] // TODO
-
-    // 1. maxVotes == 1, and nameId is in list: do nothing
-    // 2. maxVotes == 2, and nameId is not in list: set to this name id
-    // 3. maxVotes > 1, and nameId is in list: remove
-    // 4. maxVotes > 1, and nameId is not in list: ???
+    let nameIds: string[]
 
     if (props.ballot.maxVotes === 1) {
       nameIds = [nameId];
@@ -173,6 +168,7 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const fetchData = () => {
@@ -220,7 +216,7 @@ const UserDashboard = (props: {clearState: () => void, setError: (s: string) => 
             setStatus(Status.Waiting);
             setBallot(null);
         })
-        .catch(error => {
+        .catch(() => {
           props.clearState();
           props.setError(
               "There was a problem casting your vote. Please log in and try again. "

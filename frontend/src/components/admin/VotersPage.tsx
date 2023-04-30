@@ -37,7 +37,7 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
     }
   };
 
-  let timestampText = '';
+  let timestampText: string;
   if (props.voter.invalidated) {
     timestampText = 'Invalidated on ' + format(new Date(props.voter.invalidated), "d MMM y, HH:mm")
   } else if (props.voter.lastSeen) {
