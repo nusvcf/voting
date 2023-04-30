@@ -302,7 +302,7 @@ table {
             padding-left: 0;
         }
 
-        .status-ongoing, .status-completed, .status-invalidated, .vote-status-normal, .vote-status-abstain, .vote-status-no-confidence {
+        .status-ongoing, .status-pending, .status-completed, .status-invalidated, .vote-status-normal, .vote-status-abstain, .vote-status-no-confidence {
             font-size: 12px;
             padding: 6px 12px;
             border-radius: 24px;
@@ -317,6 +317,12 @@ table {
         .status-ongoing, .vote-status-normal {
             background-color: $primary-2;
             color: $primary-9;
+        }
+
+        .status-pending {
+            background-color: $red-1;
+            border-bottom: 2px solid $red-2;
+            color: $red-5;
         }
 
         .status-ongoing {

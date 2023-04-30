@@ -74,7 +74,7 @@ export interface BallotName {
   name: string
 }
 
-class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void, voters: Voter[] }, {showModal: boolean}> {
+class BallotRow extends Component<{ firstOngoing: boolean, ballot: Ballot, fetchData: () => void, voters: Voter[] }, {showModal: boolean}> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -114,7 +114,7 @@ class BallotRow extends Component<{ ballot: Ballot, fetchData: () => void, voter
     let status: string;
 
     if (ballot.isOpen) {
-      status = "Ongoing";
+      status = this.props.firstOngoing ? "Ongoing" : 'Pending';
       btns = [
         <button key={"res"} onClick={this.showResults} className='btn-secondary'>
           Results
@@ -266,14 +266,20 @@ class BallotsPage extends Component<{ clearState: () => void }, {
       return <LoadingDiv show={true}/>
     }
 
-    let rows = this.state.ballots.map((ballot: Ballot) => (
-      <BallotRow
-        key={ballot.id}
-        voters={this.state.voters || []}
-        ballot={ballot}
-        fetchData={this.fetchData}
-      />
-    ));
+    let firstOngoingIdx = this.state.ballots.find(x => x.isOpen)?.id;
+
+
+    let rows = this.state.ballots.map((ballot: Ballot) => {
+      return (
+        <BallotRow
+          key={ballot.id}
+          voters={this.state.voters || []}
+          ballot={ballot}
+          fetchData={this.fetchData}
+          firstOngoing={ballot.id === firstOngoingIdx}
+        />
+      );
+    });
 
     return (
       <div id="ballots-page">
