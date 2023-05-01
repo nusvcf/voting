@@ -4,7 +4,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/testutils"
-	"github.com/nusvcf/voting/backend/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"time"
@@ -39,14 +38,14 @@ var _ = Describe("DB Ballot", func() {
 	It("can close ballots", func() {
 		err := dbObj.CloseBallot(ballotId)
 		Expect(err).To(BeNil())
-		foundBallot := utils.GetBallotById(ballotId)
+		foundBallot := testutils.GetBallotById(ballotId)
 		Expect(time.Since(foundBallot.Closed.Time).Seconds()).To(BeNumerically("<", 1))
 	})
 
 	It("can invalidate ballots", func() {
 		err := dbObj.InvalidateBallot(ballotId)
 		Expect(err).To(BeNil())
-		foundBallot := utils.GetBallotById(ballotId)
+		foundBallot := testutils.GetBallotById(ballotId)
 		Expect(time.Since(foundBallot.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
 	})
 
@@ -94,7 +93,7 @@ var _ = Describe("DB Ballot", func() {
 
 		When("ballot is open", func() {
 			It("gets count from number of voters", func() {
-				fetchedBallot := utils.GetBallotById(ballotId)
+				fetchedBallot := testutils.GetBallotById(ballotId)
 				Expect(fetchedBallot.NumValidVoters).To(BeNumerically(">", 0))
 			})
 		})
@@ -106,7 +105,7 @@ var _ = Describe("DB Ballot", func() {
 			})
 
 			It("gets count from stored value in ballot", func() {
-				fetchedBallot := utils.GetBallotById(ballotId)
+				fetchedBallot := testutils.GetBallotById(ballotId)
 				Expect(fetchedBallot.NumValidVoters).To(BeNumerically(">", 0))
 			})
 		})

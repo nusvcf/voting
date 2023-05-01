@@ -4,7 +4,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/testutils"
-	"github.com/nusvcf/voting/backend/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -29,7 +28,7 @@ var _ = Describe("DB Ballot Vote", func() {
 
 	Describe("allows voter to cast vote", func() {
 		It("can vote for 2 names", func() {
-			dbBallot := utils.GetBallotById(ballotId)
+			dbBallot := testutils.GetBallotById(ballotId)
 			voteIds := []uuid.UUID{dbBallot.Names[0].Id, dbBallot.Names[1].Id}
 
 			err := dbObj.CastVote(ballotId, voter.ID, structs.VoteCast{VotedFor: voteIds})
@@ -92,7 +91,7 @@ var _ = Describe("DB Ballot Vote", func() {
 
 	It("returns results after a vote is cast", func() {
 		_ = dbObj.CastVote(ballotId, voter.ID, structs.VoteCast{Abstain: true})
-		ballot := utils.GetBallotById(ballotId)
+		ballot := testutils.GetBallotById(ballotId)
 		Expect(ballot.Votes).To(HaveLen(1))
 		Expect(ballot.Votes[0].Abstain).To(BeTrue())
 	})

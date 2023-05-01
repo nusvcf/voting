@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nusvcf/voting/backend/db"
+	"github.com/nusvcf/voting/backend/utils"
 	"time"
 )
 
-var key = []byte("MY-KEY-HERE")
+var key = []byte(utils.GetEnv("JWT_SECRET_KEY", "n2fD8evDH9PCow8-eBFYJHrCspJR4L.TVthQPa8YrXeEcRaRvzHnimDg@AtfeU!2"))
 
 func CreateJWT(userId string, expDuration time.Duration) (string, error) {
 	bootstrapId, _ := db.GetDB().GetBootstrapId()

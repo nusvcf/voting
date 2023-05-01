@@ -3,7 +3,6 @@ package db_test
 import (
 	"github.com/gofrs/uuid"
 	"github.com/nusvcf/voting/backend/testutils"
-	"github.com/nusvcf/voting/backend/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"time"
@@ -63,7 +62,7 @@ var _ = Describe("DB Voter", func() {
 			err := dbObj.UpdateLastSeen(voter.ID)
 			Expect(err).To(BeNil())
 
-			voterFromDB := utils.GetVoterById(voter.ID)
+			voterFromDB := testutils.GetVoterById(voter.ID)
 			Expect(voterFromDB.LastSeen.Valid).To(BeTrue())
 			Expect(time.Since(voterFromDB.LastSeen.Time).Seconds()).To(BeNumerically("<", 1))
 		})
@@ -89,7 +88,7 @@ var _ = Describe("DB Voter", func() {
 			})
 
 			It("shows invalidated timestamp in get voters call", func() {
-				voterFromDB := utils.GetVoterById(voter.ID)
+				voterFromDB := testutils.GetVoterById(voter.ID)
 				Expect(voterFromDB.Invalidated.Valid).To(BeTrue())
 				Expect(time.Since(voterFromDB.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
 			})

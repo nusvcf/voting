@@ -3,6 +3,7 @@ package testutils
 import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gofrs/uuid"
+	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
 
 	"time"
@@ -98,4 +99,28 @@ func EqualVote(otherVote structs.BallotVote) types.GomegaMatcher {
 		HaveField("NoConfidence", Equal(otherVote.NoConfidence)),
 		HaveField("VotedFor", Equal(otherVote.VotedFor)),
 	)
+}
+
+func GetVoterById(id uuid.UUID) structs.Voter {
+	voters, _ := db.GetDB().GetVoters()
+
+	for _, currVoter := range voters {
+		if id == currVoter.ID {
+			return currVoter
+		}
+	}
+
+	return structs.Voter{}
+}
+
+func GetBallotById(id uuid.UUID) structs.Ballot {
+	ballots, _ := db.GetDB().GetBallots()
+
+	for _, currBallot := range ballots {
+		if id == currBallot.ID {
+			return currBallot
+		}
+	}
+
+	return structs.Ballot{}
 }

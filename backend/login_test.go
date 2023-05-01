@@ -4,7 +4,6 @@ import (
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/testutils"
-	"github.com/nusvcf/voting/backend/utils"
 	"time"
 
 	"bytes"
@@ -73,7 +72,7 @@ var _ = Describe("Login", func() {
 
 		It("updates voter's last seen after they log in", func() {
 			_, _ = performLoginWithParsing(voter.Username, voter.Password)
-			fetchedVoter := utils.GetVoterById(voter.ID)
+			fetchedVoter := testutils.GetVoterById(voter.ID)
 			Expect(time.Since(fetchedVoter.LastSeen.Time).Seconds()).To(BeNumerically("<", 1))
 		})
 	})

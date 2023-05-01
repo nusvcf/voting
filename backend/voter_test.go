@@ -7,7 +7,6 @@ import (
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/testutils"
-	"github.com/nusvcf/voting/backend/utils"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -83,8 +82,8 @@ var _ = Describe("Voters API", func() {
 		responseRecorder := serveWithHeader(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
-		voter1Found := utils.GetVoterById(voter1.ID)
-		voter2Found := utils.GetVoterById(voter2.ID)
+		voter1Found := testutils.GetVoterById(voter1.ID)
+		voter2Found := testutils.GetVoterById(voter2.ID)
 		Expect(voter1Found.Invalidated.Valid).To(BeFalse())
 		Expect(voter2Found.Invalidated.Valid).To(BeTrue())
 		Expect(time.Since(voter2Found.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))

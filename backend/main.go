@@ -5,24 +5,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nusvcf/voting/backend/auth"
 	"github.com/nusvcf/voting/backend/db"
+	"github.com/nusvcf/voting/backend/utils"
 	"log"
-	"os"
 )
-
-func getenv(key, fallback string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return fallback
-	}
-	return value
-}
 
 func main() {
 	db.GetDB()
 
 	r := setupRouter()
 
-	port := getenv("PORT", "5000")
+	port := utils.GetEnv("PORT", "5000")
 	err := r.Run(":" + port)
 	if err != nil {
 		log.Fatalln(err)

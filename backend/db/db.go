@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 	"fmt"
+	"github.com/nusvcf/voting/backend/utils"
 	"log"
 	"math/rand"
-	"os"
 	"sync"
 	"time"
 
@@ -31,21 +31,13 @@ func GetDB() *Database {
 	return singleton
 }
 
-func getenv(key, fallback string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return fallback
-	}
-	return value
-}
-
 func getDbConnStr() string {
-	dbUser := getenv("DB_USER", "vcf-voting")
-	dbName := getenv("DB_NAME", "vcf-voting")
-	dbPass := getenv("DB_PASS", "P!hDTpix9xyH.yxYYFaU7BTivxxncmoiXRbhDBQuHE8-Zkbv*yjwc-V!oLYnK2Rs")
-	dbHost := getenv("INSTANCE_HOST", "127.0.0.1")
-	dbPort := getenv("DB_PORT", "5432")
-	unixSocket := getenv("INSTANCE_UNIX_SOCKET", "")
+	dbUser := utils.GetEnv("DB_USER", "vcf-voting")
+	dbName := utils.GetEnv("DB_NAME", "vcf-voting")
+	dbPass := utils.GetEnv("DB_PASS", "P!hDTpix9xyH.yxYYFaU7BTivxxncmoiXRbhDBQuHE8-Zkbv*yjwc-V!oLYnK2Rs")
+	dbHost := utils.GetEnv("INSTANCE_HOST", "127.0.0.1")
+	dbPort := utils.GetEnv("DB_PORT", "5432")
+	unixSocket := utils.GetEnv("INSTANCE_UNIX_SOCKET", "")
 	if unixSocket != "" {
 		return fmt.Sprintf("dbname=%s user=%s password=%s host=%s", dbName, dbUser, dbPass, unixSocket)
 	}

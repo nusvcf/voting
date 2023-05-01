@@ -7,7 +7,6 @@ import (
 	"github.com/nusvcf/voting/backend/db"
 	"github.com/nusvcf/voting/backend/structs"
 	"github.com/nusvcf/voting/backend/testutils"
-	"github.com/nusvcf/voting/backend/utils"
 	"net/http"
 	"time"
 
@@ -123,7 +122,7 @@ var _ = Describe("Ballots", func() {
 		responseRecorder := serveWithHeader(req, "admin")
 		Expect(responseRecorder.Code).To(Equal(http.StatusOK))
 
-		ballot := utils.GetBallotById(ballotId)
+		ballot := testutils.GetBallotById(ballotId)
 		Expect(time.Since(ballot.Invalidated.Time).Seconds()).To(BeNumerically("<", 1))
 	})
 })
