@@ -2,7 +2,7 @@ package db
 
 import "fmt"
 
-func (d *Database) GetBootstrap() (string, error) {
+func (d *Database) GetBootstrapPassword() (string, error) {
 	var password string
 	err := d.queryRow(queryOpts{
 		SQL:  `SELECT admin_pw_hashed FROM bootstrap LIMIT 1`,
@@ -11,8 +11,17 @@ func (d *Database) GetBootstrap() (string, error) {
 	return password, err
 }
 
+func (d *Database) GetBootstrapId() (string, error) {
+	var id string
+	err := d.queryRow(queryOpts{
+		SQL:  `SELECT id FROM bootstrap LIMIT 1`,
+		Scan: []interface{}{&id},
+	})
+	return id, err
+}
+
 func (d *Database) SetBootstrap(password string) error {
-	pw, _ := d.GetBootstrap()
+	pw, _ := d.GetBootstrapPassword()
 	if pw != "" {
 		return fmt.Errorf("system already bootstrapped")
 	}

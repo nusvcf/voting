@@ -48,7 +48,7 @@ func loginHandler(c *gin.Context) {
 
 	if payload.Username == "admin" {
 		// Handle admin
-		hashedPw, err := db.GetDB().GetBootstrap()
+		hashedPw, err := db.GetDB().GetBootstrapPassword()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

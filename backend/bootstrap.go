@@ -62,7 +62,7 @@ type CheckBootstrapResponse struct {
 
 func isBootstrappedHandler(c *gin.Context) {
 	var resp CheckBootstrapResponse
-	_, err := db.GetDB().GetBootstrap()
+	_, err := db.GetDB().GetBootstrapPassword()
 	if err == nil {
 		resp.IsBootstrapped = true
 	}

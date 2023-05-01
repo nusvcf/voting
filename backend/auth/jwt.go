@@ -3,15 +3,19 @@ package auth
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/nusvcf/voting/backend/db"
 	"time"
 )
 
 var key = []byte("MY-KEY-HERE")
 
 func CreateJWT(userId string, expDuration time.Duration) (string, error) {
+	bootstrapId, _ := db.GetDB().GetBootstrapId()
+
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":  userId,
-		"exp": time.Now().Add(expDuration).Unix(),
+		"id":        userId,
+		"bootstrap": bootstrapId,
+		"exp":       time.Now().Add(expDuration).Unix(),
 	})
 
 	return t.SignedString(key)
@@ -29,6 +33,13 @@ func parseJWT(tokenString string) (string, error) {
 
 	if !token.Valid {
 		return "", fmt.Errorf("invalid token")
+	}
+
+	bootstrapId := claims["bootstrap"].(string)
+	currentBootstrapId, _ := db.GetDB().GetBootstrapId()
+
+	if bootstrapId != currentBootstrapId {
+		return "", fmt.Errorf("incorrect bootstrap id")
 	}
 
 	return claims["id"].(string), nil

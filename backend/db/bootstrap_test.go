@@ -13,7 +13,7 @@ var _ = Describe("DB Bootstrap", func() {
 
 	When("system is not yet bootstrapped", func() {
 		It("returns error when trying to get admin password", func() {
-			pw, err := dbObj.GetBootstrap()
+			pw, err := dbObj.GetBootstrapPassword()
 			Expect(err).ToNot(BeNil())
 			Expect(pw).To(BeEmpty())
 		})
@@ -32,9 +32,15 @@ var _ = Describe("DB Bootstrap", func() {
 		})
 
 		It("returns the password", func() {
-			retrievedPassword, err := dbObj.GetBootstrap()
+			retrievedPassword, err := dbObj.GetBootstrapPassword()
 			Expect(err).To(BeNil())
 			Expect(retrievedPassword).To(Equal(password))
+		})
+
+		It("returns an id", func() {
+			id, err := dbObj.GetBootstrapId()
+			Expect(err).To(BeNil())
+			Expect(id).To(Not(BeEmpty()))
 		})
 
 		It("cannot set again", func() {
@@ -46,7 +52,7 @@ var _ = Describe("DB Bootstrap", func() {
 			err := dbObj.ClearBootstrap()
 			Expect(err).To(BeNil())
 
-			_, err = dbObj.GetBootstrap()
+			_, err = dbObj.GetBootstrapPassword()
 			Expect(err).ToNot(BeNil())
 		})
 	})
