@@ -1,24 +1,30 @@
-import React, {Component} from "react";
+import React, { Component } from "react";
 import BallotModal from "../modals/BallotModal";
 import ResultsModal from "../modals/ResultsModal";
 import LoadingDiv from "./LoadingDiv";
-import {BACKEND_URL, getAuth} from "../../constants";
-import {Voter} from "./VotersPage";
+import { BACKEND_URL, getAuth } from "../../constants";
+import { Voter } from "./VotersPage";
 
 export interface BallotVote {
-  id: string,
-  voterId: string,
-  abstain: boolean,
-  noConfidence: boolean,
-  votedFor?: string[]
+  id: string;
+  voterId: string;
+  abstain: boolean;
+  noConfidence: boolean;
+  votedFor?: string[];
 }
 
 export class Ballot {
-  constructor(public id: string, public position: string, public maxVotes: number, public numValidVoters: number,
-              private created: string, private closed: string | null, private invalidated: string | null,
-              public names: BallotName[], public votes: BallotVote[]) {
-
-  }
+  constructor(
+    public id: string,
+    public position: string,
+    public maxVotes: number,
+    public numValidVoters: number,
+    private created: string,
+    private closed: string | null,
+    private invalidated: string | null,
+    public names: BallotName[],
+    public votes: BallotVote[]
+  ) {}
 
   get isOpen() {
     return this.closed === null;
@@ -29,7 +35,7 @@ export class Ballot {
   }
 
   get percentageVotes() {
-    return 100 * this.votes.length / this.numValidVoters;
+    return (100 * this.votes.length) / this.numValidVoters;
   }
 
   get numVotesInBallot() {
@@ -41,11 +47,11 @@ export class Ballot {
   }
 
   get numAbstain() {
-    return this.votes.filter(x => x.abstain).length;
+    return this.votes.filter((x) => x.abstain).length;
   }
 
   get numNoConfidence() {
-    return this.votes.filter(x => x.noConfidence).length;
+    return this.votes.filter((x) => x.noConfidence).length;
   }
 
   get numNonAbstainVoters() {
@@ -53,12 +59,14 @@ export class Ballot {
   }
 
   get candidateResults(): CandidateResult[] {
-    return this.names.map(x => {
-      const voters = this.votes.filter(v => v.votedFor?.includes(x.id)).map(x => x.voterId);
-      const numVotes = voters.length
-      const denom = this.numNonAbstainVoters
-      const percentageVotes = denom === 0 ? 0 : 100 * numVotes / denom;
-      return {name: x.name, voters, percentageVotes}
+    return this.names.map((x) => {
+      const voters = this.votes
+        .filter((v) => v.votedFor?.includes(x.id))
+        .map((x) => x.voterId);
+      const numVotes = voters.length;
+      const denom = this.numNonAbstainVoters;
+      const percentageVotes = denom === 0 ? 0 : (100 * numVotes) / denom;
+      return { name: x.name, voters, percentageVotes };
     });
   }
 }
@@ -71,14 +79,22 @@ export interface CandidateResult {
 
 export interface BallotName {
   id: string;
-  name: string
+  name: string;
 }
 
-class BallotRow extends Component<{ firstOngoing: boolean, ballot: Ballot, fetchData: () => void, voters: Voter[] }, {showModal: boolean}> {
+class BallotRow extends Component<
+  {
+    firstOngoing: boolean;
+    ballot: Ballot;
+    fetchData: () => void;
+    voters: Voter[];
+  },
+  { showModal: boolean }
+> {
   constructor(props: any) {
     super(props);
     this.state = {
-      showModal: false
+      showModal: false,
     };
   }
 
@@ -86,7 +102,7 @@ class BallotRow extends Component<{ firstOngoing: boolean, ballot: Ballot, fetch
     if (window.confirm("Are you sure you want to close the ballot?")) {
       fetch(BACKEND_URL + "/admin/ballots/" + this.props.ballot.id, {
         method: "POST",
-        headers: {"auth": getAuth()}
+        headers: { auth: getAuth() },
       }).then(this.props.fetchData);
     }
   };
@@ -95,17 +111,17 @@ class BallotRow extends Component<{ firstOngoing: boolean, ballot: Ballot, fetch
     if (window.confirm("Are you sure you want to invalidate the ballot?")) {
       fetch(BACKEND_URL + "/admin/ballots/" + this.props.ballot.id, {
         method: "PUT",
-        headers: {"auth": getAuth()}
+        headers: { auth: getAuth() },
       }).then(this.props.fetchData);
     }
   };
 
   showResults = () => {
-    this.setState({showModal: true});
+    this.setState({ showModal: true });
   };
 
   hideResults = () => {
-    this.setState({showModal: false});
+    this.setState({ showModal: false });
   };
 
   render() {
@@ -114,14 +130,18 @@ class BallotRow extends Component<{ firstOngoing: boolean, ballot: Ballot, fetch
     let status: string;
 
     if (ballot.isOpen) {
-      status = this.props.firstOngoing ? "Ongoing" : 'Pending';
+      status = this.props.firstOngoing ? "Ongoing" : "Pending";
       btns = [
-        <button key={"res"} onClick={this.showResults} className='btn-secondary'>
+        <button
+          key={"res"}
+          onClick={this.showResults}
+          className="btn-secondary"
+        >
           Results
         </button>,
         <button key={"close"} onClick={this.closeBallot}>
           Close Ballot
-        </button>
+        </button>,
       ];
     } else {
       if (ballot.isValid) {
@@ -137,7 +157,7 @@ class BallotRow extends Component<{ firstOngoing: boolean, ballot: Ballot, fetch
             onClick={this.invalidateBallot}
           >
             Invalidate
-          </button>
+          </button>,
         ];
       } else {
         status = "Invalidated";
@@ -148,45 +168,42 @@ class BallotRow extends Component<{ firstOngoing: boolean, ballot: Ballot, fetch
             onClick={this.showResults}
           >
             Results
-          </button>
+          </button>,
         ];
       }
     }
 
-    let names = ballot.candidateResults.map((item: CandidateResult, i: number) => (
-      <li key={i}>
-        {item.name}{" "}
-        <span className="percent-voted">
+    let names = ballot.candidateResults.map(
+      (item: CandidateResult, i: number) => (
+        <li key={i}>
+          {item.name}{" "}
+          <span className="percent-voted">
             ({item.percentageVotes.toFixed(2)}%)
-        </span>
-      </li>
-    ));
+          </span>
+        </li>
+      )
+    );
 
     return (
       <tr>
         <td
           className={ballot.isValid ? "" : "invalid"}
-          style={{fontWeight: "bold"}}
+          style={{ fontWeight: "bold" }}
         >
           {ballot.position}
         </td>
         <td className={ballot.isValid ? "" : "invalid"}>
           <ul>{names}</ul>
         </td>
-        <td className={ballot.isValid ? "" : "invalid"}>
-          {ballot.maxVotes}
-        </td>
+        <td className={ballot.isValid ? "" : "invalid"}>{ballot.maxVotes}</td>
         <td>
-          <span className={"status-" + status.toLowerCase()}>
-              {status}
-          </span>
-          <br/>
+          <span className={"status-" + status.toLowerCase()}>{status}</span>
+          <br />
           <div className="percent-voted">
             {ballot.percentageVotes.toFixed(2)}% voted
-            <br/>
-            {ballot.numValidVoters} valid voters,{" "}
-            {ballot.numVotesInBallot} votes cast, of which{" "}
-            {ballot.numNonAbstainVoters} non-abstain voters
+            <br />
+            {ballot.numValidVoters} valid voters, {ballot.numVotesInBallot}{" "}
+            votes cast, of which {ballot.numNonAbstainVoters} non-abstain voters
           </div>
         </td>
         <td>
@@ -204,11 +221,14 @@ class BallotRow extends Component<{ firstOngoing: boolean, ballot: Ballot, fetch
   }
 }
 
-class BallotsPage extends Component<{ clearState: () => void }, {
-  showModal: boolean,
-  ballots: Ballot[] | null,
-  voters: Voter[] | null
-}> {
+class BallotsPage extends Component<
+  { clearState: () => void },
+  {
+    showModal: boolean;
+    ballots: Ballot[] | null;
+    voters: Voter[] | null;
+  }
+> {
   interval: NodeJS.Timer | null = null;
 
   constructor(props: any) {
@@ -216,7 +236,7 @@ class BallotsPage extends Component<{ clearState: () => void }, {
     this.state = {
       showModal: false,
       ballots: null,
-      voters: null
+      voters: null,
     };
 
     this.fetchData();
@@ -224,13 +244,13 @@ class BallotsPage extends Component<{ clearState: () => void }, {
 
     fetch(BACKEND_URL + "/admin/voters", {
       headers: {
-        "auth": getAuth()
-      }
+        auth: getAuth(),
+      },
     })
-      .then(data => data.json())
+      .then((data) => data.json())
       .then((receivedVoters: Voter[]) => {
-        this.setState({voters: receivedVoters})
-      })
+        this.setState({ voters: receivedVoters });
+      });
   }
 
   componentWillUnmount() {
@@ -240,12 +260,25 @@ class BallotsPage extends Component<{ clearState: () => void }, {
 
   fetchData = () => {
     fetch(BACKEND_URL + "/admin/ballots", {
-      headers: {'auth': getAuth()}
+      headers: { auth: getAuth() },
     })
-      .then(data => data.json())
+      .then((data) => data.json())
       .then((json: any[]) => {
         this.setState({
-          ballots: json.map(x => new Ballot(x.id, x.position, x.maxVotes, x.numValidVoters, x.created, x.closed, x.invalidated, x.names, x.votes)),
+          ballots: json.map(
+            (x) =>
+              new Ballot(
+                x.id,
+                x.position,
+                x.maxVotes,
+                x.numValidVoters,
+                x.created,
+                x.closed,
+                x.invalidated,
+                x.names,
+                x.votes
+              )
+          ),
         });
       })
       .catch(() => {
@@ -254,20 +287,19 @@ class BallotsPage extends Component<{ clearState: () => void }, {
   };
 
   showModal = () => {
-    this.setState({showModal: true});
+    this.setState({ showModal: true });
   };
 
   hideModal = () => {
-    this.setState({showModal: false});
+    this.setState({ showModal: false });
   };
 
   render() {
     if (this.state.voters === null || this.state.ballots === null) {
-      return <LoadingDiv show={true}/>
+      return <LoadingDiv show={true} />;
     }
 
-    let firstOngoingIdx = this.state.ballots.find(x => x.isOpen)?.id;
-
+    let firstOngoingIdx = this.state.ballots.find((x) => x.isOpen)?.id;
 
     let rows = this.state.ballots.map((ballot: Ballot) => {
       return (
@@ -283,18 +315,16 @@ class BallotsPage extends Component<{ clearState: () => void }, {
 
     return (
       <div id="ballots-page">
-        <button onClick={this.showModal}>
-          +&nbsp;&nbsp;Create Ballot
-        </button>
+        <button onClick={this.showModal}>+&nbsp;&nbsp;Create Ballot</button>
         <table>
           <thead>
-          <tr>
-            <th>Position</th>
-            <th>Names</th>
-            <th>Max Votes</th>
-            <th>Status</th>
-            <th>&nbsp;</th>
-          </tr>
+            <tr>
+              <th>Position</th>
+              <th>Names</th>
+              <th>Max Votes</th>
+              <th>Status</th>
+              <th>&nbsp;</th>
+            </tr>
           </thead>
           <tbody>{rows}</tbody>
         </table>

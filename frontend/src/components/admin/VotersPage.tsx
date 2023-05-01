@@ -1,7 +1,7 @@
-import {format, formatDistanceToNow} from "date-fns";
-import React, {useEffect, useState} from "react";
+import { format, formatDistanceToNow } from "date-fns";
+import React, { useEffect, useState } from "react";
 import LoadingDiv from "./LoadingDiv";
-import {BACKEND_URL, getAuth} from "../../constants";
+import { BACKEND_URL, getAuth } from "../../constants";
 
 export interface Voter {
   id: string;
@@ -11,11 +11,13 @@ export interface Voter {
   invalidated?: string;
 }
 
-const INVALIDATION_MESSAGE = "Are you sure you want to invalidate this user?\n\nThey will no longer be able to cast any more votes.";
-const DELETE_MESSAGE = "Are you sure you want to DELETE this user?\n\nThis will remove the user, and remove all past votes cast by them.";
+const INVALIDATION_MESSAGE =
+  "Are you sure you want to invalidate this user?\n\nThey will no longer be able to cast any more votes.";
+const DELETE_MESSAGE =
+  "Are you sure you want to DELETE this user?\n\nThis will remove the user, and remove all past votes cast by them.";
 
-function VoterRow(props: { voter: Voter, fetchData: () => void }) {
-  const invalidClass = props.voter.invalidated ? "invalid hide-on-print " : ""
+function VoterRow(props: { voter: Voter; fetchData: () => void }) {
+  const invalidClass = props.voter.invalidated ? "invalid hide-on-print " : "";
   const [pwHighlighted, setPwHighlighted] = useState(false);
   const [usernameHighlighted, setUsernameHighlighted] = useState(false);
 
@@ -25,8 +27,8 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "auth": getAuth()
-        }
+          auth: getAuth(),
+        },
       }).then(props.fetchData);
     }
   };
@@ -37,65 +39,82 @@ function VoterRow(props: { voter: Voter, fetchData: () => void }) {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "auth": getAuth()
-        }
+          auth: getAuth(),
+        },
       }).then(props.fetchData);
     }
   };
 
   let timestampText: string;
   if (props.voter.invalidated) {
-    timestampText = 'Invalidated on ' + format(new Date(props.voter.invalidated), "d MMM y, HH:mm")
+    timestampText =
+      "Invalidated on " +
+      format(new Date(props.voter.invalidated), "d MMM y, HH:mm");
   } else if (props.voter.lastSeen) {
-    timestampText = 'Last seen ' + formatDistanceToNow(new Date(props.voter.lastSeen)) + ' ago'
+    timestampText =
+      "Last seen " +
+      formatDistanceToNow(new Date(props.voter.lastSeen)) +
+      " ago";
   } else {
-    timestampText = 'Not yet logged in'
+    timestampText = "Not yet logged in";
   }
 
-  const copyToClipboard = (field: 'username' | 'password') => {
-    navigator.clipboard.writeText(props.voter[field])
+  const copyToClipboard = (field: "username" | "password") => {
+    navigator.clipboard.writeText(props.voter[field]);
     switch (field) {
-      case 'username':
-        setUsernameHighlighted(true)
-        setTimeout(() => setUsernameHighlighted(false), 1000)
-        break
-      case 'password':
-        setPwHighlighted(true)
-        setTimeout(() => setPwHighlighted(false), 1000)
+      case "username":
+        setUsernameHighlighted(true);
+        setTimeout(() => setUsernameHighlighted(false), 1000);
+        break;
+      case "password":
+        setPwHighlighted(true);
+        setTimeout(() => setPwHighlighted(false), 1000);
         break;
     }
-  }
+  };
 
-  return <tr className={invalidClass}>
-    <td className='to-strikethrough' onClick={() => copyToClipboard('username')}>
-      <span style={{cursor: 'pointer'}} className={usernameHighlighted ? 'highlight' : ''}>{props.voter.username}</span>
-    </td>
-    <td className='to-strikethrough' onClick={() => copyToClipboard('password')}>
-      <span style={{cursor: 'pointer'}} className={"code " + (pwHighlighted ? 'highlight' : '')} id={`voter-${props.voter.id}-password`}>{props.voter.password}</span>
-    </td>
-    <td>
-      <span
-        className="invalidated-on hide-on-print">{timestampText}</span>
-    </td>
-    <td>
-      <div className="tbl-btns hide-on-print">
-        {!props.voter.invalidated && (
-          <button
-            className="btn-secondary"
-            onClick={invalidateVoter}
-          >
-            Invalidate
-          </button>
-        )}
-        <button
-          className="btn-warn"
-          onClick={deleteVoter}
+  return (
+    <tr className={invalidClass}>
+      <td
+        className="to-strikethrough"
+        onClick={() => copyToClipboard("username")}
+      >
+        <span
+          style={{ cursor: "pointer" }}
+          className={usernameHighlighted ? "highlight" : ""}
         >
-          Delete
-        </button>
-      </div>
-    </td>
-  </tr>;
+          {props.voter.username}
+        </span>
+      </td>
+      <td
+        className="to-strikethrough"
+        onClick={() => copyToClipboard("password")}
+      >
+        <span
+          style={{ cursor: "pointer" }}
+          className={"code " + (pwHighlighted ? "highlight" : "")}
+          id={`voter-${props.voter.id}-password`}
+        >
+          {props.voter.password}
+        </span>
+      </td>
+      <td>
+        <span className="invalidated-on hide-on-print">{timestampText}</span>
+      </td>
+      <td>
+        <div className="tbl-btns hide-on-print">
+          {!props.voter.invalidated && (
+            <button className="btn-secondary" onClick={invalidateVoter}>
+              Invalidate
+            </button>
+          )}
+          <button className="btn-warn" onClick={deleteVoter}>
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
 }
 
 const VotersPage = (props: { clearState: () => void }) => {
@@ -107,14 +126,14 @@ const VotersPage = (props: { clearState: () => void }) => {
   const fetchData = () => {
     return fetch(BACKEND_URL + "/admin/voters", {
       headers: {
-        "auth": getAuth()
-      }
+        auth: getAuth(),
+      },
     })
-      .then(data => data.json())
+      .then((data) => data.json())
       .then((receivedVoters: Voter[]) => {
-        setFetchingData(false)
-        setVoters(receivedVoters)
-        return receivedVoters
+        setFetchingData(false);
+        setVoters(receivedVoters);
+        return receivedVoters;
       })
       .catch(() => {
         props.clearState();
@@ -122,13 +141,12 @@ const VotersPage = (props: { clearState: () => void }) => {
       });
   };
 
-
   const updateAddStart = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddStart(parseInt(e.target.value))
+    setAddStart(parseInt(e.target.value));
   };
 
   const updateAddEnd = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddEnd(parseInt(e.target.value))
+    setAddEnd(parseInt(e.target.value));
   };
 
   const addVoters = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -137,65 +155,62 @@ const VotersPage = (props: { clearState: () => void }) => {
     fetch(BACKEND_URL + "/admin/voters", {
       method: "POST",
       headers: {
-        'auth': getAuth(),
-        "Content-Type": "application/json"
+        auth: getAuth(),
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         start: addStart,
-        end: addEnd
-      })
-    }).then(fetchData).then(updateStartEndIDs);
-
+        end: addEnd,
+      }),
+    })
+      .then(fetchData)
+      .then(updateStartEndIDs);
   };
 
   const updateStartEndIDs = (receivedVoters: Voter[]) => {
     if (receivedVoters.length > 0) {
-      const nextRange = parseInt(receivedVoters[receivedVoters.length - 1].username) + 1;
+      const nextRange =
+        parseInt(receivedVoters[receivedVoters.length - 1].username) + 1;
       setAddStart(nextRange);
       setAddEnd(nextRange);
     }
-  }
+  };
 
   useEffect(() => {
     fetchData().then(updateStartEndIDs);
-    const interval = setInterval(fetchData, 1000)
-    return () => clearInterval(interval)
+    const interval = setInterval(fetchData, 1000);
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
-  if (fetchingData) return <LoadingDiv show={true}/>;
+  if (fetchingData) return <LoadingDiv show={true} />;
 
   return (
     <div id="voters-page">
       <div className="input-group input-group-row hide-on-print">
-        <input
-          type="number"
-          value={addStart}
-          onChange={updateAddStart}
-        />
-        <input
-          type="number"
-          value={addEnd}
-          onChange={updateAddEnd}
-        />
-        <button onClick={addVoters}>
-          +&nbsp;&nbsp;Add Voters
-        </button>
+        <input type="number" value={addStart} onChange={updateAddStart} />
+        <input type="number" value={addEnd} onChange={updateAddEnd} />
+        <button onClick={addVoters}>+&nbsp;&nbsp;Add Voters</button>
       </div>
-      <table id='voters-table'>
+      <table id="voters-table">
         <thead>
-        <tr>
-          <th>Username</th>
-          <th>Password</th>
-          <th><span className='hide-on-print'>Last Seen</span></th>
-          <th>&nbsp;</th>
-        </tr>
+          <tr>
+            <th>Username</th>
+            <th>Password</th>
+            <th>
+              <span className="hide-on-print">Last Seen</span>
+            </th>
+            <th>&nbsp;</th>
+          </tr>
         </thead>
-        <tbody>{voters.map((voter: Voter) =>
-          <VoterRow key={voter.id} voter={voter} fetchData={fetchData}/>)}</tbody>
+        <tbody>
+          {voters.map((voter: Voter) => (
+            <VoterRow key={voter.id} voter={voter} fetchData={fetchData} />
+          ))}
+        </tbody>
       </table>
     </div>
-  )
-}
+  );
+};
 
 export default VotersPage;

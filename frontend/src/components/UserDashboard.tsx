@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
-import {BallotName} from "./admin/BallotsPage";
-import {BACKEND_URL, getAuth} from "../constants";
-import {HeaderBar} from "./user/HeaderBar";
+import React, { useEffect, useState } from "react";
+import { BallotName } from "./admin/BallotsPage";
+import { BACKEND_URL, getAuth } from "../constants";
+import { HeaderBar } from "./user/HeaderBar";
 
 const WelcomeText = () => (
   <div className="waiting-text">
@@ -13,8 +13,7 @@ const WelcomeText = () => (
 const WaitingText = () => (
   <div className="waiting-text">
     <h1>Your vote has been received.</h1>
-    This page will automatically update when the next round of voting
-    starts.
+    This page will automatically update when the next round of voting starts.
   </div>
 );
 
@@ -22,14 +21,18 @@ const NO_CONF_TEXT = "I have no confidence in any of these candidates.";
 const ABSTAIN_TEXT = "I wish to abstain from this round of voting.";
 
 function VotingOption(props: {
-  id: string,
-  text: string,
-  maxVotes: number,
-  selected: boolean,
-  updateVote: () => void
+  id: string;
+  text: string;
+  maxVotes: number;
+  selected: boolean;
+  updateVote: () => void;
 }) {
   let inputType = "checkbox";
-  if (props.text === NO_CONF_TEXT || props.text === ABSTAIN_TEXT || props.maxVotes === 1) {
+  if (
+    props.text === NO_CONF_TEXT ||
+    props.text === ABSTAIN_TEXT ||
+    props.maxVotes === 1
+  ) {
     inputType = "radio";
   }
 
@@ -49,52 +52,56 @@ function VotingOption(props: {
 }
 
 function VotingPage(props: {
-  ballot: UserBallot,
-  setError: (s: string) => void,
-  fetchData: () => void,
-  clearState: () => void,
-  sendVote: (s: VoteCast) => void
+  ballot: UserBallot;
+  setError: (s: string) => void;
+  fetchData: () => void;
+  clearState: () => void;
+  sendVote: (s: VoteCast) => void;
 }) {
-  const [selected, setSelected] = useState<VoteCast>({abstain: false, noConfidence: false, votedFor: []});
+  const [selected, setSelected] = useState<VoteCast>({
+    abstain: false,
+    noConfidence: false,
+    votedFor: [],
+  });
 
   const selectAbstain = () => {
     setSelected({
       abstain: true,
       noConfidence: false,
-      votedFor: []
-    })
-  }
+      votedFor: [],
+    });
+  };
 
   const selectNoConfidence = () => {
     setSelected({
       abstain: false,
       noConfidence: true,
-      votedFor: []
-    })
-  }
+      votedFor: [],
+    });
+  };
 
   const selectName = (nameId: string) => {
-    let nameIds: string[]
+    let nameIds: string[];
 
     if (props.ballot.maxVotes === 1) {
       nameIds = [nameId];
     } else {
       if (selected.votedFor.includes(nameId)) {
-        nameIds = [...selected.votedFor]
-        nameIds.splice(nameIds.indexOf(nameId), 1)
+        nameIds = [...selected.votedFor];
+        nameIds.splice(nameIds.indexOf(nameId), 1);
       } else {
-        nameIds = [...selected.votedFor, nameId]
+        nameIds = [...selected.votedFor, nameId];
       }
     }
 
     setSelected({
       abstain: false,
       noConfidence: false,
-      votedFor: nameIds
-    })
-  }
+      votedFor: nameIds,
+    });
+  };
 
-  let options = props.ballot.names.map(name => (
+  let options = props.ballot.names.map((name) => (
     <VotingOption
       key={name.id}
       id={name.id}
@@ -138,8 +145,11 @@ function VotingPage(props: {
           maxVotes={props.ballot.maxVotes}
         />
       </div>
-      <button onClick={() => props.sendVote(selected)} disabled={selected.votedFor.length > props.ballot.maxVotes}>Send
-        Vote
+      <button
+        onClick={() => props.sendVote(selected)}
+        disabled={selected.votedFor.length > props.ballot.maxVotes}
+      >
+        Send Vote
       </button>
     </div>
   );
@@ -148,14 +158,14 @@ function VotingPage(props: {
 enum Status {
   Welcome,
   Voting,
-  Waiting
+  Waiting,
 }
 
 interface UserBallot {
-  id: string
-  position: string
-  maxVotes: number
-  names: BallotName[]
+  id: string;
+  position: string;
+  maxVotes: number;
+  names: BallotName[];
 }
 
 interface VoteCast {
@@ -164,40 +174,47 @@ interface VoteCast {
   votedFor: string[];
 }
 
-const UserDashboard = (props: { clearState: () => void, setError: (s: string) => void }) => {
+const UserDashboard = (props: {
+  clearState: () => void;
+  setError: (s: string) => void;
+}) => {
   const [status, setStatus] = useState(Status.Welcome);
   const [ballot, setBallot] = useState<UserBallot | null>(null);
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 1000)
-    return () => clearInterval(interval)
+    const interval = setInterval(fetchData, 1000);
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const fetchData = () => {
     fetch(BACKEND_URL + "/user/ballot", {
-      headers: {"auth": getAuth()}
+      headers: { auth: getAuth() },
     })
-      .then(data => data.json())
+      .then((data) => data.json())
       .then((data: UserBallot) => {
-        if (data.position !== '') {
+        if (data.position !== "") {
           setStatus(Status.Voting);
         } else if (status !== Status.Welcome || ballot !== null) {
-          setStatus(Status.Waiting)
+          setStatus(Status.Waiting);
         }
 
-        setBallot(data)
+        setBallot(data);
       })
-      .catch(error => {
-        console.log(error)
+      .catch((error) => {
+        console.log(error);
         props.clearState();
       });
   };
 
   const sendVote = (selected: VoteCast) => {
     if (ballot === null) return;
-    if (!selected.abstain && !selected.noConfidence && selected.votedFor.length === 0) {
+    if (
+      !selected.abstain &&
+      !selected.noConfidence &&
+      selected.votedFor.length === 0
+    ) {
       props.setError("Please select an option.");
       return;
     }
@@ -210,10 +227,10 @@ const UserDashboard = (props: { clearState: () => void, setError: (s: string) =>
     fetch(BACKEND_URL + "/user/ballot/" + ballot.id, {
       method: "POST",
       headers: {
-        "auth": getAuth(),
-        "Content-Type": "application/json"
+        auth: getAuth(),
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(selected)
+      body: JSON.stringify(selected),
     })
       .then(() => {
         setStatus(Status.Waiting);
@@ -228,17 +245,21 @@ const UserDashboard = (props: { clearState: () => void, setError: (s: string) =>
   };
 
   if (status === Status.Welcome || ballot === null) {
-    return <div id='user'>
-      <HeaderBar clearState={props.clearState} />
-      <WelcomeText/>
-    </div>
+    return (
+      <div id="user">
+        <HeaderBar clearState={props.clearState} />
+        <WelcomeText />
+      </div>
+    );
   }
 
-  if (status === Status.Waiting || ballot?.position === '') {
-    return <div id='user'>
-      <HeaderBar clearState={props.clearState} />
-      <WaitingText/>
-    </div>
+  if (status === Status.Waiting || ballot?.position === "") {
+    return (
+      <div id="user">
+        <HeaderBar clearState={props.clearState} />
+        <WaitingText />
+      </div>
+    );
   }
 
   return (
@@ -253,6 +274,6 @@ const UserDashboard = (props: { clearState: () => void, setError: (s: string) =>
       />
     </div>
   );
-}
+};
 
 export default UserDashboard;
