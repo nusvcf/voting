@@ -1,8 +1,5 @@
 import React, { Component } from "react";
-import WebFont from "webfontloader";
-
 import "./styles/App.scss";
-
 import LoginForm from "./components/LoginForm";
 import Alert from "./components/Alert";
 import AdminDashboard from "./components/AdminDashboard";
@@ -10,15 +7,20 @@ import UserDashboard from "./components/UserDashboard";
 import { BootstrapForm } from "./components/BootstrapForm";
 import { BACKEND_URL, getAuth } from "./constants";
 
-class App extends Component {
-  constructor() {
-    super();
-
-    WebFont.load({
-      google: {
-        families: ["Karla:400,700"],
-      },
-    });
+class App extends Component<
+  {},
+  {
+    loading: boolean;
+    bootstrapped: boolean;
+    loggedIn: boolean;
+    userType: string;
+    error: string;
+    errorVisible: boolean;
+    errorTimeout: any;
+  }
+> {
+  constructor(props: {}) {
+    super(props);
 
     this.state = {
       loading: true,
@@ -50,7 +52,7 @@ class App extends Component {
       });
   }
 
-  login = (userType) => {
+  login = (userType: string) => {
     this.setState({
       loggedIn: true,
       userType: userType,
@@ -61,10 +63,10 @@ class App extends Component {
     this.setState({
       loggedIn: false,
     });
-    this.setError("You have been logged out. Please log in again to continue.");
+    this.setError("You have been logged out.");
   };
 
-  setError = (message) => {
+  setError = (message: string) => {
     this.setState({
       error: message,
       errorVisible: true,
