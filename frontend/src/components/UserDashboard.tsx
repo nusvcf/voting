@@ -17,7 +17,7 @@ const WaitingText = () => (
   </div>
 );
 
-const NO_CONF_TEXT = "I have no confidence in any of these candidates.";
+const NO_CONF_TEXT = "I have no confidence in any of these options.";
 const ABSTAIN_TEXT = "I wish to abstain from this round of voting.";
 
 function VotingOption(props: {
@@ -118,12 +118,12 @@ function VotingPage(props: {
       </div>
       {props.ballot.maxVotes > 1 && (
         <div>
-          You can select up to <b>{props.ballot.maxVotes}</b> names.
+          You can select up to <b>{props.ballot.maxVotes}</b> options.
         </div>
       )}
       {props.ballot.maxVotes === 1 && (
         <div>
-          You can only select <b>1</b> name.
+          You can only select <b>1</b> option.
         </div>
       )}
       <div id="options">
@@ -220,7 +220,7 @@ const UserDashboard = (props: {
     }
 
     if (selected.votedFor.length > ballot.maxVotes) {
-      props.setError("You have selected too many names.");
+      props.setError("You have selected too many options.");
       return;
     }
 
