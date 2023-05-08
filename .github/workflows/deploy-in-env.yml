@@ -98,7 +98,7 @@ jobs:
           service: vcf-voting
           region: asia-southeast1
           source: backend
-          flags: "--set-cloudsql-instances=nusvcf:asia-southeast1:vcf-voting --max-instances=5 --memory=128Mi --allow-unauthenticated"
+          flags: "--set-cloudsql-instances=nusvcf:asia-southeast1:vcf-voting --allow-unauthenticated"
           env_vars: |
             INSTANCE_UNIX_SOCKET=/cloudsql/nusvcf:asia-southeast1:vcf-voting
             DB_NAME=vcf-voting
