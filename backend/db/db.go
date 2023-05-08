@@ -51,7 +51,7 @@ func (d *Database) init() {
 	}
 
 	config.MaxConns = 3
-	config.MinConns = 1
+	config.MinConns = 0
 
 	d.Pool, err = pgxpool.ConnectConfig(context.Background(), config)
 	if err != nil {
