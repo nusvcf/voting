@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
 	"github.com/nusvcf/voting/backend/db"
@@ -16,6 +17,8 @@ func Middleware(forAdmin bool) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		userId, err := GetUserIdFromHeader(c)
 		if err != nil {
+			fmt.Println("err1")
+			fmt.Println(err)
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -40,11 +43,14 @@ func Middleware(forAdmin bool) func(c *gin.Context) {
 
 			valid, err := db.GetDB().CheckIfVoterIdValid(id)
 			if err != nil {
+				fmt.Println("err2")
+				fmt.Println(err)
 				c.AbortWithStatus(http.StatusInternalServerError)
 				return
 			}
 
 			if !valid {
+				fmt.Println("invalid token")
 				c.AbortWithStatus(http.StatusUnauthorized)
 				return
 			}

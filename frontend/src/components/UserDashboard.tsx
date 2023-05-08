@@ -183,7 +183,7 @@ const UserDashboard = (props: {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 1000);
+    const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
