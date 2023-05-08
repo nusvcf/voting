@@ -241,7 +241,7 @@ class BallotsPage extends Component<
     };
 
     this.fetchData();
-    this.interval = setInterval(this.fetchData, 2000);
+    this.interval = setInterval(this.fetchData, 5000);
 
     fetch(BACKEND_URL + "/admin/voters", {
       headers: {

@@ -94,11 +94,11 @@ class BallotModal extends Component<BallotModalProps, BallotModalState> {
         auth: getAuth(),
       },
       body: JSON.stringify(payload),
+    }).then(() => {
+      this.setState({ position: "", maxVotes: 1, names: [], currentName: "" });
+      this.props.hideModal();
+      this.props.onSubmit();
     });
-
-    this.setState({ position: "", maxVotes: 1, names: [], currentName: "" });
-    this.props.hideModal();
-    this.props.onSubmit();
   };
 
   render() {
