@@ -66,7 +66,7 @@ export class Ballot {
       const numVotes = voters.length;
       const denom = this.numNonAbstainVoters;
       const percentageVotes = denom === 0 ? 0 : (100 * numVotes) / denom;
-      return { name: x.name, voters, percentageVotes };
+      return { name: x.name, voters, numVotes, percentageVotes };
     });
   }
 }
@@ -75,6 +75,7 @@ export interface CandidateResult {
   name: string;
   voters: string[];
   percentageVotes: number;
+  numVotes: number;
 }
 
 export interface BallotName {
@@ -178,7 +179,7 @@ class BallotRow extends Component<
         <li key={i}>
           {item.name}{" "}
           <span className="percent-voted">
-            ({item.percentageVotes.toFixed(2)}%)
+            ({item.numVotes} votes, {item.percentageVotes.toFixed(2)}%)
           </span>
         </li>
       )
