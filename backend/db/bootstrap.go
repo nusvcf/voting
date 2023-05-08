@@ -11,14 +11,14 @@ func (d *Database) GetBootstrapPassword() (string, error) {
 	return password, err
 }
 
-func (d *Database) GetBootstrapId() (string, error) {
-	var id string
-	err := d.queryRow(queryOpts{
-		SQL:  `SELECT id FROM bootstrap LIMIT 1`,
-		Scan: []interface{}{&id},
-	})
-	return id, err
-}
+//func (d *Database) GetBootstrapId() (string, error) {
+//	var id string
+//	err := d.queryRow(queryOpts{
+//		SQL:  `SELECT id FROM bootstrap LIMIT 1`,
+//		Scan: []interface{}{&id},
+//	})
+//	return id, err
+//}
 
 func (d *Database) SetBootstrap(password string) error {
 	pw, _ := d.GetBootstrapPassword()

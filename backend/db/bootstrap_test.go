@@ -37,11 +37,11 @@ var _ = Describe("DB Bootstrap", func() {
 			Expect(retrievedPassword).To(Equal(password))
 		})
 
-		It("returns an id", func() {
-			id, err := dbObj.GetBootstrapId()
-			Expect(err).To(BeNil())
-			Expect(id).To(Not(BeEmpty()))
-		})
+		//It("returns an id", func() {
+		//	id, err := dbObj.GetBootstrapId()
+		//	Expect(err).To(BeNil())
+		//	Expect(id).To(Not(BeEmpty()))
+		//})
 
 		It("cannot set again", func() {
 			err := dbObj.SetBootstrap("another-password")
