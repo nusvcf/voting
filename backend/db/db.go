@@ -50,7 +50,7 @@ func (d *Database) init() {
 		log.Fatalln("Unable to parse database config:", err)
 	}
 
-	config.MaxConns = 5
+	config.MaxConns = 3
 	config.MinConns = 1
 
 	d.Pool, err = pgxpool.ConnectConfig(context.Background(), config)
